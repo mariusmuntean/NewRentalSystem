@@ -3,6 +3,7 @@ package de.tum.os.drs.client;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
@@ -13,8 +14,10 @@ import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.view.client.ListDataProvider;
 
+import de.tum.os.drs.client.model.DisplayableRenter;
 import de.tum.os.drs.client.model.PersistentDevice;
 import de.tum.os.drs.client.model.PersistentEvent;
+import de.tum.os.drs.client.model.SerializableRenter;
 import de.tum.os.drs.client.view.MainPageBinder;
 
 /**
@@ -35,17 +38,19 @@ public class NewRentalSystem implements EntryPoint {
 
 	ListDataProvider<PersistentEvent> eventsHistoryDataProvider = new ListDataProvider<PersistentEvent>();
 	ListDataProvider<PersistentEvent> eventsFilteredHistoryDataProvider = new ListDataProvider<PersistentEvent>();
+	
+	ListStore<DisplayableRenter> displayableRentersListStore = new ListStore<DisplayableRenter>();
 
 	/**
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
 		serviceDef.setServiceEntryPoint(addr);
-		fetchData();
+		
 		mainPageBinder = new MainPageBinder(availableDevicesDataProvider,
 				unavailableDevicesDataProvider, eventsHistoryDataProvider,
-				eventsFilteredHistoryDataProvider);
-		// RootPanel.get().add(mainPageBinder);
+				eventsFilteredHistoryDataProvider, displayableRentersListStore);
+		fetchData();
 		
 		RootLayoutPanel.get().add(mainPageBinder);
 	}
@@ -54,7 +59,40 @@ public class NewRentalSystem implements EntryPoint {
 		fetchAvailableDevices();
 		fetchUnavailableDevices();
 		fetchEventsHistory();
+		
+		fetchAllRenters();
 
+	}
+
+	private void fetchAllRenters() {
+		AsyncCallback<ArrayList<SerializableRenter>> callback = new AsyncCallback<ArrayList<SerializableRenter>>() {
+			
+			@Override
+			public void onSuccess(ArrayList<SerializableRenter> result) {
+				updateAllRenters(result);
+				
+			}
+			
+			@Override
+			public void onFailure(Throwable caught) {
+				// TODO Auto-generated method stub
+				
+			}
+		};
+		service.getAllRenters(callback);
+	}
+
+	protected void updateAllRenters(ArrayList<SerializableRenter> result) {
+		displayableRentersListStore.removeAll();
+		if(result!= null && result.size()>0)
+		{
+			for(SerializableRenter sr:result){
+				displayableRentersListStore.add(new DisplayableRenter(sr.getName(), sr.getMatriculationNumber()));
+			}
+		}
+		
+//		displayableRentersListStore
+		
 	}
 
 	private void fetchEventsHistory() {
@@ -113,7 +151,9 @@ public class NewRentalSystem implements EntryPoint {
 		}
 
 		unavailableDevicesDataProvider.refresh();
-
+		
+		if(mainPageBinder!= null)
+			mainPageBinder.setRentedVsAvailable(availableDevicesDataProvider.getList().size(), unavailableDevicesDataProvider.getList().size());
 	}
 
 	private void fetchAvailableDevices() {
@@ -140,6 +180,8 @@ public class NewRentalSystem implements EntryPoint {
 		}
 
 		availableDevicesDataProvider.refresh();
-
+		
+		if(mainPageBinder!= null)
+			mainPageBinder.setRentedVsAvailable(availableDevicesDataProvider.getList().size(), unavailableDevicesDataProvider.getList().size());
 	}
 }

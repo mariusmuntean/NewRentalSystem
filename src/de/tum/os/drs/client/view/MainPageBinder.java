@@ -3,9 +3,20 @@ package de.tum.os.drs.client.view;
 import java.util.Comparator;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Style.HideMode;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.EventType;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.layout.client.Layout.Alignment;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -17,6 +28,8 @@ import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.RadioButton;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
@@ -30,7 +43,8 @@ import de.tum.os.drs.client.model.DisplayableRenter;
 import de.tum.os.drs.client.model.PersistentDevice;
 import de.tum.os.drs.client.model.PersistentEvent;
 
-public class MainPageBinder extends Composite implements HasText {
+public class MainPageBinder extends Composite implements HasText, ClickHandler,
+		Listener<BaseEvent>, ChangeHandler {
 
 	private static MainPageBinderUiBinder uiBinder = GWT
 			.create(MainPageBinderUiBinder.class);
@@ -63,11 +77,33 @@ public class MainPageBinder extends Composite implements HasText {
 	@UiField
 	HorizontalPanel hPanelOverview;
 
+	@UiField
+	RadioButton rBtnOverview, rBtnRent, rBtnReturn, rBtnHistory, rBtnManage;
+
 	PieChart pChartRentedVsAvailable;
+
+	@UiField(provided = true)
+	ComboBox<DisplayableRenter> cBoxRentRegisteredStudentName;
+
+	@UiField(provided = true)
+	ComboBox<DisplayableRenter> cBoxRentRegisteredStudentMatriculation;
+
+	@UiField
+	TextBox tBoxRentNewStudentName;
+
+	@UiField
+	TextBox tBoxRentNewStudentEmail;
+
+	@UiField
+	TextBox tBoxRentNewStudentPhone;
+
+	@UiField
+	TextBox tBoxRentNewStudentMatric;
+
 	/*
 	 * Stores region
 	 */
-	private ListStore<DisplayableRenter> displayableRentersListStore;
+	private ListStore<DisplayableRenter> displayableRentersListStore = new ListStore<DisplayableRenter>();
 
 	/*
 	 * Data providers
@@ -77,20 +113,29 @@ public class MainPageBinder extends Composite implements HasText {
 	private ListDataProvider<PersistentEvent> eventsHistoryDataProvider;
 	private ListDataProvider<PersistentEvent> eventsFilteredHistoryDataProvider;
 
+	final String rentStudentComboTemplate = new String("<table>"
+			+ "<tr><td>{name}</td></tr>" + "<tr><td>{matriculation}</td></tr>"
+			+ "</table>");
+
 	public MainPageBinder(
 			ListDataProvider<PersistentDevice> availableDevicesDataProvider,
 			ListDataProvider<PersistentDevice> unavailableDevicesDataProvider,
 			ListDataProvider<PersistentEvent> eventsHistoryDataProvider,
-			ListDataProvider<PersistentEvent> eventsFilteredHistoryDataProvider) {
+			ListDataProvider<PersistentEvent> eventsFilteredHistoryDataProvider,
+			ListStore<DisplayableRenter> displayableRentersListStore) {
 
 		this.availableDevicesDataProvider = availableDevicesDataProvider;
 		this.unavailableDevicesDataProvider = unavailableDevicesDataProvider;
 		this.eventsHistoryDataProvider = eventsHistoryDataProvider;
 		this.eventsFilteredHistoryDataProvider = eventsFilteredHistoryDataProvider;
+		this.displayableRentersListStore = displayableRentersListStore;
 
 		instantiateControls();
 		initWidget(uiBinder.createAndBindUi(this));
+		wireUpControls();
+
 		injectPieChart();
+
 		deckPanelActualView.showWidget(0);
 	}
 
@@ -101,14 +146,38 @@ public class MainPageBinder extends Composite implements HasText {
 	}
 
 	private void instantiateControls() {
-		displayableRentersListStore = new ListStore<DisplayableRenter>();
-		// cBoxRegisteredStudent = new ComboBox<DisplayableRenter>();
-		// cBoxRegisteredStudent.setStore(displayableRentersListStore);
-
+		// Overview page
 		this.tableAvailableDevices = getDevicesTableFromDataprovider(availableDevicesDataProvider);
 		this.tableUnavailableDevices = getDevicesTableFromDataprovider(unavailableDevicesDataProvider);
-
 		this.tableHistoryOverview = getCellTableHistory(eventsHistoryDataProvider);
+
+		// Rent page
+		cBoxRentRegisteredStudentName = new ComboBox<DisplayableRenter>();
+		// cBoxRentRegisteredStudentName.setTemplate(rentStudentComboTemplate);
+		cBoxRentRegisteredStudentName.setStore(displayableRentersListStore);
+		cBoxRentRegisteredStudentName.setTriggerAction(TriggerAction.ALL);
+		cBoxRentRegisteredStudentName.setHideMode(HideMode.OFFSETS);
+		cBoxRentRegisteredStudentName.setHideTrigger(false);
+
+		cBoxRentRegisteredStudentMatriculation = new ComboBox<DisplayableRenter>();
+		cBoxRentRegisteredStudentMatriculation.setTemplate(rentStudentComboTemplate);
+		cBoxRentRegisteredStudentMatriculation.setStore(displayableRentersListStore);
+		cBoxRentRegisteredStudentMatriculation.setTriggerAction(TriggerAction.ALL);
+		cBoxRentRegisteredStudentMatriculation.setHideTrigger(false);
+	}
+
+	private void wireUpControls() {
+		// Radio buttons for changing between pages
+		rBtnHistory.addClickHandler(this);
+		rBtnManage.addClickHandler(this);
+		rBtnOverview.addClickHandler(this);
+		rBtnRent.addClickHandler(this);
+		rBtnReturn.addClickHandler(this);
+
+		// Rent page
+		cBoxRentRegisteredStudentMatriculation.addListener(Events.OnChange, this);
+		cBoxRentRegisteredStudentName.addListener(Events.OnChange, this);
+		tBoxRentNewStudentEmail.addChangeHandler(this);
 
 	}
 
@@ -116,7 +185,7 @@ public class MainPageBinder extends Composite implements HasText {
 		DataTable data = getDevicePieChartData(4, 4);
 		PieOptions options = getDevicePieChartOptions(400, 300);
 		pChartRentedVsAvailable = new PieChart(data, options);
-		
+
 		hPanelOverview.insert(pChartRentedVsAvailable, 0);
 		hPanelOverview.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 	}
@@ -427,6 +496,12 @@ public class MainPageBinder extends Composite implements HasText {
 		return newTable;
 	}
 
+	public void setRentedVsAvailable(int availableDevices, int rentedDevices) {
+		DataTable newData = getDevicePieChartData(availableDevices, rentedDevices);
+		PieOptions options = getDevicePieChartOptions(400, 300);
+		pChartRentedVsAvailable.draw(newData, options);
+	}
+
 	@Override
 	public String getText() {
 		// TODO Auto-generated method stub
@@ -439,4 +514,71 @@ public class MainPageBinder extends Composite implements HasText {
 
 	}
 
+	@Override
+	public void onClick(ClickEvent event) {
+		Widget sender = null;
+		try {
+			sender = (Widget) event.getSource();
+		} catch (Exception e) {
+
+		}
+		if (sender == null)
+			return;
+
+		// A little unsafe. Make sure there really exist enough widgets such that the index is right.
+		if (sender == rBtnOverview)
+			deckPanelActualView.showWidget(0);
+		if (sender == rBtnRent)
+			deckPanelActualView.showWidget(1);
+		if (sender == rBtnReturn)
+			deckPanelActualView.showWidget(2);
+		if (sender == rBtnHistory)
+			deckPanelActualView.showWidget(3);
+		if (sender == rBtnManage)
+			deckPanelActualView.showWidget(4);
+
+	}
+
+	@Override
+	public void handleEvent(BaseEvent be) {
+		Object sender = be.getSource();
+		if (be.getType() == Events.OnChange) {
+			if (sender == cBoxRentRegisteredStudentMatriculation) {
+				cBoxRentRegisteredStudentName
+						.setValue(cBoxRentRegisteredStudentMatriculation.getSelection()
+								.get(0));
+				resetNewStudentFields();
+			}
+			if (sender == cBoxRentRegisteredStudentName) {
+				cBoxRentRegisteredStudentMatriculation
+						.setValue(cBoxRentRegisteredStudentName.getSelection().get(0));
+				resetNewStudentFields();
+			}
+		}
+
+	}
+
+	private void resetNewStudentFields() {
+		tBoxRentNewStudentEmail.setText("");
+		tBoxRentNewStudentMatric.setText("");
+		tBoxRentNewStudentName.setText("");
+		tBoxRentNewStudentPhone.setText("");
+	}
+
+	@Override
+	public void onChange(ChangeEvent event) {
+		Object sender = event.getSource();
+		if (sender == tBoxRentNewStudentEmail || sender == tBoxRentNewStudentMatric
+				|| sender == tBoxRentNewStudentName || sender == tBoxRentNewStudentPhone) {
+			
+			resetSelectedStudent();
+		}
+
+	}
+
+	private void resetSelectedStudent() {
+		cBoxRentRegisteredStudentMatriculation.setRawValue("");
+		cBoxRentRegisteredStudentName.setRawValue("");
+		
+	}
 }
