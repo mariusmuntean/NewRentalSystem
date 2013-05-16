@@ -97,6 +97,7 @@
 												<g:VerticalPanel>
 													<extGwt:ComboBox ui:field="cBoxRentRegisteredStudentName"
 														loadingText="Searching ..." forceSelection="true"
+														hideTrigger="false" shim="true"
 														autoHeight="true" autoWidth="true" selectOnFocus="true"
 														typeAhead="true" emptyText="Type a name" stateful="true"
 														displayField="name">

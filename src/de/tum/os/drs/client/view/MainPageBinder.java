@@ -153,17 +153,12 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 
 		// Rent page
 		cBoxRentRegisteredStudentName = new ComboBox<DisplayableRenter>();
-		// cBoxRentRegisteredStudentName.setTemplate(rentStudentComboTemplate);
 		cBoxRentRegisteredStudentName.setStore(displayableRentersListStore);
 		cBoxRentRegisteredStudentName.setTriggerAction(TriggerAction.ALL);
-		cBoxRentRegisteredStudentName.setHideMode(HideMode.OFFSETS);
-		cBoxRentRegisteredStudentName.setHideTrigger(false);
 
 		cBoxRentRegisteredStudentMatriculation = new ComboBox<DisplayableRenter>();
-		cBoxRentRegisteredStudentMatriculation.setTemplate(rentStudentComboTemplate);
 		cBoxRentRegisteredStudentMatriculation.setStore(displayableRentersListStore);
 		cBoxRentRegisteredStudentMatriculation.setTriggerAction(TriggerAction.ALL);
-		cBoxRentRegisteredStudentMatriculation.setHideTrigger(false);
 	}
 
 	private void wireUpControls() {
@@ -570,7 +565,6 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		Object sender = event.getSource();
 		if (sender == tBoxRentNewStudentEmail || sender == tBoxRentNewStudentMatric
 				|| sender == tBoxRentNewStudentName || sender == tBoxRentNewStudentPhone) {
-			
 			resetSelectedStudent();
 		}
 
