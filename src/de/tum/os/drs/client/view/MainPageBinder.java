@@ -1,5 +1,6 @@
 package de.tum.os.drs.client.view;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -10,6 +11,7 @@ import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.ListView;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.core.client.GWT;
@@ -39,6 +41,7 @@ import com.google.gwt.visualization.client.visualizations.corechart.PieChart.Pie
 import com.google.gwt.visualization.client.visualizations.corechart.TextStyle;
 // import com.google.gwt.visualization.client.visualizations.corechart.PieChart;
 
+import de.tum.os.drs.client.model.DisplayableDevice;
 import de.tum.os.drs.client.model.DisplayableRenter;
 import de.tum.os.drs.client.model.PersistentDevice;
 import de.tum.os.drs.client.model.PersistentEvent;
@@ -99,11 +102,19 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 
 	@UiField
 	TextBox tBoxRentNewStudentMatric;
+	
+	@UiField(provided=true)
+	ComboBox<DisplayableDevice> cBoxRentSelectDevice;
+	
+	@UiField(provided=true)
+	ListView<DisplayableDevice> lstViewRentSelectedDevices;
 
 	/*
 	 * Stores region
 	 */
 	private ListStore<DisplayableRenter> displayableRentersListStore = new ListStore<DisplayableRenter>();
+	private ListStore<DisplayableDevice> availableDevicesListStore = new ListStore<DisplayableDevice>();
+	private ListStore<DisplayableDevice> selectedDevicesListStore = new ListStore<DisplayableDevice>();
 
 	/*
 	 * Data providers
@@ -116,19 +127,28 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	final String rentStudentComboTemplate = new String("<table>"
 			+ "<tr><td>{name}</td></tr>" + "<tr><td>{matriculation}</td></tr>"
 			+ "</table>");
+	
+	final String displayableDeviceTemplate = new String(
+			"<table>"
+			+ "<tr>"
+			+ "<td rowspan=\"2\"><img src=\"images/devices/{imgName}\" width=\"80\" height=\"80\"></td>"
+			+ "<td>{name}</td>" + "</tr>" + "<tr>" + "<td>{imei}</td>" + "</tr>"
+			+ "</table>");
 
 	public MainPageBinder(
 			ListDataProvider<PersistentDevice> availableDevicesDataProvider,
 			ListDataProvider<PersistentDevice> unavailableDevicesDataProvider,
 			ListDataProvider<PersistentEvent> eventsHistoryDataProvider,
 			ListDataProvider<PersistentEvent> eventsFilteredHistoryDataProvider,
-			ListStore<DisplayableRenter> displayableRentersListStore) {
+			ListStore<DisplayableRenter> displayableRentersListStore,
+			ListStore<DisplayableDevice> availableDevicesListStore) {
 
 		this.availableDevicesDataProvider = availableDevicesDataProvider;
 		this.unavailableDevicesDataProvider = unavailableDevicesDataProvider;
 		this.eventsHistoryDataProvider = eventsHistoryDataProvider;
 		this.eventsFilteredHistoryDataProvider = eventsFilteredHistoryDataProvider;
 		this.displayableRentersListStore = displayableRentersListStore;
+		this.availableDevicesListStore = availableDevicesListStore;
 
 		instantiateControls();
 		initWidget(uiBinder.createAndBindUi(this));
@@ -153,12 +173,24 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 
 		// Rent page
 		cBoxRentRegisteredStudentName = new ComboBox<DisplayableRenter>();
+		cBoxRentRegisteredStudentName.setSimpleTemplate(rentStudentComboTemplate);
 		cBoxRentRegisteredStudentName.setStore(displayableRentersListStore);
 		cBoxRentRegisteredStudentName.setTriggerAction(TriggerAction.ALL);
 
 		cBoxRentRegisteredStudentMatriculation = new ComboBox<DisplayableRenter>();
+		cBoxRentRegisteredStudentMatriculation.setSimpleTemplate(rentStudentComboTemplate);
 		cBoxRentRegisteredStudentMatriculation.setStore(displayableRentersListStore);
 		cBoxRentRegisteredStudentMatriculation.setTriggerAction(TriggerAction.ALL);
+		
+		cBoxRentSelectDevice = new ComboBox<DisplayableDevice>();
+		cBoxRentSelectDevice.setSimpleTemplate(displayableDeviceTemplate);
+		cBoxRentSelectDevice.setStore(availableDevicesListStore);
+		cBoxRentSelectDevice.setTriggerAction(TriggerAction.ALL);
+		
+		lstViewRentSelectedDevices = new ListView<DisplayableDevice>();
+		lstViewRentSelectedDevices.setSimpleTemplate(displayableDeviceTemplate);
+//		selectedDevicesListStore.add(new ArrayList<DisplayableDevice>());
+		lstViewRentSelectedDevices.setStore(selectedDevicesListStore);
 	}
 
 	private void wireUpControls() {

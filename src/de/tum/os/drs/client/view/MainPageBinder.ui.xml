@@ -3,7 +3,9 @@
 	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:cell="urn:import:com.google.gwt.user.cellview.client"
 	xmlns:viz="urn:import:com.google.gwt.visualization.client.visualizations.corechart"
 	xmlns:extChart="urn:import:com.extjs.gxt.charts.client.model.charts"
-	xmlns:extGwt="urn:import:com.extjs.gxt.ui.client.widget.form">
+	xmlns:extGwt="urn:import:com.extjs.gxt.ui.client.widget.form"
+	xmlns:extGwtBtn="urn:import:com.extjs.gxt.ui.client.widget.button"
+	xmlns:extGwtWgt="urn:import:com.extjs.gxt.ui.client.widget">
 	<ui:style>
 		
 	</ui:style>
@@ -97,10 +99,9 @@
 												<g:VerticalPanel>
 													<extGwt:ComboBox ui:field="cBoxRentRegisteredStudentName"
 														loadingText="Searching ..." forceSelection="true"
-														hideTrigger="false" shim="true"
-														autoHeight="true" autoWidth="true" selectOnFocus="true"
-														typeAhead="true" emptyText="Type a name" stateful="true"
-														displayField="name">
+														hideTrigger="false" shim="true" autoHeight="true"
+														autoWidth="true" selectOnFocus="true" typeAhead="true"
+														emptyText="Type a name" stateful="true" displayField="name">
 													</extGwt:ComboBox>
 													<g:cell>
 														<g:Label text="or" horizontalAlignment="ALIGN_CENTER" />
@@ -148,6 +149,29 @@
 													</g:row>
 												</g:Grid>
 											</g:CaptionPanel>
+										</g:customCell>
+									</g:row>
+								</g:Grid>
+							</g:CaptionPanel>
+						</g:cell>
+						<g:cell>
+							<g:CaptionPanel>
+								<g:Grid>
+									<g:row>
+										<g:customCell>
+											<g:Label text="Select an available device"></g:Label>
+										</g:customCell>
+										<g:customCell>
+											<extGwt:ComboBox ui:field="cBoxRentSelectDevice"
+												width="250" emptyText="Type a device name" displayField="name"
+												typeAhead="true" selectOnFocus="true"></extGwt:ComboBox>
+										</g:customCell>
+										<g:customCell>
+											<extGwtBtn:Button text="Rent"></extGwtBtn:Button>
+										</g:customCell>
+										<g:customCell>
+											<extGwtWgt:ListView ui:field="lstViewRentSelectedDevices" width="300" height="350"
+												></extGwtWgt:ListView>
 										</g:customCell>
 									</g:row>
 								</g:Grid>

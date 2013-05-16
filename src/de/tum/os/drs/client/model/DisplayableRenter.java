@@ -1,8 +1,10 @@
 package de.tum.os.drs.client.model;
 
+import java.io.Serializable;
+
 import com.extjs.gxt.ui.client.data.BaseModelData;
 
-public class DisplayableRenter extends BaseModelData {
+public class DisplayableRenter extends BaseModelData implements Serializable{
 
 	public DisplayableRenter() {
 

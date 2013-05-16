@@ -10,6 +10,10 @@ margin-left:auto;
 margin-right:auto;
 }
 
+captionPanelStyle{
+	margin: 5px;
+}
+
 .sendButton {
   display: block;
   font-size: 16pt;

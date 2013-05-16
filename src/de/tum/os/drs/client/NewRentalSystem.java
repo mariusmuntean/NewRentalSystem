@@ -2,6 +2,7 @@ package de.tum.os.drs.client;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.google.gwt.core.client.EntryPoint;
@@ -14,6 +15,7 @@ import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.view.client.ListDataProvider;
 
+import de.tum.os.drs.client.model.DisplayableDevice;
 import de.tum.os.drs.client.model.DisplayableRenter;
 import de.tum.os.drs.client.model.PersistentDevice;
 import de.tum.os.drs.client.model.PersistentEvent;
@@ -38,20 +40,39 @@ public class NewRentalSystem implements EntryPoint {
 
 	ListDataProvider<PersistentEvent> eventsHistoryDataProvider = new ListDataProvider<PersistentEvent>();
 	ListDataProvider<PersistentEvent> eventsFilteredHistoryDataProvider = new ListDataProvider<PersistentEvent>();
-	
+
 	ListStore<DisplayableRenter> displayableRentersListStore = new ListStore<DisplayableRenter>();
+	ListStore<DisplayableDevice> availableDevicesListStore = new ListStore<DisplayableDevice>();
+
+	private HashMap<String, String> deviceNameToImageNameMap = new HashMap<String, String>() {
+		private static final long serialVersionUID = -4645423715285941470L;
+		{
+			put("nexus one", "nexus one.jpg");
+			put("nexus s", "nexus s.jpg");
+			put("galaxy nexus", "galaxy nexus.jpg");
+			put("nexus 4", "nexus 4.jpg");
+			put("nexus 7", "nexus 7.jpg");
+			put("htc one", "htc one.jpg");
+			put("htc one x", "htc one x.jpg");
+			put("htc one x+", "htc one x+.jpg");
+			put("nexus 10", "nexus 10.jpg");
+		}
+	};
+
+	private static final String deviceNotFoundImage = "android question.jpg";
 
 	/**
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
 		serviceDef.setServiceEntryPoint(addr);
-		
+
 		mainPageBinder = new MainPageBinder(availableDevicesDataProvider,
 				unavailableDevicesDataProvider, eventsHistoryDataProvider,
-				eventsFilteredHistoryDataProvider, displayableRentersListStore);
+				eventsFilteredHistoryDataProvider, displayableRentersListStore,
+				availableDevicesListStore);
 		fetchData();
-		
+
 		RootLayoutPanel.get().add(mainPageBinder);
 	}
 
@@ -59,24 +80,24 @@ public class NewRentalSystem implements EntryPoint {
 		fetchAvailableDevices();
 		fetchUnavailableDevices();
 		fetchEventsHistory();
-		
+
 		fetchAllRenters();
 
 	}
 
 	private void fetchAllRenters() {
 		AsyncCallback<ArrayList<SerializableRenter>> callback = new AsyncCallback<ArrayList<SerializableRenter>>() {
-			
+
 			@Override
 			public void onSuccess(ArrayList<SerializableRenter> result) {
 				updateAllRenters(result);
-				
+
 			}
-			
+
 			@Override
 			public void onFailure(Throwable caught) {
 				// TODO Auto-generated method stub
-				
+
 			}
 		};
 		service.getAllRenters(callback);
@@ -84,15 +105,15 @@ public class NewRentalSystem implements EntryPoint {
 
 	protected void updateAllRenters(ArrayList<SerializableRenter> result) {
 		displayableRentersListStore.removeAll();
-		if(result!= null && result.size()>0)
-		{
-			for(SerializableRenter sr:result){
-				displayableRentersListStore.add(new DisplayableRenter(sr.getName(), sr.getMatriculationNumber()));
+		if (result != null && result.size() > 0) {
+			for (SerializableRenter sr : result) {
+				displayableRentersListStore.add(new DisplayableRenter(sr.getName(), sr
+						.getMatriculationNumber()));
 			}
 		}
-		
-//		displayableRentersListStore
-		
+
+		// displayableRentersListStore
+
 	}
 
 	private void fetchEventsHistory() {
@@ -151,9 +172,10 @@ public class NewRentalSystem implements EntryPoint {
 		}
 
 		unavailableDevicesDataProvider.refresh();
-		
-		if(mainPageBinder!= null)
-			mainPageBinder.setRentedVsAvailable(availableDevicesDataProvider.getList().size(), unavailableDevicesDataProvider.getList().size());
+
+		if (mainPageBinder != null)
+			mainPageBinder.setRentedVsAvailable(availableDevicesDataProvider.getList()
+					.size(), unavailableDevicesDataProvider.getList().size());
 	}
 
 	private void fetchAvailableDevices() {
@@ -177,11 +199,21 @@ public class NewRentalSystem implements EntryPoint {
 		availableDevicesDataProvider.getList().clear();
 		if (result != null && result.size() > 0) {
 			availableDevicesDataProvider.getList().addAll(result);
+
+			for (PersistentDevice pd : result) {
+				String imgName = deviceNameToImageNameMap.get(pd.getName().toLowerCase());
+				if (imgName == null)
+					imgName = deviceNotFoundImage;
+				availableDevicesListStore.add(new DisplayableDevice(pd.getName(), pd
+						.getIMEI(), imgName));
+			}
 		}
 
 		availableDevicesDataProvider.refresh();
-		
-		if(mainPageBinder!= null)
-			mainPageBinder.setRentedVsAvailable(availableDevicesDataProvider.getList().size(), unavailableDevicesDataProvider.getList().size());
+
+		if (mainPageBinder != null)
+			mainPageBinder.setRentedVsAvailable(availableDevicesDataProvider.getList()
+					.size(), unavailableDevicesDataProvider.getList().size());
+
 	}
 }
