@@ -1,0 +1,25 @@
+com.google.gwt.i18n.shared.impl.DateRecord, true, true, true, true, com.google.gwt.i18n.shared.impl.DateRecord/3375188634, 3375188634
+com.google.gwt.user.client.rpc.IncompatibleRemoteServiceException, true, true, true, true, com.google.gwt.user.client.rpc.IncompatibleRemoteServiceException/3936916533, 3936916533
+com.google.gwt.user.client.rpc.RpcTokenException, true, true, false, false, com.google.gwt.user.client.rpc.RpcTokenException/2345075298, 2345075298
+com.google.gwt.user.client.rpc.XsrfToken, false, false, true, true, com.google.gwt.user.client.rpc.XsrfToken/4254043109, 4254043109
+de.tum.os.drs.client.IClientService, false, false, false, false, _, 273637971
+de.tum.os.drs.client.model.DeviceType, true, true, true, true, de.tum.os.drs.client.model.DeviceType/332427112, 332427112
+de.tum.os.drs.client.model.EventType, true, true, false, false, de.tum.os.drs.client.model.EventType/2605661882, 2605661882
+de.tum.os.drs.client.model.PersistentDevice, true, true, true, true, de.tum.os.drs.client.model.PersistentDevice/3055582522, 3055582522
+@ClientFields,de.tum.os.drs.client.model.PersistentDevice,id,IMEI,name,description,state,deviceType,pictureName,isAvailable
+de.tum.os.drs.client.model.PersistentEvent, true, true, false, false, de.tum.os.drs.client.model.PersistentEvent/4182704823, 4182704823
+@ClientFields,de.tum.os.drs.client.model.PersistentEvent,id,persName,persMatriculationNumber,email,devName,devImeiCode,eventDate,eventType,eventComments,signatureHtml
+de.tum.os.drs.client.model.SerializableRenter, true, true, true, true, de.tum.os.drs.client.model.SerializableRenter/215292095, 215292095
+java.lang.Boolean, true, true, true, true, java.lang.Boolean/476441737, 476441737
+java.lang.Exception, true, false, true, false, java.lang.Exception/1920171873, 1920171873
+java.lang.Integer, false, false, true, true, java.lang.Integer/3438268394, 3438268394
+java.lang.Number, false, false, true, false, java.lang.Number/300033342, 300033342
+java.lang.RuntimeException, true, false, true, false, java.lang.RuntimeException/515124647, 515124647
+java.lang.String, true, true, true, true, java.lang.String/2004016611, 2004016611
+[Ljava.lang.String;, false, false, true, true, [Ljava.lang.String;/2600011424, 2600011424
+java.lang.Throwable, true, false, true, false, java.lang.Throwable/2953622131, 2953622131
+java.sql.Date, true, true, true, true, java.sql.Date/730999118, 730999118
+java.sql.Time, true, true, true, true, java.sql.Time/1816797103, 1816797103
+java.sql.Timestamp, true, true, true, true, java.sql.Timestamp/3040052672, 3040052672
+java.util.ArrayList, true, true, true, true, java.util.ArrayList/4159755760, 4159755760
+java.util.Date, true, true, true, true, java.util.Date/3385151746, 3385151746

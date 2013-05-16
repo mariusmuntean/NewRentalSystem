@@ -1,0 +1,2 @@
+serviceClass: de.tum.os.drs.client.GreetingService
+path: 9E67AFC53F9E957DCC5E7473738DE187.gwt.rpc

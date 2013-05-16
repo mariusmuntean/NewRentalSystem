@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" output="test-classes" path="test"/>
+	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry exported="true" kind="lib" path="war/WEB-INF/lib/eclipselink.jar"/>
+	<classpathentry exported="true" kind="lib" path="war/WEB-INF/lib/gwt-graphics-1.0.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="war/WEB-INF/lib/gwt-visualization.jar"/>
+	<classpathentry exported="true" kind="lib" path="war/WEB-INF/lib/gxt.jar"/>
+	<classpathentry exported="true" kind="lib" path="war/WEB-INF/lib/javax.persistence_2.0.4.v201112161009.jar"/>
+	<classpathentry exported="true" kind="lib" path="war/WEB-INF/lib/mysql-connector-java-5.1.23-bin.jar"/>
+	<classpathentry kind="output" path="war/WEB-INF/classes"/>
+</classpath>
