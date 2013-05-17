@@ -67,13 +67,60 @@ public class NewRentalSystem implements EntryPoint {
 	public void onModuleLoad() {
 		serviceDef.setServiceEntryPoint(addr);
 
-		mainPageBinder = new MainPageBinder(availableDevicesDataProvider,
+		mainPageBinder = new MainPageBinder(this, availableDevicesDataProvider,
 				unavailableDevicesDataProvider, eventsHistoryDataProvider,
 				eventsFilteredHistoryDataProvider, displayableRentersListStore,
 				availableDevicesListStore);
 		fetchData();
 
 		RootLayoutPanel.get().add(mainPageBinder);
+	}
+	
+	public void rentDevicesToExistingRenter(String renterMatrNr, String[] deviceImeiCodes,
+			String comments, String signatureHTML){
+		
+		AsyncCallback<Boolean> rentDevicesCallback = new AsyncCallback<Boolean>() {
+
+			@Override
+			public void onSuccess(Boolean result) {
+				// TODO Auto-generated method stub
+				fetchEventsHistory();
+				fetchAvailableDevices();
+				fetchUnavailableDevices();
+
+			}
+
+			@Override
+			public void onFailure(Throwable caught) {
+				// TODO Auto-generated method stub
+
+			}
+		};
+		service.rentDevicesTo(renterMatrNr, deviceImeiCodes, comments, signatureHTML, rentDevicesCallback);
+		
+	}
+	
+	public void rentDevicesToNewRenter(SerializableRenter sr, final String renterMatrNr, final String[] deviceImeiCodes,
+			final String comments, final String signatureHTML){
+		
+		AsyncCallback<Boolean> addNewRenterCallback = new AsyncCallback<Boolean>() {
+
+			@Override
+			public void onSuccess(Boolean result) {
+				rentDevicesToExistingRenter(renterMatrNr, deviceImeiCodes, comments, signatureHTML);
+				fetchAllRenters();
+
+			}
+
+			@Override
+			public void onFailure(Throwable caught) {
+				// TODO Auto-generated method stub
+
+			}
+		};
+
+		service.addRenter(sr, addNewRenterCallback);
+		
 	}
 
 	private void fetchData() {

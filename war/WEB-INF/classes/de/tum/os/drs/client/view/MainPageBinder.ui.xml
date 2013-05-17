@@ -5,10 +5,15 @@
 	xmlns:extChart="urn:import:com.extjs.gxt.charts.client.model.charts"
 	xmlns:extGwt="urn:import:com.extjs.gxt.ui.client.widget.form"
 	xmlns:extGwtBtn="urn:import:com.extjs.gxt.ui.client.widget.button"
-	xmlns:extGwtWgt="urn:import:com.extjs.gxt.ui.client.widget">
+	xmlns:extGwtWgt="urn:import:com.extjs.gxt.ui.client.widget" xmlns:v="urn:import:org.vaadin.gwtgraphics.client"
+	xmlns:vPath="urn:import:org.vaadin.gwtgraphics.client.shape.path">
+
 	<ui:style>
-		
+		.signingCanvasStyle {
+			cursor: url('/images/cursors/inkPen.png') 1 1, crosshair;
+		}
 	</ui:style>
+
 	<!-- <g:HTMLPanel width="100%" height="auto" styleName="h1-new"> -->
 	<g:DockLayoutPanel ui:field="docLayoutPanelMain"
 		width="100%" height="100%" unit="PX" styleName="h1">
@@ -100,7 +105,7 @@
 													<extGwt:ComboBox ui:field="cBoxRentRegisteredStudentName"
 														loadingText="Searching ..." forceSelection="true"
 														hideTrigger="false" shim="true" autoHeight="true"
-														autoWidth="true" selectOnFocus="true" typeAhead="true"
+														selectOnFocus="true" typeAhead="true" width="300"
 														emptyText="Type a name" stateful="true" displayField="name">
 													</extGwt:ComboBox>
 													<g:cell>
@@ -108,7 +113,7 @@
 													</g:cell>
 													<extGwt:ComboBox ui:field="cBoxRentRegisteredStudentMatriculation"
 														loadingText="Searching ..." forceSelection="true"
-														autoHeight="true" autoWidth="true" selectOnFocus="true"
+														autoHeight="true" selectOnFocus="true" width="300"
 														typeAhead="true" emptyText="Type a matric. nr." stateful="true"
 														displayField="matriculation">
 													</extGwt:ComboBox>
@@ -155,8 +160,8 @@
 							</g:CaptionPanel>
 						</g:cell>
 						<g:cell>
-							<g:CaptionPanel>
-								<g:Grid>
+							<g:CaptionPanel captionText="2. Choose devices and sign">
+								<g:Grid ui:field="gridRentDevices">
 									<g:row>
 										<g:customCell>
 											<g:Label text="Select an available device"></g:Label>
@@ -167,11 +172,51 @@
 												typeAhead="true" selectOnFocus="true"></extGwt:ComboBox>
 										</g:customCell>
 										<g:customCell>
-											<extGwtBtn:Button text="Rent"></extGwtBtn:Button>
+											<extGwtBtn:Button text="Rent" ui:field="btnRent"></extGwtBtn:Button>
 										</g:customCell>
 										<g:customCell>
-											<extGwtWgt:ListView ui:field="lstViewRentSelectedDevices" width="300" height="350"
-												></extGwtWgt:ListView>
+											<g:VerticalPanel>
+												<g:cell>
+													<extGwtWgt:ListView ui:field="lstViewRentSelectedDevices"
+														width="300" height="350"></extGwtWgt:ListView>
+												</g:cell>
+												<g:cell horizontalAlignment="ALIGN_CENTER">
+													<extGwtBtn:Button text="Remove"
+														ui:field="btnRentClearRentedList"></extGwtBtn:Button>
+												</g:cell>
+											</g:VerticalPanel>
+										</g:customCell>
+									</g:row>
+									<g:row>
+										<g:customCell>
+											<g:VerticalPanel width="100%">
+												<g:cell>
+													<g:Label text="Comments:"></g:Label>
+												</g:cell>
+												<g:cell>
+													<g:TextArea ui:field="txtAreaRentComments"
+														characterWidth="65" width="300" visibleLines="5"></g:TextArea>
+												</g:cell>
+											</g:VerticalPanel>
+										</g:customCell>
+										<g:customCell>
+											<g:VerticalPanel>
+												<g:cell>
+													<g:Label text="Signature:"></g:Label>
+												</g:cell>
+												<g:cell>
+													<v:DrawingArea ui:field="canvasRentSignature"
+														styleName="{style.signingCanvasStyle}">
+													</v:DrawingArea>
+												</g:cell>
+												<g:cell horizontalAlignment="ALIGN_CENTER">
+													<extGwtBtn:Button text="Clear"
+														ui:field="btnRentClearSignature"></extGwtBtn:Button>
+												</g:cell>
+											</g:VerticalPanel>
+										</g:customCell>
+										<g:customCell>
+											<extGwtBtn:Button text="Rent" ui:field="btnSubmitRentEvent"></extGwtBtn:Button>
 										</g:customCell>
 									</g:row>
 								</g:Grid>

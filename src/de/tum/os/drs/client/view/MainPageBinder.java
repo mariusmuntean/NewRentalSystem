@@ -4,14 +4,20 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import org.vaadin.gwtgraphics.client.DrawingArea;
+import org.vaadin.gwtgraphics.client.shape.Path;
+
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.Style.HideMode;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ListView;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.core.client.GWT;
@@ -19,18 +25,32 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.MouseDownEvent;
+import com.google.gwt.event.dom.client.MouseDownHandler;
+import com.google.gwt.event.dom.client.MouseMoveEvent;
+import com.google.gwt.event.dom.client.MouseMoveHandler;
+import com.google.gwt.event.dom.client.MouseOutEvent;
+import com.google.gwt.event.dom.client.MouseOutHandler;
+import com.google.gwt.event.dom.client.MouseOverEvent;
+import com.google.gwt.event.dom.client.MouseOverHandler;
+import com.google.gwt.event.dom.client.MouseUpEvent;
+import com.google.gwt.event.dom.client.MouseUpHandler;
 import com.google.gwt.layout.client.Layout.Alignment;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DeckPanel;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.RadioButton;
+import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
@@ -39,15 +59,19 @@ import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.visualizations.corechart.PieChart;
 import com.google.gwt.visualization.client.visualizations.corechart.PieChart.PieOptions;
 import com.google.gwt.visualization.client.visualizations.corechart.TextStyle;
+import com.sun.corba.se.impl.encoding.CodeSetConversion.BTCConverter;
 // import com.google.gwt.visualization.client.visualizations.corechart.PieChart;
 
+import de.tum.os.drs.client.NewRentalSystem;
 import de.tum.os.drs.client.model.DisplayableDevice;
 import de.tum.os.drs.client.model.DisplayableRenter;
 import de.tum.os.drs.client.model.PersistentDevice;
 import de.tum.os.drs.client.model.PersistentEvent;
+import de.tum.os.drs.client.model.SerializableRenter;
 
 public class MainPageBinder extends Composite implements HasText, ClickHandler,
-		Listener<BaseEvent>, ChangeHandler {
+		Listener<BaseEvent>, ChangeHandler, MouseDownHandler, MouseMoveHandler,
+		MouseUpHandler, MouseOutHandler, MouseOverHandler {
 
 	private static MainPageBinderUiBinder uiBinder = GWT
 			.create(MainPageBinderUiBinder.class);
@@ -102,12 +126,36 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 
 	@UiField
 	TextBox tBoxRentNewStudentMatric;
-	
-	@UiField(provided=true)
+
+	@UiField(provided = true)
 	ComboBox<DisplayableDevice> cBoxRentSelectDevice;
-	
-	@UiField(provided=true)
+
+	@UiField(provided = true)
 	ListView<DisplayableDevice> lstViewRentSelectedDevices;
+
+	@UiField
+	Button btnRent;
+
+	@UiField
+	Button btnRentClearRentedList;
+
+	@UiField
+	TextArea txtAreaRentComments;
+
+	@UiField(provided = true)
+	DrawingArea canvasRentSignature;
+
+	Path currentSignaturePath;
+	boolean signing = false;
+
+	@UiField
+	Button btnRentClearSignature;
+
+	@UiField
+	Grid gridRentDevices;
+
+	@UiField
+	Button btnSubmitRentEvent;
 
 	/*
 	 * Stores region
@@ -124,18 +172,23 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	private ListDataProvider<PersistentEvent> eventsHistoryDataProvider;
 	private ListDataProvider<PersistentEvent> eventsFilteredHistoryDataProvider;
 
+	/*
+	 * Templates
+	 */
 	final String rentStudentComboTemplate = new String("<table>"
 			+ "<tr><td>{name}</td></tr>" + "<tr><td>{matriculation}</td></tr>"
 			+ "</table>");
-	
+
 	final String displayableDeviceTemplate = new String(
 			"<table>"
-			+ "<tr>"
-			+ "<td rowspan=\"2\"><img src=\"images/devices/{imgName}\" width=\"80\" height=\"80\"></td>"
-			+ "<td>{name}</td>" + "</tr>" + "<tr>" + "<td>{imei}</td>" + "</tr>"
-			+ "</table>");
+					+ "<tr>"
+					+ "<td rowspan=\"2\"><img src=\"images/devices/{imgName}\" width=\"80\" height=\"80\"></td>"
+					+ "<td>{name}</td>" + "</tr>" + "<tr>" + "<td>{imei}</td>" + "</tr>"
+					+ "</table>");
 
-	public MainPageBinder(
+	private NewRentalSystem client;
+
+	public MainPageBinder(NewRentalSystem client,
 			ListDataProvider<PersistentDevice> availableDevicesDataProvider,
 			ListDataProvider<PersistentDevice> unavailableDevicesDataProvider,
 			ListDataProvider<PersistentEvent> eventsHistoryDataProvider,
@@ -143,6 +196,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 			ListStore<DisplayableRenter> displayableRentersListStore,
 			ListStore<DisplayableDevice> availableDevicesListStore) {
 
+		this.client = client;
 		this.availableDevicesDataProvider = availableDevicesDataProvider;
 		this.unavailableDevicesDataProvider = unavailableDevicesDataProvider;
 		this.eventsHistoryDataProvider = eventsHistoryDataProvider;
@@ -178,19 +232,20 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		cBoxRentRegisteredStudentName.setTriggerAction(TriggerAction.ALL);
 
 		cBoxRentRegisteredStudentMatriculation = new ComboBox<DisplayableRenter>();
-		cBoxRentRegisteredStudentMatriculation.setSimpleTemplate(rentStudentComboTemplate);
+		cBoxRentRegisteredStudentMatriculation
+				.setSimpleTemplate(rentStudentComboTemplate);
 		cBoxRentRegisteredStudentMatriculation.setStore(displayableRentersListStore);
 		cBoxRentRegisteredStudentMatriculation.setTriggerAction(TriggerAction.ALL);
-		
+
 		cBoxRentSelectDevice = new ComboBox<DisplayableDevice>();
 		cBoxRentSelectDevice.setSimpleTemplate(displayableDeviceTemplate);
 		cBoxRentSelectDevice.setStore(availableDevicesListStore);
 		cBoxRentSelectDevice.setTriggerAction(TriggerAction.ALL);
-		
+
 		lstViewRentSelectedDevices = new ListView<DisplayableDevice>();
 		lstViewRentSelectedDevices.setSimpleTemplate(displayableDeviceTemplate);
-//		selectedDevicesListStore.add(new ArrayList<DisplayableDevice>());
 		lstViewRentSelectedDevices.setStore(selectedDevicesListStore);
+		canvasRentSignature = new DrawingArea(500, 300);
 	}
 
 	private void wireUpControls() {
@@ -202,9 +257,39 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		rBtnReturn.addClickHandler(this);
 
 		// Rent page
-		cBoxRentRegisteredStudentMatriculation.addListener(Events.OnChange, this);
-		cBoxRentRegisteredStudentName.addListener(Events.OnChange, this);
+		registeredStudentChanged rsc = new registeredStudentChanged();
+		cBoxRentRegisteredStudentMatriculation.addSelectionChangedListener(rsc);
+		cBoxRentRegisteredStudentName.addSelectionChangedListener(rsc);
 		tBoxRentNewStudentEmail.addChangeHandler(this);
+		btnRent.addListener(Events.OnClick, this);
+		btnRentClearRentedList.addListener(Events.OnClick, this);
+		injectSignatureCanvasFrame();
+		canvasRentSignature.addMouseDownHandler(this);
+		canvasRentSignature.addMouseMoveHandler(this);
+		canvasRentSignature.addMouseUpHandler(this);
+		canvasRentSignature.addMouseOverHandler(this);
+		canvasRentSignature.addMouseOutHandler(this);
+		btnRentClearSignature.addListener(Events.OnClick, this);
+
+		// Fix the colspan for the comments area and the signature area.
+		Element element = gridRentDevices.getCellFormatter().getElement(1, 0);
+		DOM.setElementAttribute(element, "colspan", "2");
+
+		Element element2 = gridRentDevices.getCellFormatter().getElement(1, 1);
+		DOM.setElementAttribute(element2, "colspan", "2");
+
+		btnSubmitRentEvent.addListener(Events.OnClick, this);
+	}
+
+	private void injectSignatureCanvasFrame() {
+		Path path = new Path(0, 0);
+		path.lineRelativelyTo(canvasRentSignature.getWidth(), 0);
+		path.lineRelativelyTo(0, canvasRentSignature.getHeight());
+		path.lineRelativelyTo(-canvasRentSignature.getWidth(), 0);
+		path.close();
+		path.setStrokeWidth(3);
+		path.setStrokeColor("#7CFC00");
+		canvasRentSignature.add(path);
 
 	}
 
@@ -583,6 +668,149 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 			}
 		}
 
+		if (be.getType() == Events.OnClick) {
+			if (sender == btnRent) {
+				markDeviceForRent();
+			}
+
+			if (sender == btnRentClearRentedList) {
+				unMarkDeviceForRent();
+			}
+
+			if (sender == btnRentClearSignature) {
+				clearSignatureCanvas();
+			}
+
+			if (sender == btnSubmitRentEvent) {
+				submitRentEvent();
+			}
+		}
+
+	}
+
+	private void submitRentEvent() {
+		// Create or determine Renter
+		SerializableRenter sr = null;
+		boolean haveRenter = false;
+
+		// Determine if an existing Renter was selected
+		DisplayableRenter dr = null;
+		if (cBoxRentRegisteredStudentMatriculation.getSelection() != null
+				&& cBoxRentRegisteredStudentMatriculation.getSelection().size() > 0) {
+			dr = cBoxRentRegisteredStudentMatriculation.getSelection().get(0);
+		}
+		String renterMatr = dr == null ? "" : dr.getMatriculation();
+		if (!renterMatr.trim().equals("") && renterMatr.trim().length() > 0) {
+			haveRenter = true;
+		}
+
+		// If no existing renter was selected maybe a new one should be created. Check the fields.
+		String newRenterName = tBoxRentNewStudentName.getText();
+		String newRenterEmail = tBoxRentNewStudentEmail.getText();
+		final String newRenterMatriculation = tBoxRentNewStudentMatric.getText();
+		String newRenterPhone = tBoxRentNewStudentPhone.getText();
+
+		if (haveRenter == false && newRenterEmail != null && !newRenterEmail.isEmpty()
+				&& newRenterMatriculation != null && !newRenterMatriculation.isEmpty()
+				&& newRenterName != null && !newRenterName.isEmpty()
+				&& newRenterPhone != null && !newRenterPhone.isEmpty()) {
+
+			haveRenter = true;
+			sr = new SerializableRenter();
+			sr.setName(newRenterName);
+			sr.setMatriculationNumber(newRenterMatriculation);
+			sr.setEmail(newRenterEmail);
+			sr.setPhoneNUmber(newRenterPhone);
+		}
+
+		// If no renter was selected and no new Renter added just leave. It was a prank call to this method :D.
+		if (haveRenter == false)
+			return;
+
+		// OK, if I have a renter let's get a list of devices that should be added to his "rented list".
+		// Leave if no devices were added to the list of devices to rent.
+		if (lstViewRentSelectedDevices.getStore().getCount() == 0)
+			return;
+
+		List<DisplayableDevice> selectedDevices = lstViewRentSelectedDevices.getStore()
+				.getModels();
+		final String[] selectedDevicesImeis = new String[selectedDevices.size()];
+		int i = 0;
+		for (DisplayableDevice dd : selectedDevices) {
+			selectedDevicesImeis[i] = dd.getImei();
+			i++;
+		}
+
+		/*
+		 * Either add the selected devices to an existing Renter's list or create a new renter and add the devices to his list.
+		 */
+		if (sr == null && renterMatr != null && !renterMatr.isEmpty()) {
+			// Add devices to a registered student
+			String rentEventComments = txtAreaRentComments.getText() != null ? txtAreaRentComments
+					.getText() : " ";
+			this.client.rentDevicesToExistingRenter(renterMatr, selectedDevicesImeis,
+					rentEventComments, canvasRentSignature.toString());
+
+		} else {
+			final String rentEventComments = txtAreaRentComments.getText() != null ? txtAreaRentComments
+					.getText() : " ";
+			if (sr != null) {
+				// Add new renter and add to his rented devices list.
+				client.rentDevicesToNewRenter(sr, sr.getMatriculationNumber(), selectedDevicesImeis,
+						rentEventComments, canvasRentSignature.toString());
+
+			}
+		}
+
+		// Clean up.
+		// Clean list of selected devices
+		lstViewRentSelectedDevices.getStore().removeAll();
+
+		// Clean Signature
+		clearSignatureCanvas();
+
+		// Clear comments
+		txtAreaRentComments.setText("");
+
+		// Clear new person data
+		resetNewStudentFields();
+		resetSelectedStudent();
+
+	}
+
+	private void clearSignatureCanvas() {
+		canvasRentSignature.clear();
+		injectSignatureCanvasFrame();
+	}
+
+	private void unMarkDeviceForRent() {
+		List<DisplayableDevice> selectedItems = lstViewRentSelectedDevices
+				.getSelectionModel().getSelectedItems();
+		if (selectedItems != null && selectedItems.size() > 0) {
+			for (DisplayableDevice dd : selectedItems) {
+				lstViewRentSelectedDevices.getStore().remove(dd);
+			}
+			cBoxRentSelectDevice.getStore().add(selectedItems);
+		}
+
+	}
+
+	private void markDeviceForRent() {
+		if (cBoxRentSelectDevice.getSelectionLength() == 0)
+			return;
+
+		DisplayableDevice selectedDevice = cBoxRentSelectDevice.getSelection().get(0);
+
+		if (selectedDevice == null)
+			return;
+
+		// Remove selected device from combobox
+		cBoxRentSelectDevice.getStore().remove(selectedDevice);
+		cBoxRentSelectDevice.reset();
+
+		// Add device to the list of selected devices
+		lstViewRentSelectedDevices.getStore().add(selectedDevice);
+
 	}
 
 	private void resetNewStudentFields() {
@@ -603,8 +831,73 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	}
 
 	private void resetSelectedStudent() {
-		cBoxRentRegisteredStudentMatriculation.setRawValue("");
-		cBoxRentRegisteredStudentName.setRawValue("");
-		
+		// cBoxRentRegisteredStudentMatriculation.setRawValue("");
+		// cBoxRentRegisteredStudentName.setRawValue("");
+		//
+		cBoxRentRegisteredStudentMatriculation.reset();
+		cBoxRentRegisteredStudentName.reset();
+
+	}
+
+	/*
+	 * Mouse Don/Move/Up/Over/Out Handlers
+	 */
+	@Override
+	public void onMouseDown(MouseDownEvent event) {
+
+		currentSignaturePath = new Path(event.getX(), event.getY());
+		currentSignaturePath.setStrokeColor("#4169E1");
+		currentSignaturePath.setStrokeWidth(4);
+		canvasRentSignature.add(currentSignaturePath);
+		signing = true;
+	}
+
+	@Override
+	public void onMouseMove(MouseMoveEvent event) {
+		if (currentSignaturePath != null && signing)
+			currentSignaturePath.lineTo(event.getX(), event.getY());
+
+	}
+
+	@Override
+	public void onMouseUp(MouseUpEvent event) {
+		// TODO Auto-generated method stub
+		signing = false;
+	}
+
+	@Override
+	public void onMouseOver(MouseOverEvent event) {
+		// RootPanel.get().getElement().getStyle().setCursor());
+
+	}
+
+	@Override
+	public void onMouseOut(MouseOutEvent event) {
+		// RootPanel.get().getElement().getStyle().setCursor(Cursor.AUTO);
+		signing = false;
+	}
+
+	private class registeredStudentChanged extends
+			SelectionChangedListener<DisplayableRenter> {
+
+		@Override
+		public void selectionChanged(SelectionChangedEvent<DisplayableRenter> se) {
+			Object sender = se.getSource();
+			if (sender == cBoxRentRegisteredStudentMatriculation
+					&& cBoxRentRegisteredStudentMatriculation.getSelection().size() > 0) {
+				cBoxRentRegisteredStudentName
+						.setValue(cBoxRentRegisteredStudentMatriculation.getSelection()
+								.get(0));
+				resetNewStudentFields();
+			}
+			if (sender == cBoxRentRegisteredStudentName
+					&& cBoxRentRegisteredStudentName.getSelection().size() > 0) {
+				cBoxRentRegisteredStudentMatriculation
+						.setValue(cBoxRentRegisteredStudentName.getSelection().get(0));
+				resetNewStudentFields();
+			}
+
+		}
+
 	}
 }

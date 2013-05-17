@@ -10,5 +10,10 @@
 	<classpathentry exported="true" kind="lib" path="war/WEB-INF/lib/gxt.jar"/>
 	<classpathentry exported="true" kind="lib" path="war/WEB-INF/lib/javax.persistence_2.0.4.v201112161009.jar"/>
 	<classpathentry exported="true" kind="lib" path="war/WEB-INF/lib/mysql-connector-java-5.1.23-bin.jar"/>
+	<classpathentry exported="true" kind="lib" path="C:/Program Files/Eclipse/gxt-2.3.0/gxt.jar" sourcepath="C:/Program Files/Eclipse/gxt-2.3.0/src">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/C:/Program Files/Eclipse/gxt-2.3.0/docs/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>
