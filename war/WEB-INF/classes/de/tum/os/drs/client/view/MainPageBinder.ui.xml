@@ -14,6 +14,7 @@
 		}
 	</ui:style>
 
+
 	<!-- <g:HTMLPanel width="100%" height="auto" styleName="h1-new"> -->
 	<g:DockLayoutPanel ui:field="docLayoutPanelMain"
 		width="100%" height="100%" unit="PX" styleName="h1">
@@ -61,6 +62,7 @@
 			<g:ScrollPanel width="100%" height="100%">
 				<g:DeckPanel ui:field="deckPanelActualView" width="100%"
 					height="100%" animationEnabled="true" visible="true">
+					<!-- OverView -->
 					<g:Grid height="auto" borderWidth="2" styleName="overviewGridStyle"
 						width="100%">
 						<g:row>
@@ -94,6 +96,7 @@
 							</g:customCell>
 						</g:row>
 					</g:Grid>
+					<!-- Rent -->
 					<g:VerticalPanel width="100%" height="auto">
 						<g:cell>
 							<g:CaptionPanel captionText="1. Choose Student">
@@ -216,15 +219,85 @@
 											</g:VerticalPanel>
 										</g:customCell>
 										<g:customCell>
-											<extGwtBtn:Button text="Rent" ui:field="btnSubmitRentEvent"></extGwtBtn:Button>
+											<extGwtBtn:Button text="Rent" ui:field="btnSubmitRentEvent"
+												stylePrimaryName="myButton"></extGwtBtn:Button>
 										</g:customCell>
 									</g:row>
 								</g:Grid>
 							</g:CaptionPanel>
 						</g:cell>
 					</g:VerticalPanel>
-					<!-- OverView -->
-					<!-- Rent -->
+					<!-- Return -->
+					<!-- History -->
+					<g:VerticalPanel>
+						<g:cell>
+							<g:CaptionPanel captionText="Filters">
+								<g:Grid>
+									<g:row>
+										<g:customCell>
+											<g:Label text="Person name: "></g:Label>
+										</g:customCell>
+										<g:customCell>
+											<extGwt:ComboBox ui:field="cBoxHistoryFilterName"
+												typeAhead="true" displayField="name" emptyText="Type a name"
+												selectOnFocus="true" width="250">
+											</extGwt:ComboBox>
+										</g:customCell>
+										<g:customCell>
+											<g:Label text="IMEI code: "></g:Label>
+										</g:customCell>
+										<g:customCell>
+											<extGwt:ComboBox ui:field="cBoxHistoryFilterImei"
+												typeAhead="true" displayField="imei" emptyText="Type a name"
+												selectOnFocus="true" width="250">
+											</extGwt:ComboBox>
+										</g:customCell>
+										<g:customCell>
+											<g:Label text="Date interval: "></g:Label>
+										</g:customCell>
+										<g:customCell>
+											<g:HorizontalPanel spacing="5">
+												<g:cell>
+													<g:VerticalPanel horizontalAlignment="ALIGN_CENTER">
+														<g:cell>
+															<g:Label text="FROM:"></g:Label>
+														</g:cell>
+														<g:cell>
+															<extGwtWgt:DatePicker ui:field="datePickerHistoryFilterFrom"
+																shim="true"></extGwtWgt:DatePicker>
+														</g:cell>
+														<g:cell>
+															<g:TextBox width="90%" ui:field="txtBoxHistoryFilterFrom"></g:TextBox>
+														</g:cell>
+													</g:VerticalPanel>
+												</g:cell>
+												<g:cell>
+													<g:VerticalPanel horizontalAlignment="ALIGN_CENTER">
+														<g:cell>
+															<g:Label text="TO:"></g:Label>
+														</g:cell>
+														<g:cell>
+															<extGwtWgt:DatePicker ui:field="datePickerHistoryFilterTo"></extGwtWgt:DatePicker>
+														</g:cell>
+														<g:cell>
+															<g:TextBox width="90%" ui:field="txtBoxHistoryFilterTo"></g:TextBox>
+														</g:cell>
+													</g:VerticalPanel>
+												</g:cell>
+											</g:HorizontalPanel>
+										</g:customCell>
+									</g:row>
+								</g:Grid>
+							</g:CaptionPanel>
+						</g:cell>
+						<g:cell>
+							<g:CaptionPanel captionText="Results">
+								<cell:CellTable ui:field="tableHistoryEventsFiltered"
+									width="100%" height="auto"></cell:CellTable>
+							</g:CaptionPanel>
+						</g:cell>
+					</g:VerticalPanel>
+					<!-- Manage -->
 				</g:DeckPanel>
 			</g:ScrollPanel>
 		</g:center>

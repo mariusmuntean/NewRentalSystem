@@ -22,6 +22,7 @@
   	<inherits name='com.extjs.gxt.charts.Chart' />
 	<inherits name='com.google.gwt.visualization.Visualization' />
 	<inherits name='org.vaadin.gwtgraphics.GWTGraphics' />
+	<inherits name="com.flipthebird.GwtHashCodeEquals"/>
 
   <!-- Specify the app entry point class.                         -->
   <entry-point class='de.tum.os.drs.client.NewRentalSystem'/>

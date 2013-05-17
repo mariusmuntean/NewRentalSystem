@@ -2,7 +2,10 @@ package de.tum.os.drs.client;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.google.gwt.core.client.EntryPoint;
@@ -44,6 +47,9 @@ public class NewRentalSystem implements EntryPoint {
 	ListStore<DisplayableRenter> displayableRentersListStore = new ListStore<DisplayableRenter>();
 	ListStore<DisplayableDevice> availableDevicesListStore = new ListStore<DisplayableDevice>();
 
+	private ListStore<DisplayableRenter> displayableRentersFilterListStore = new ListStore<DisplayableRenter>();
+	private ListStore<DisplayableDevice> displayableDevicesFilterListStore = new ListStore<DisplayableDevice>();
+
 	private HashMap<String, String> deviceNameToImageNameMap = new HashMap<String, String>() {
 		private static final long serialVersionUID = -4645423715285941470L;
 		{
@@ -70,15 +76,16 @@ public class NewRentalSystem implements EntryPoint {
 		mainPageBinder = new MainPageBinder(this, availableDevicesDataProvider,
 				unavailableDevicesDataProvider, eventsHistoryDataProvider,
 				eventsFilteredHistoryDataProvider, displayableRentersListStore,
-				availableDevicesListStore);
+				availableDevicesListStore, displayableRentersFilterListStore,
+				displayableDevicesFilterListStore);
 		fetchData();
 
 		RootLayoutPanel.get().add(mainPageBinder);
 	}
-	
-	public void rentDevicesToExistingRenter(String renterMatrNr, String[] deviceImeiCodes,
-			String comments, String signatureHTML){
-		
+
+	public void rentDevicesToExistingRenter(String renterMatrNr,
+			String[] deviceImeiCodes, String comments, String signatureHTML) {
+
 		AsyncCallback<Boolean> rentDevicesCallback = new AsyncCallback<Boolean>() {
 
 			@Override
@@ -96,18 +103,21 @@ public class NewRentalSystem implements EntryPoint {
 
 			}
 		};
-		service.rentDevicesTo(renterMatrNr, deviceImeiCodes, comments, signatureHTML, rentDevicesCallback);
-		
+		service.rentDevicesTo(renterMatrNr, deviceImeiCodes, comments, signatureHTML,
+				rentDevicesCallback);
+
 	}
-	
-	public void rentDevicesToNewRenter(SerializableRenter sr, final String renterMatrNr, final String[] deviceImeiCodes,
-			final String comments, final String signatureHTML){
-		
+
+	public void rentDevicesToNewRenter(SerializableRenter sr, final String renterMatrNr,
+			final String[] deviceImeiCodes, final String comments,
+			final String signatureHTML) {
+
 		AsyncCallback<Boolean> addNewRenterCallback = new AsyncCallback<Boolean>() {
 
 			@Override
 			public void onSuccess(Boolean result) {
-				rentDevicesToExistingRenter(renterMatrNr, deviceImeiCodes, comments, signatureHTML);
+				rentDevicesToExistingRenter(renterMatrNr, deviceImeiCodes, comments,
+						signatureHTML);
 				fetchAllRenters();
 
 			}
@@ -120,7 +130,7 @@ public class NewRentalSystem implements EntryPoint {
 		};
 
 		service.addRenter(sr, addNewRenterCallback);
-		
+
 	}
 
 	private void fetchData() {
@@ -163,6 +173,33 @@ public class NewRentalSystem implements EntryPoint {
 
 	}
 
+	public void fetchEventsHistoryFiltered(String personName, String IMEI, Date from,
+			Date to, Integer maxResultSize, Boolean reverseChronologicalOrder) {
+		AsyncCallback<ArrayList<PersistentEvent>> callback = new AsyncCallback<ArrayList<PersistentEvent>>() {
+
+			@Override
+			public void onSuccess(ArrayList<PersistentEvent> result) {
+				updateEventsHistoryFiltered(result);
+			}
+
+			@Override
+			public void onFailure(Throwable caught) {
+
+			}
+		};
+		service.getEvents(personName, IMEI, from, to, maxResultSize,
+				reverseChronologicalOrder, callback);
+	}
+
+	protected void updateEventsHistoryFiltered(ArrayList<PersistentEvent> result) {
+
+		eventsFilteredHistoryDataProvider.getList().clear();
+		if (result != null && result.size() > 0) {
+			eventsFilteredHistoryDataProvider.getList().addAll(result);
+		}
+
+	}
+
 	private void fetchEventsHistory() {
 		AsyncCallback<ArrayList<PersistentEvent>> callback = new AsyncCallback<ArrayList<PersistentEvent>>() {
 
@@ -193,6 +230,38 @@ public class NewRentalSystem implements EntryPoint {
 		}
 		eventsFilteredHistoryDataProvider.refresh();
 		eventsHistoryDataProvider.refresh();
+
+		// Populate/refresh history filters
+		// First adding data to HashSets to make sure each item is unique
+		HashSet<DisplayableRenter> renters = new HashSet<DisplayableRenter>();
+		HashSet<DisplayableDevice> devices = new HashSet<DisplayableDevice>();
+		for (PersistentEvent pe : result) {
+			// Populate devices filter
+			String imgName = deviceNameToImageNameMap.get("");
+			if (imgName == null)
+				imgName = deviceNotFoundImage;
+			DisplayableDevice dd = new DisplayableDevice(pe.getDevName(),
+					pe.getImeiCode(), imgName);
+			// displayableDevicesFilterListStore.add(dd);
+			devices.add(dd);
+			// Populate renters filter.
+			DisplayableRenter dr = new DisplayableRenter(pe.getPersName(),
+					pe.getPersMatriculationNumber());
+			// displayableRentersFilterListStore.add(dr);
+			renters.add(dr);
+		}
+		if (devices.size() > 0) {
+			ArrayList<DisplayableDevice> devicesList = new ArrayList<DisplayableDevice>(
+					devices);
+			displayableDevicesFilterListStore.add(devicesList);
+		}
+
+		if (renters.size() > 0) {
+			ArrayList<DisplayableRenter> rentersList = new ArrayList<DisplayableRenter>(
+					renters);
+			displayableRentersFilterListStore.add(rentersList);
+		}
+
 	}
 
 	private void fetchUnavailableDevices() {

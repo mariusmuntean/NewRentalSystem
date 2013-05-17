@@ -2,6 +2,7 @@ package de.tum.os.drs.client.view;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import org.vaadin.gwtgraphics.client.DrawingArea;
@@ -11,11 +12,13 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.Style.HideMode;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.DatePicker;
 import com.extjs.gxt.ui.client.widget.ListView;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
@@ -35,6 +38,7 @@ import com.google.gwt.event.dom.client.MouseOverEvent;
 import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.event.dom.client.MouseUpHandler;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.layout.client.Layout.Alignment;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -56,9 +60,11 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.DataTable;
+import com.google.gwt.visualization.client.formatters.DateFormat;
 import com.google.gwt.visualization.client.visualizations.corechart.PieChart;
 import com.google.gwt.visualization.client.visualizations.corechart.PieChart.PieOptions;
 import com.google.gwt.visualization.client.visualizations.corechart.TextStyle;
+import com.ibm.icu.text.SimpleDateFormat;
 import com.sun.corba.se.impl.encoding.CodeSetConversion.BTCConverter;
 // import com.google.gwt.visualization.client.visualizations.corechart.PieChart;
 
@@ -157,12 +163,35 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	@UiField
 	Button btnSubmitRentEvent;
 
+	@UiField(provided = true)
+	ComboBox<DisplayableRenter> cBoxHistoryFilterName;
+
+	@UiField(provided = true)
+	ComboBox<DisplayableDevice> cBoxHistoryFilterImei;
+
+	@UiField
+	DatePicker datePickerHistoryFilterTo;
+
+	@UiField
+	DatePicker datePickerHistoryFilterFrom;
+
+	@UiField
+	TextBox txtBoxHistoryFilterFrom;
+
+	@UiField
+	TextBox txtBoxHistoryFilterTo;
+	
+	@UiField(provided=true)
+	CellTable tableHistoryEventsFiltered;
+
 	/*
 	 * Stores region
 	 */
 	private ListStore<DisplayableRenter> displayableRentersListStore = new ListStore<DisplayableRenter>();
 	private ListStore<DisplayableDevice> availableDevicesListStore = new ListStore<DisplayableDevice>();
 	private ListStore<DisplayableDevice> selectedDevicesListStore = new ListStore<DisplayableDevice>();
+	private ListStore<DisplayableRenter> displayableRentersFilterListStore = new ListStore<DisplayableRenter>();
+	private ListStore<DisplayableDevice> displayableDevicesFilterListStore = new ListStore<DisplayableDevice>();
 
 	/*
 	 * Data providers
@@ -194,7 +223,9 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 			ListDataProvider<PersistentEvent> eventsHistoryDataProvider,
 			ListDataProvider<PersistentEvent> eventsFilteredHistoryDataProvider,
 			ListStore<DisplayableRenter> displayableRentersListStore,
-			ListStore<DisplayableDevice> availableDevicesListStore) {
+			ListStore<DisplayableDevice> availableDevicesListStore,
+			ListStore<DisplayableRenter> displayableRentersFilterListStore,
+			ListStore<DisplayableDevice> displayableDevicesFilterListStore) {
 
 		this.client = client;
 		this.availableDevicesDataProvider = availableDevicesDataProvider;
@@ -203,6 +234,8 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		this.eventsFilteredHistoryDataProvider = eventsFilteredHistoryDataProvider;
 		this.displayableRentersListStore = displayableRentersListStore;
 		this.availableDevicesListStore = availableDevicesListStore;
+		this.displayableRentersFilterListStore = displayableRentersFilterListStore;
+		this.displayableDevicesFilterListStore = displayableDevicesFilterListStore;
 
 		instantiateControls();
 		initWidget(uiBinder.createAndBindUi(this));
@@ -246,6 +279,17 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		lstViewRentSelectedDevices.setSimpleTemplate(displayableDeviceTemplate);
 		lstViewRentSelectedDevices.setStore(selectedDevicesListStore);
 		canvasRentSignature = new DrawingArea(500, 300);
+
+		// History page
+		cBoxHistoryFilterName = new ComboBox<DisplayableRenter>();
+		cBoxHistoryFilterName.setSimpleTemplate(rentStudentComboTemplate);
+		cBoxHistoryFilterName.setStore(displayableRentersFilterListStore);
+
+		cBoxHistoryFilterImei = new ComboBox<DisplayableDevice>();
+		cBoxHistoryFilterImei.setStore(displayableDevicesFilterListStore);
+		tableHistoryEventsFiltered = getCellTableHistory(eventsFilteredHistoryDataProvider);
+		
+
 	}
 
 	private void wireUpControls() {
@@ -279,6 +323,79 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		DOM.setElementAttribute(element2, "colspan", "2");
 
 		btnSubmitRentEvent.addListener(Events.OnClick, this);
+
+		// History page
+		cBoxHistoryFilterName.addSelectionChangedListener(rsc);
+		rentedDeviceChanged rdc = new rentedDeviceChanged();
+		cBoxHistoryFilterImei.addSelectionChangedListener(rdc);
+
+		datePickerHistoryFilterFrom.addListener(Events.Select,
+				new Listener<ComponentEvent>() {
+
+					@Override
+					public void handleEvent(ComponentEvent be) {
+						String dateText = DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss")
+								.format(datePickerHistoryFilterFrom.getValue());
+						txtBoxHistoryFilterFrom.setText(dateText);
+						fetchEventsHistoryFiltered();
+					}
+				});
+		txtBoxHistoryFilterFrom.addChangeHandler(new ChangeHandler() {
+
+			@Override
+			public void onChange(ChangeEvent event) {
+				String dateTimeString = txtBoxHistoryFilterFrom.getText();
+				System.out.println("Parsing text: " + dateTimeString);
+				if (dateTimeString == null || dateTimeString.length() < 1)
+					return;
+				DateTimeFormat dtf = DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss");
+				Date newDate = null;
+				try {
+					newDate = dtf.parse(dateTimeString);
+				} catch (Exception e) {
+
+				}
+				if (newDate != null) {
+					datePickerHistoryFilterFrom.setValue(newDate, true);
+					fetchEventsHistoryFiltered();
+				}
+
+			}
+		});
+		datePickerHistoryFilterTo.addListener(Events.Select,
+				new Listener<ComponentEvent>() {
+
+					@Override
+					public void handleEvent(ComponentEvent be) {
+						String dateText = DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss")
+								.format(datePickerHistoryFilterTo.getValue());
+						txtBoxHistoryFilterTo.setText(dateText);
+						fetchEventsHistoryFiltered();
+					}
+				});
+
+		txtBoxHistoryFilterTo.addChangeHandler(new ChangeHandler() {
+
+			@Override
+			public void onChange(ChangeEvent event) {
+				String dateTimeString = txtBoxHistoryFilterTo.getText();
+				System.out.println("Parsing text: " + dateTimeString);
+				if (dateTimeString == null || dateTimeString.length() < 1)
+					return;
+				DateTimeFormat dtf = DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss");
+				Date newDate = null;
+				try {
+					newDate = dtf.parse(dateTimeString);
+				} catch (Exception e) {
+
+				}
+				if (newDate != null) {
+					datePickerHistoryFilterTo.setValue(newDate, true);
+					fetchEventsHistoryFiltered();
+				}
+
+			}
+		});
 	}
 
 	private void injectSignatureCanvasFrame() {
@@ -756,8 +873,9 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 					.getText() : " ";
 			if (sr != null) {
 				// Add new renter and add to his rented devices list.
-				client.rentDevicesToNewRenter(sr, sr.getMatriculationNumber(), selectedDevicesImeis,
-						rentEventComments, canvasRentSignature.toString());
+				client.rentDevicesToNewRenter(sr, sr.getMatriculationNumber(),
+						selectedDevicesImeis, rentEventComments,
+						canvasRentSignature.toString());
 
 			}
 		}
@@ -776,6 +894,26 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		resetNewStudentFields();
 		resetSelectedStudent();
 
+	}
+
+	private void fetchEventsHistoryFiltered() {
+		String persName = null, devImei = null;
+		Date from = null, to = null;
+
+		if (cBoxHistoryFilterName.getSelection().size() > 0)
+			persName = cBoxHistoryFilterName.getSelection().get(0).getName();
+
+		if (cBoxHistoryFilterImei.getSelection().size() > 0)
+			devImei = cBoxHistoryFilterImei.getSelection().get(0).getImei();
+
+		from = datePickerHistoryFilterFrom.getValue();
+		to = datePickerHistoryFilterTo.getValue();
+		if (to != null && from != null && (from.compareTo(to) > 0)) {
+			to = from;
+		}
+
+		client.fetchEventsHistoryFiltered(persName, devImei, from, to, Integer.MAX_VALUE,
+				true);
 	}
 
 	private void clearSignatureCanvas() {
@@ -897,7 +1035,21 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 				resetNewStudentFields();
 			}
 
+			if (sender == cBoxHistoryFilterName) {
+				fetchEventsHistoryFiltered();
+			}
 		}
+	}
 
+	private class rentedDeviceChanged extends SelectionChangedListener<DisplayableDevice> {
+
+		@Override
+		public void selectionChanged(SelectionChangedEvent<DisplayableDevice> se) {
+			Object sender = se.getSource();
+
+			if (sender == cBoxHistoryFilterImei) {
+				fetchEventsHistoryFiltered();
+			}
+		}
 	}
 }

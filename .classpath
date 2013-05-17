@@ -15,5 +15,6 @@
 			<attribute name="javadoc_location" value="file:/C:/Program Files/Eclipse/gxt-2.3.0/docs/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry exported="true" kind="lib" path="war/WEB-INF/lib/gwt-hashcode-equals-0.1.0.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>
