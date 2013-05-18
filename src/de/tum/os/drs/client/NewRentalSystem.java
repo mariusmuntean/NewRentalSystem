@@ -47,6 +47,9 @@ public class NewRentalSystem implements EntryPoint {
 	ListStore<DisplayableRenter> displayableRentersListStore = new ListStore<DisplayableRenter>();
 	ListStore<DisplayableDevice> availableDevicesListStore = new ListStore<DisplayableDevice>();
 
+	ListDataProvider<SerializableRenter> allRentersDataProvider = new ListDataProvider<SerializableRenter>(new ArrayList<SerializableRenter>());
+	ListDataProvider<PersistentDevice> allRentedDevicesDataProvider = new ListDataProvider<PersistentDevice>(new ArrayList<PersistentDevice>());
+
 	private ListStore<DisplayableRenter> displayableRentersFilterListStore = new ListStore<DisplayableRenter>();
 	private ListStore<DisplayableDevice> displayableDevicesFilterListStore = new ListStore<DisplayableDevice>();
 
@@ -77,10 +80,10 @@ public class NewRentalSystem implements EntryPoint {
 				unavailableDevicesDataProvider, eventsHistoryDataProvider,
 				eventsFilteredHistoryDataProvider, displayableRentersListStore,
 				availableDevicesListStore, displayableRentersFilterListStore,
-				displayableDevicesFilterListStore);
+				displayableDevicesFilterListStore, allRentersDataProvider, allRentedDevicesDataProvider);
 		fetchData();
 
-		RootLayoutPanel.get().add(mainPageBinder);
+		RootPanel.get().add(mainPageBinder);
 	}
 
 	public void rentDevicesToExistingRenter(String renterMatrNr,
@@ -162,13 +165,16 @@ public class NewRentalSystem implements EntryPoint {
 
 	protected void updateAllRenters(ArrayList<SerializableRenter> result) {
 		displayableRentersListStore.removeAll();
+		allRentersDataProvider.getList().clear();
 		if (result != null && result.size() > 0) {
+//			allRentersDataProvider.getList().addAll(result);
+			allRentersDataProvider.setList(result);
 			for (SerializableRenter sr : result) {
 				displayableRentersListStore.add(new DisplayableRenter(sr.getName(), sr
 						.getMatriculationNumber()));
 			}
 		}
-
+		allRentersDataProvider.refresh();
 		// displayableRentersListStore
 
 	}
@@ -283,10 +289,13 @@ public class NewRentalSystem implements EntryPoint {
 
 	protected void updateUnavailableDevices(ArrayList<PersistentDevice> result) {
 		unavailableDevicesDataProvider.getList().clear();
+		allRentedDevicesDataProvider.getList().clear();
 		if (result != null && result.size() > 0) {
 			unavailableDevicesDataProvider.getList().addAll(result);
+//			allRentedDevicesDataProvider.getList().addAll(result);
+			allRentedDevicesDataProvider.setList(result);
 		}
-
+		allRentedDevicesDataProvider.refresh();
 		unavailableDevicesDataProvider.refresh();
 
 		if (mainPageBinder != null)

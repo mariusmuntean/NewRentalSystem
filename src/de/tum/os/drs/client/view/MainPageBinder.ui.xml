@@ -12,16 +12,21 @@
 		.signingCanvasStyle {
 			cursor: url('/images/cursors/inkPen.png') 1 1, crosshair;
 		}
+		
+		.vPanelStyle {
+			margin-left: auto;
+			margin-right: auto;
+			width: 85%;
+			min-width: 85%;
+			max-width: 85%;
+		}
 	</ui:style>
-
-
-	<!-- <g:HTMLPanel width="100%" height="auto" styleName="h1-new"> -->
-	<g:DockLayoutPanel ui:field="docLayoutPanelMain"
-		width="100%" height="100%" unit="PX" styleName="h1">
-		<g:north size="200.2">
-			<g:HorizontalPanel verticalAlignment="ALIGN_MIDDLE"
-				horizontalAlignment="ALIGN_CENTER" width="100%" height="auto">
-				<g:Cell verticalAlignment="ALIGN_MIDDLE">
+	<g:VerticalPanel styleName="{style.vPanelStyle}">
+		<!-- HEADER -->
+		<g:cell>
+			<g:HorizontalPanel horizontalAlignment="ALIGN_CENTER"
+				width="100%" height="auto">
+				<g:Cell horizontalAlignment="ALIGN_LEFT">
 					<g:Image url="images/Tum_logo.gif" pixelSize="200, 200"
 						height="200" width="200"></g:Image>
 				</g:Cell>
@@ -33,276 +38,291 @@
 					<g:Image url="images/Tum_logo.gif" pixelSize="100, 100"></g:Image>
 				</g:Cell>
 			</g:HorizontalPanel>
-		</g:north>
-		<g:south size="19.5">
-			<g:Grid width="auto" height="auto">
-				<g:row>
-					<g:customCell>
-						<g:Label text="END" horizontalAlignment="ALIGN_CENTER" />
-					</g:customCell>
-				</g:row>
-			</g:Grid>
-		</g:south>
-		<g:west size="200.2">
-			<g:VerticalPanel width="200px" height="auto"
-				horizontalAlignment="ALIGN_LEFT">
-				<g:RadioButton text="Overview" name="rBtnActionGroup"
-					ui:field="rBtnOverview" checked="true"></g:RadioButton>
-				<g:RadioButton text="Rent" name="rBtnActionGroup"
-					ui:field="rBtnRent"></g:RadioButton>
-				<g:RadioButton text="Return" name="rBtnActionGroup"
-					ui:field="rBtnReturn"></g:RadioButton>
-				<g:RadioButton text="History" name="rBtnActionGroup"
-					ui:field="rBtnHistory"></g:RadioButton>
-				<g:RadioButton text="Manage" name="rBtnActionGroup"
-					ui:field="rBtnManage"></g:RadioButton>
-			</g:VerticalPanel>
-		</g:west>
-		<g:center>
-			<g:ScrollPanel width="100%" height="100%">
-				<g:DeckPanel ui:field="deckPanelActualView" width="100%"
-					height="100%" animationEnabled="true" visible="true">
-					<!-- OverView -->
-					<g:Grid height="auto" borderWidth="2" styleName="overviewGridStyle"
-						width="100%">
-						<g:row>
-							<g:customCell>
-								<g:HorizontalPanel width="100%" height="auto"
-									ui:field="hPanelOverview">
-									<g:Cell width="100%" height="auto">
-										<!-- PieChart -->
-										<cell:CellTable ui:field="tableHistoryOverview"
-											width="100%" height="auto" />
-									</g:Cell>
-								</g:HorizontalPanel>
-							</g:customCell>
-						</g:row>
-						<g:row>
-							<g:customCell>
-								<g:CaptionPanel captionText="Available Devices">
-									<!-- available devices -->
-									<cell:CellTable ui:field="tableAvailableDevices"
-										width="100%" height="auto" tableLayoutFixed="true"></cell:CellTable>
+		</g:cell>
+		<!-- BODY -->
+		<g:cell>
+			<g:HorizontalPanel>
+				<!-- Page selection -->
+				<g:cell>
+					<g:VerticalPanel width="200px" height="auto"
+						horizontalAlignment="ALIGN_LEFT">
+						<g:RadioButton text="Overview" name="rBtnActionGroup"
+							ui:field="rBtnOverview" checked="true"></g:RadioButton>
+						<g:RadioButton text="Rent" name="rBtnActionGroup"
+							ui:field="rBtnRent"></g:RadioButton>
+						<g:RadioButton text="Return" name="rBtnActionGroup"
+							ui:field="rBtnReturn"></g:RadioButton>
+						<g:RadioButton text="History" name="rBtnActionGroup"
+							ui:field="rBtnHistory"></g:RadioButton>
+						<g:RadioButton text="Manage" name="rBtnActionGroup"
+							ui:field="rBtnManage"></g:RadioButton>
+					</g:VerticalPanel>
+				</g:cell>
+
+				<!-- Current page -->
+				<g:cell>
+					<g:DeckPanel ui:field="deckPanelActualView" width="100%"
+						height="100%" animationEnabled="true" visible="true">
+						<!-- OverView -->
+						<g:Grid height="auto" borderWidth="2" styleName="overviewGridStyle"
+							width="100%">
+							<g:row>
+								<g:customCell>
+									<g:HorizontalPanel width="100%" height="auto"
+										ui:field="hPanelOverview">
+										<g:Cell width="100%" height="auto">
+											<!-- PieChart -->
+											<cell:CellTable ui:field="tableHistoryOverview"
+												width="100%" height="auto" />
+										</g:Cell>
+									</g:HorizontalPanel>
+								</g:customCell>
+							</g:row>
+							<g:row>
+								<g:customCell>
+									<g:CaptionPanel captionText="Available Devices">
+										<!-- available devices -->
+										<cell:CellTable ui:field="tableAvailableDevices"
+											width="100%" height="auto" tableLayoutFixed="true"></cell:CellTable>
+									</g:CaptionPanel>
+								</g:customCell>
+							</g:row>
+							<g:row>
+								<g:customCell>
+									<g:CaptionPanel captionText="Rented Devices">
+										<!-- unavailable devices -->
+										<cell:CellTable ui:field="tableUnavailableDevices"
+											width="100%" height="auto"></cell:CellTable>
+									</g:CaptionPanel>
+								</g:customCell>
+							</g:row>
+						</g:Grid>
+						<!-- Rent -->
+						<g:VerticalPanel width="100%">
+							<g:cell>
+								<g:CaptionPanel captionText="1. Choose Student">
+									<g:Grid width="100%">
+										<g:row>
+											<g:customCell>
+												<g:CaptionPanel captionText="Registered Student">
+													<g:VerticalPanel>
+														<extGwt:ComboBox ui:field="cBoxRentRegisteredStudentName"
+															loadingText="Searching ..." forceSelection="true"
+															hideTrigger="false" shim="true" autoHeight="true"
+															selectOnFocus="true" typeAhead="true" width="300"
+															emptyText="Type a name" stateful="true" displayField="name">
+														</extGwt:ComboBox>
+														<g:cell>
+															<g:Label text="or" horizontalAlignment="ALIGN_CENTER" />
+														</g:cell>
+														<extGwt:ComboBox ui:field="cBoxRentRegisteredStudentMatriculation"
+															loadingText="Searching ..." forceSelection="true"
+															autoHeight="true" selectOnFocus="true" width="300"
+															typeAhead="true" emptyText="Type a matric. nr." stateful="true"
+															displayField="matriculation">
+														</extGwt:ComboBox>
+													</g:VerticalPanel>
+												</g:CaptionPanel>
+											</g:customCell>
+											<g:customCell>
+												<g:CaptionPanel captionText="New Student"
+													height="100%">
+													<g:Grid>
+														<g:row>
+															<g:customCell>
+																<g:Label text="Name: "></g:Label>
+															</g:customCell>
+															<g:customCell>
+																<g:TextBox ui:field="tBoxRentNewStudentName"></g:TextBox>
+															</g:customCell>
+															<g:customCell>
+																<g:Label text="Email: "></g:Label>
+															</g:customCell>
+															<g:customCell>
+																<g:TextBox ui:field="tBoxRentNewStudentEmail"></g:TextBox>
+															</g:customCell>
+														</g:row>
+														<g:row>
+															<g:customCell>
+																<g:Label text="Phone: "></g:Label>
+															</g:customCell>
+															<g:customCell>
+																<g:TextBox ui:field="tBoxRentNewStudentPhone"></g:TextBox>
+															</g:customCell>
+															<g:customCell>
+																<g:Label text="Matriculation: "></g:Label>
+															</g:customCell>
+															<g:customCell>
+																<g:TextBox ui:field="tBoxRentNewStudentMatric"></g:TextBox>
+															</g:customCell>
+														</g:row>
+													</g:Grid>
+												</g:CaptionPanel>
+											</g:customCell>
+										</g:row>
+									</g:Grid>
 								</g:CaptionPanel>
-							</g:customCell>
-						</g:row>
-						<g:row>
-							<g:customCell>
-								<g:CaptionPanel captionText="Rented Devices">
-									<!-- unavailable devices -->
-									<cell:CellTable ui:field="tableUnavailableDevices"
+							</g:cell>
+							<g:cell>
+								<g:CaptionPanel captionText="2. Choose devices and sign">
+									<g:Grid ui:field="gridRentDevices">
+										<g:row>
+											<g:customCell>
+												<g:Label text="Select an available device"></g:Label>
+											</g:customCell>
+											<g:customCell>
+												<extGwt:ComboBox ui:field="cBoxRentSelectDevice"
+													width="250" emptyText="Type a device name" displayField="name"
+													typeAhead="true" selectOnFocus="true"></extGwt:ComboBox>
+											</g:customCell>
+											<g:customCell>
+												<extGwtBtn:Button text="Rent" ui:field="btnRent"></extGwtBtn:Button>
+											</g:customCell>
+											<g:customCell>
+												<g:VerticalPanel>
+													<g:cell>
+														<extGwtWgt:ListView ui:field="lstViewRentSelectedDevices"
+															width="300" height="350"></extGwtWgt:ListView>
+													</g:cell>
+													<g:cell horizontalAlignment="ALIGN_CENTER">
+														<extGwtBtn:Button text="Remove"
+															ui:field="btnRentClearRentedList"></extGwtBtn:Button>
+													</g:cell>
+												</g:VerticalPanel>
+											</g:customCell>
+										</g:row>
+										<g:row>
+											<g:customCell>
+												<g:VerticalPanel width="100%">
+													<g:cell>
+														<g:Label text="Comments:"></g:Label>
+													</g:cell>
+													<g:cell>
+														<g:TextArea ui:field="txtAreaRentComments"
+															characterWidth="65" width="300" visibleLines="5"></g:TextArea>
+													</g:cell>
+												</g:VerticalPanel>
+											</g:customCell>
+											<g:customCell>
+												<g:VerticalPanel>
+													<g:cell>
+														<g:Label text="Signature:"></g:Label>
+													</g:cell>
+													<g:cell>
+														<v:DrawingArea ui:field="canvasRentSignature"
+															styleName="{style.signingCanvasStyle}">
+														</v:DrawingArea>
+													</g:cell>
+													<g:cell horizontalAlignment="ALIGN_CENTER">
+														<extGwtBtn:Button text="Clear"
+															ui:field="btnRentClearSignature"></extGwtBtn:Button>
+													</g:cell>
+												</g:VerticalPanel>
+											</g:customCell>
+											<g:customCell>
+												<extGwtBtn:Button text="Rent" ui:field="btnSubmitRentEvent"
+													stylePrimaryName="myButton"></extGwtBtn:Button>
+											</g:customCell>
+										</g:row>
+									</g:Grid>
+								</g:CaptionPanel>
+							</g:cell>
+						</g:VerticalPanel>
+						<!-- Return -->
+						<g:VerticalPanel width="100%">
+							<g:cell>
+								<g:Label text="Return devices"></g:Label>
+							</g:cell>
+							<g:cell width="100%">
+								<cell:CellBrowser ui:field="cellBrowserReturn" defaultColumnWidth="150"
+									width="100%" height="300px" animationEnabled="true">
+								</cell:CellBrowser>
+							</g:cell>
+							<g:cell>
+								<g:HorizontalPanel>
+									<g:cell>
+										<g:Label text="Selected:"></g:Label>
+									</g:cell>
+									<g:cell>
+										<g:Label ui:field="lblRentSelectedDevices" text="0 devices"></g:Label>
+									</g:cell>
+								</g:HorizontalPanel>
+							</g:cell>
+						</g:VerticalPanel>
+
+						<!-- History -->
+						<g:VerticalPanel>
+							<g:cell>
+								<g:CaptionPanel captionText="Filters">
+									<g:Grid>
+										<g:row>
+											<g:customCell>
+												<g:Label text="Person name: "></g:Label>
+											</g:customCell>
+											<g:customCell>
+												<extGwt:ComboBox ui:field="cBoxHistoryFilterName"
+													typeAhead="true" displayField="name" emptyText="Type a name"
+													selectOnFocus="true" width="250">
+												</extGwt:ComboBox>
+											</g:customCell>
+											<g:customCell>
+												<g:Label text="IMEI code: "></g:Label>
+											</g:customCell>
+											<g:customCell>
+												<extGwt:ComboBox ui:field="cBoxHistoryFilterImei"
+													typeAhead="true" displayField="imei" emptyText="Type a name"
+													selectOnFocus="true" width="250">
+												</extGwt:ComboBox>
+											</g:customCell>
+											<g:customCell>
+												<g:Label text="Date interval: "></g:Label>
+											</g:customCell>
+											<g:customCell>
+												<g:HorizontalPanel spacing="5">
+													<g:cell>
+														<g:VerticalPanel horizontalAlignment="ALIGN_CENTER">
+															<g:cell>
+																<g:Label text="FROM:"></g:Label>
+															</g:cell>
+															<g:cell>
+																<extGwtWgt:DatePicker ui:field="datePickerHistoryFilterFrom"
+																	shim="true"></extGwtWgt:DatePicker>
+															</g:cell>
+															<g:cell>
+																<g:TextBox width="90%" ui:field="txtBoxHistoryFilterFrom"></g:TextBox>
+															</g:cell>
+														</g:VerticalPanel>
+													</g:cell>
+													<g:cell>
+														<g:VerticalPanel horizontalAlignment="ALIGN_CENTER">
+															<g:cell>
+																<g:Label text="TO:"></g:Label>
+															</g:cell>
+															<g:cell>
+																<extGwtWgt:DatePicker ui:field="datePickerHistoryFilterTo"></extGwtWgt:DatePicker>
+															</g:cell>
+															<g:cell>
+																<g:TextBox width="90%" ui:field="txtBoxHistoryFilterTo"></g:TextBox>
+															</g:cell>
+														</g:VerticalPanel>
+													</g:cell>
+												</g:HorizontalPanel>
+											</g:customCell>
+										</g:row>
+									</g:Grid>
+								</g:CaptionPanel>
+							</g:cell>
+							<g:cell>
+								<g:CaptionPanel captionText="Results">
+									<cell:CellTable ui:field="tableHistoryEventsFiltered"
 										width="100%" height="auto"></cell:CellTable>
 								</g:CaptionPanel>
-							</g:customCell>
-						</g:row>
-					</g:Grid>
-					<!-- Rent -->
-					<g:VerticalPanel width="100%" height="auto">
-						<g:cell>
-							<g:CaptionPanel captionText="1. Choose Student">
-								<g:Grid>
-									<g:row>
-										<g:customCell>
-											<g:CaptionPanel captionText="Registered Student">
-												<g:VerticalPanel>
-													<extGwt:ComboBox ui:field="cBoxRentRegisteredStudentName"
-														loadingText="Searching ..." forceSelection="true"
-														hideTrigger="false" shim="true" autoHeight="true"
-														selectOnFocus="true" typeAhead="true" width="300"
-														emptyText="Type a name" stateful="true" displayField="name">
-													</extGwt:ComboBox>
-													<g:cell>
-														<g:Label text="or" horizontalAlignment="ALIGN_CENTER" />
-													</g:cell>
-													<extGwt:ComboBox ui:field="cBoxRentRegisteredStudentMatriculation"
-														loadingText="Searching ..." forceSelection="true"
-														autoHeight="true" selectOnFocus="true" width="300"
-														typeAhead="true" emptyText="Type a matric. nr." stateful="true"
-														displayField="matriculation">
-													</extGwt:ComboBox>
-												</g:VerticalPanel>
-											</g:CaptionPanel>
-										</g:customCell>
-										<g:customCell>
-											<g:CaptionPanel captionText="New Student"
-												height="100%">
-												<g:Grid>
-													<g:row>
-														<g:customCell>
-															<g:Label text="Name: "></g:Label>
-														</g:customCell>
-														<g:customCell>
-															<g:TextBox ui:field="tBoxRentNewStudentName"></g:TextBox>
-														</g:customCell>
-														<g:customCell>
-															<g:Label text="Email: "></g:Label>
-														</g:customCell>
-														<g:customCell>
-															<g:TextBox ui:field="tBoxRentNewStudentEmail"></g:TextBox>
-														</g:customCell>
-													</g:row>
-													<g:row>
-														<g:customCell>
-															<g:Label text="Phone: "></g:Label>
-														</g:customCell>
-														<g:customCell>
-															<g:TextBox ui:field="tBoxRentNewStudentPhone"></g:TextBox>
-														</g:customCell>
-														<g:customCell>
-															<g:Label text="Matriculation: "></g:Label>
-														</g:customCell>
-														<g:customCell>
-															<g:TextBox ui:field="tBoxRentNewStudentMatric"></g:TextBox>
-														</g:customCell>
-													</g:row>
-												</g:Grid>
-											</g:CaptionPanel>
-										</g:customCell>
-									</g:row>
-								</g:Grid>
-							</g:CaptionPanel>
-						</g:cell>
-						<g:cell>
-							<g:CaptionPanel captionText="2. Choose devices and sign">
-								<g:Grid ui:field="gridRentDevices">
-									<g:row>
-										<g:customCell>
-											<g:Label text="Select an available device"></g:Label>
-										</g:customCell>
-										<g:customCell>
-											<extGwt:ComboBox ui:field="cBoxRentSelectDevice"
-												width="250" emptyText="Type a device name" displayField="name"
-												typeAhead="true" selectOnFocus="true"></extGwt:ComboBox>
-										</g:customCell>
-										<g:customCell>
-											<extGwtBtn:Button text="Rent" ui:field="btnRent"></extGwtBtn:Button>
-										</g:customCell>
-										<g:customCell>
-											<g:VerticalPanel>
-												<g:cell>
-													<extGwtWgt:ListView ui:field="lstViewRentSelectedDevices"
-														width="300" height="350"></extGwtWgt:ListView>
-												</g:cell>
-												<g:cell horizontalAlignment="ALIGN_CENTER">
-													<extGwtBtn:Button text="Remove"
-														ui:field="btnRentClearRentedList"></extGwtBtn:Button>
-												</g:cell>
-											</g:VerticalPanel>
-										</g:customCell>
-									</g:row>
-									<g:row>
-										<g:customCell>
-											<g:VerticalPanel width="100%">
-												<g:cell>
-													<g:Label text="Comments:"></g:Label>
-												</g:cell>
-												<g:cell>
-													<g:TextArea ui:field="txtAreaRentComments"
-														characterWidth="65" width="300" visibleLines="5"></g:TextArea>
-												</g:cell>
-											</g:VerticalPanel>
-										</g:customCell>
-										<g:customCell>
-											<g:VerticalPanel>
-												<g:cell>
-													<g:Label text="Signature:"></g:Label>
-												</g:cell>
-												<g:cell>
-													<v:DrawingArea ui:field="canvasRentSignature"
-														styleName="{style.signingCanvasStyle}">
-													</v:DrawingArea>
-												</g:cell>
-												<g:cell horizontalAlignment="ALIGN_CENTER">
-													<extGwtBtn:Button text="Clear"
-														ui:field="btnRentClearSignature"></extGwtBtn:Button>
-												</g:cell>
-											</g:VerticalPanel>
-										</g:customCell>
-										<g:customCell>
-											<extGwtBtn:Button text="Rent" ui:field="btnSubmitRentEvent"
-												stylePrimaryName="myButton"></extGwtBtn:Button>
-										</g:customCell>
-									</g:row>
-								</g:Grid>
-							</g:CaptionPanel>
-						</g:cell>
-					</g:VerticalPanel>
-					<!-- Return -->
-					<!-- History -->
-					<g:VerticalPanel>
-						<g:cell>
-							<g:CaptionPanel captionText="Filters">
-								<g:Grid>
-									<g:row>
-										<g:customCell>
-											<g:Label text="Person name: "></g:Label>
-										</g:customCell>
-										<g:customCell>
-											<extGwt:ComboBox ui:field="cBoxHistoryFilterName"
-												typeAhead="true" displayField="name" emptyText="Type a name"
-												selectOnFocus="true" width="250">
-											</extGwt:ComboBox>
-										</g:customCell>
-										<g:customCell>
-											<g:Label text="IMEI code: "></g:Label>
-										</g:customCell>
-										<g:customCell>
-											<extGwt:ComboBox ui:field="cBoxHistoryFilterImei"
-												typeAhead="true" displayField="imei" emptyText="Type a name"
-												selectOnFocus="true" width="250">
-											</extGwt:ComboBox>
-										</g:customCell>
-										<g:customCell>
-											<g:Label text="Date interval: "></g:Label>
-										</g:customCell>
-										<g:customCell>
-											<g:HorizontalPanel spacing="5">
-												<g:cell>
-													<g:VerticalPanel horizontalAlignment="ALIGN_CENTER">
-														<g:cell>
-															<g:Label text="FROM:"></g:Label>
-														</g:cell>
-														<g:cell>
-															<extGwtWgt:DatePicker ui:field="datePickerHistoryFilterFrom"
-																shim="true"></extGwtWgt:DatePicker>
-														</g:cell>
-														<g:cell>
-															<g:TextBox width="90%" ui:field="txtBoxHistoryFilterFrom"></g:TextBox>
-														</g:cell>
-													</g:VerticalPanel>
-												</g:cell>
-												<g:cell>
-													<g:VerticalPanel horizontalAlignment="ALIGN_CENTER">
-														<g:cell>
-															<g:Label text="TO:"></g:Label>
-														</g:cell>
-														<g:cell>
-															<extGwtWgt:DatePicker ui:field="datePickerHistoryFilterTo"></extGwtWgt:DatePicker>
-														</g:cell>
-														<g:cell>
-															<g:TextBox width="90%" ui:field="txtBoxHistoryFilterTo"></g:TextBox>
-														</g:cell>
-													</g:VerticalPanel>
-												</g:cell>
-											</g:HorizontalPanel>
-										</g:customCell>
-									</g:row>
-								</g:Grid>
-							</g:CaptionPanel>
-						</g:cell>
-						<g:cell>
-							<g:CaptionPanel captionText="Results">
-								<cell:CellTable ui:field="tableHistoryEventsFiltered"
-									width="100%" height="auto"></cell:CellTable>
-							</g:CaptionPanel>
-						</g:cell>
-					</g:VerticalPanel>
-					<!-- Manage -->
-				</g:DeckPanel>
-			</g:ScrollPanel>
-		</g:center>
-
-	</g:DockLayoutPanel>
-
-	<!-- </g:HTMLPanel> -->
+							</g:cell>
+						</g:VerticalPanel>
+						<!-- Manage -->
+					</g:DeckPanel>
+				</g:cell>
+			</g:HorizontalPanel>
+		</g:cell>
+	</g:VerticalPanel>
 </ui:UiBinder> 

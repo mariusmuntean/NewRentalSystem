@@ -1,6 +1,5 @@
 package de.tum.os.drs.client.view;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -9,11 +8,8 @@ import org.vaadin.gwtgraphics.client.DrawingArea;
 import org.vaadin.gwtgraphics.client.shape.Path;
 
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
-import com.extjs.gxt.ui.client.Style.HideMode;
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
@@ -39,9 +35,9 @@ import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.event.dom.client.MouseUpHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.layout.client.Layout.Alignment;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.cellview.client.CellBrowser;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
@@ -49,30 +45,29 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DeckPanel;
+import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
+import com.google.gwt.visualization.client.ChartArea;
 import com.google.gwt.visualization.client.DataTable;
-import com.google.gwt.visualization.client.formatters.DateFormat;
 import com.google.gwt.visualization.client.visualizations.corechart.PieChart;
 import com.google.gwt.visualization.client.visualizations.corechart.PieChart.PieOptions;
 import com.google.gwt.visualization.client.visualizations.corechart.TextStyle;
-import com.ibm.icu.text.SimpleDateFormat;
-import com.sun.corba.se.impl.encoding.CodeSetConversion.BTCConverter;
-// import com.google.gwt.visualization.client.visualizations.corechart.PieChart;
-
 import de.tum.os.drs.client.NewRentalSystem;
 import de.tum.os.drs.client.model.DisplayableDevice;
 import de.tum.os.drs.client.model.DisplayableRenter;
 import de.tum.os.drs.client.model.PersistentDevice;
 import de.tum.os.drs.client.model.PersistentEvent;
+import de.tum.os.drs.client.model.RenterTreeViewModel;
 import de.tum.os.drs.client.model.SerializableRenter;
 
 public class MainPageBinder extends Composite implements HasText, ClickHandler,
@@ -88,6 +83,9 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	/*
 	 * UiFields region
 	 */
+
+	// @UiField
+	// DockLayoutPanel docLayoutPanelMain;
 
 	@UiField(provided = true)
 	CellTable<PersistentDevice> tableAvailableDevices;
@@ -180,9 +178,15 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 
 	@UiField
 	TextBox txtBoxHistoryFilterTo;
-	
-	@UiField(provided=true)
+
+	@UiField(provided = true)
 	CellTable tableHistoryEventsFiltered;
+
+	@UiField(provided = true)
+	CellBrowser cellBrowserReturn;
+
+	@UiField
+	Label lblRentSelectedDevices;
 
 	/*
 	 * Stores region
@@ -200,6 +204,8 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	private ListDataProvider<PersistentDevice> unavailableDevicesDataProvider;
 	private ListDataProvider<PersistentEvent> eventsHistoryDataProvider;
 	private ListDataProvider<PersistentEvent> eventsFilteredHistoryDataProvider;
+	private ListDataProvider<SerializableRenter> allRentersDataProvider;
+	private ListDataProvider<PersistentDevice> allRentedDevicesDataProvider;
 
 	/*
 	 * Templates
@@ -225,7 +231,9 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 			ListStore<DisplayableRenter> displayableRentersListStore,
 			ListStore<DisplayableDevice> availableDevicesListStore,
 			ListStore<DisplayableRenter> displayableRentersFilterListStore,
-			ListStore<DisplayableDevice> displayableDevicesFilterListStore) {
+			ListStore<DisplayableDevice> displayableDevicesFilterListStore,
+			ListDataProvider<SerializableRenter> allRentersDataProvider,
+			ListDataProvider<PersistentDevice> allRentedDevicesDataProvider) {
 
 		this.client = client;
 		this.availableDevicesDataProvider = availableDevicesDataProvider;
@@ -236,9 +244,14 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		this.availableDevicesListStore = availableDevicesListStore;
 		this.displayableRentersFilterListStore = displayableRentersFilterListStore;
 		this.displayableDevicesFilterListStore = displayableDevicesFilterListStore;
+		this.allRentersDataProvider = allRentersDataProvider;
+		this.allRentedDevicesDataProvider = allRentedDevicesDataProvider;
 
 		instantiateControls();
 		initWidget(uiBinder.createAndBindUi(this));
+		// docLayoutPanelMain.getWidgetContainerElement(deckPanelActualView).getStyle().setOverflowY(Overflow.AUTO);
+		// docLayoutPanelMain.getElement().getStyle().setOverflowY(Overflow.AUTO);
+		// deckPanelActualView.setHeight("1000px");
 		wireUpControls();
 
 		injectPieChart();
@@ -280,6 +293,11 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		lstViewRentSelectedDevices.setStore(selectedDevicesListStore);
 		canvasRentSignature = new DrawingArea(500, 300);
 
+		// Return page
+		RenterTreeViewModel rtvm = new RenterTreeViewModel(allRentersDataProvider,
+				allRentedDevicesDataProvider);
+		cellBrowserReturn = new CellBrowser(rtvm, null);
+
 		// History page
 		cBoxHistoryFilterName = new ComboBox<DisplayableRenter>();
 		cBoxHistoryFilterName.setSimpleTemplate(rentStudentComboTemplate);
@@ -288,7 +306,6 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		cBoxHistoryFilterImei = new ComboBox<DisplayableDevice>();
 		cBoxHistoryFilterImei.setStore(displayableDevicesFilterListStore);
 		tableHistoryEventsFiltered = getCellTableHistory(eventsFilteredHistoryDataProvider);
-		
 
 	}
 
@@ -314,6 +331,9 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		canvasRentSignature.addMouseOverHandler(this);
 		canvasRentSignature.addMouseOutHandler(this);
 		btnRentClearSignature.addListener(Events.OnClick, this);
+
+		// Return page
+		// cellBrowserReturn.
 
 		// Fix the colspan for the comments area and the signature area.
 		Element element = gridRentDevices.getCellFormatter().getElement(1, 0);
@@ -412,7 +432,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 
 	private void injectPieChart() {
 		DataTable data = getDevicePieChartData(4, 4);
-		PieOptions options = getDevicePieChartOptions(400, 300);
+		PieOptions options = getDevicePieChartOptions(300, 300);
 		pChartRentedVsAvailable = new PieChart(data, options);
 
 		hPanelOverview.insert(pChartRentedVsAvailable, 0);
@@ -436,6 +456,12 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		PieOptions options = PieChart.PieOptions.create();
 		options.setHeight(height);
 		options.setWidth(width);
+		ChartArea ca = ChartArea.create();
+		ca.setLeft("20");
+		ca.setTop("20");
+		ca.setWidth("100%");
+		ca.setHeight("100%");
+		options.setChartArea(ca);
 		options.setTitle("Available vs. rented devices");
 
 		TextStyle ts = TextStyle.create();
@@ -727,7 +753,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 
 	public void setRentedVsAvailable(int availableDevices, int rentedDevices) {
 		DataTable newData = getDevicePieChartData(availableDevices, rentedDevices);
-		PieOptions options = getDevicePieChartOptions(400, 300);
+		PieOptions options = getDevicePieChartOptions(300, 300);
 		pChartRentedVsAvailable.draw(newData, options);
 	}
 
