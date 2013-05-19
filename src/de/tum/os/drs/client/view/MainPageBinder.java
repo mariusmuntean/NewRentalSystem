@@ -1,9 +1,13 @@
 package de.tum.os.drs.client.view;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.io.filefilter.FalseFileFilter;
 import org.vaadin.gwtgraphics.client.DrawingArea;
 import org.vaadin.gwtgraphics.client.shape.Path;
 
@@ -13,6 +17,7 @@ import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.state.Provider;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.DatePicker;
 import com.extjs.gxt.ui.client.widget.ListView;
@@ -56,6 +61,7 @@ import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.ChartArea;
 import com.google.gwt.visualization.client.DataTable;
@@ -149,8 +155,8 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	@UiField(provided = true)
 	DrawingArea canvasRentSignature;
 
-	Path currentSignaturePath;
-	boolean signing = false;
+	Path currentRentSignaturePath;
+	boolean signingRent = false;
 
 	@UiField
 	Button btnRentClearSignature;
@@ -188,6 +194,32 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	@UiField
 	Label lblRentSelectedDevices;
 
+	@UiField(provided = true)
+	ComboBox<DisplayableRenter> cBoxReturnRegisteredStudentName;
+
+	@UiField(provided = true)
+	ComboBox<DisplayableRenter> cBoxReturnRegisteredStudentMatriculation;
+
+	@UiField
+	TextArea txtAreaReturnComments;
+
+	@UiField(provided = true)
+	DrawingArea canvasReturnSignature;
+
+	Path currentReturnSignaturePath;
+	boolean signingReturn = false;
+
+	@UiField
+	Button btnReturnSubmit;
+
+	@UiField
+	Button btnReturnClearCanvas;
+
+	/*
+	 * ViewModels
+	 */
+	private RenterTreeViewModel rtvm;
+
 	/*
 	 * Stores region
 	 */
@@ -211,8 +243,8 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	 * Templates
 	 */
 	final String rentStudentComboTemplate = new String("<table>"
-			+ "<tr><td>{name}</td></tr>" + "<tr><td>{matriculation}</td></tr>"
-			+ "</table>");
+			+ "<tr><td><strong>{name}</strong></td></tr>"
+			+ "<tr><td>{matriculation}</td></tr>" + "</table>");
 
 	final String displayableDeviceTemplate = new String(
 			"<table>"
@@ -294,9 +326,40 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		canvasRentSignature = new DrawingArea(500, 300);
 
 		// Return page
-		RenterTreeViewModel rtvm = new RenterTreeViewModel(allRentersDataProvider,
-				allRentedDevicesDataProvider);
+		cBoxReturnRegisteredStudentName = new ComboBox<DisplayableRenter>();
+		cBoxReturnRegisteredStudentName.setSimpleTemplate(rentStudentComboTemplate);
+		cBoxReturnRegisteredStudentName.setStore(displayableRentersListStore);
+		cBoxReturnRegisteredStudentName.setTriggerAction(TriggerAction.ALL);
+
+		cBoxReturnRegisteredStudentMatriculation = new ComboBox<DisplayableRenter>();
+		cBoxReturnRegisteredStudentMatriculation
+				.setSimpleTemplate(rentStudentComboTemplate);
+		cBoxReturnRegisteredStudentMatriculation
+				.setStore(displayableRentersFilterListStore);
+		cBoxReturnRegisteredStudentMatriculation.setTriggerAction(TriggerAction.ALL);
+
+		SelectionChangeEvent.Handler deviceSelectionHandler = new SelectionChangeEvent.Handler() {
+			@Override
+			public void onSelectionChange(SelectionChangeEvent event) {
+				if (rtvm.getSelectedDevices() != null
+						&& rtvm.getSelectedDevices().size() > 0) {
+					StringBuilder sb = new StringBuilder();
+					List<PersistentDevice> devices = new ArrayList<PersistentDevice>(
+							rtvm.getSelectedDevices());
+					for (PersistentDevice pd : devices) {
+						sb.append(pd.getName() + "(" + pd.getIMEI() + "), ");
+					}
+					lblRentSelectedDevices.setText(rtvm.getSelectedRenter().getName()
+							+ " -> " + sb.toString());
+				}
+
+			}
+		};
+		rtvm = new RenterTreeViewModel(allRentersDataProvider,
+				allRentedDevicesDataProvider, deviceSelectionHandler);
 		cellBrowserReturn = new CellBrowser(rtvm, null);
+
+		canvasReturnSignature = new DrawingArea(500, 300);
 
 		// History page
 		cBoxHistoryFilterName = new ComboBox<DisplayableRenter>();
@@ -332,17 +395,18 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		canvasRentSignature.addMouseOutHandler(this);
 		btnRentClearSignature.addListener(Events.OnClick, this);
 
-		// Return page
-		// cellBrowserReturn.
-
-		// Fix the colspan for the comments area and the signature area.
-		Element element = gridRentDevices.getCellFormatter().getElement(1, 0);
-		DOM.setElementAttribute(element, "colspan", "2");
-
-		Element element2 = gridRentDevices.getCellFormatter().getElement(1, 1);
-		DOM.setElementAttribute(element2, "colspan", "2");
-
 		btnSubmitRentEvent.addListener(Events.OnClick, this);
+
+		// Return page
+		cBoxReturnRegisteredStudentMatriculation.addSelectionChangedListener(rsc);
+		cBoxReturnRegisteredStudentName.addSelectionChangedListener(rsc);
+		canvasReturnSignature.addMouseDownHandler(this);
+		canvasReturnSignature.addMouseMoveHandler(this);
+		canvasReturnSignature.addMouseUpHandler(this);
+		canvasReturnSignature.addMouseOverHandler(this);
+		canvasReturnSignature.addMouseOutHandler(this);
+		btnReturnSubmit.addListener(Events.OnClick, this);
+		btnReturnClearCanvas.addListener(Events.OnClick, this);
 
 		// History page
 		cBoxHistoryFilterName.addSelectionChangedListener(rsc);
@@ -427,6 +491,15 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		path.setStrokeWidth(3);
 		path.setStrokeColor("#7CFC00");
 		canvasRentSignature.add(path);
+
+		Path path2 = new Path(0, 0);
+		path2.lineRelativelyTo(canvasReturnSignature.getWidth(), 0);
+		path2.lineRelativelyTo(0, canvasReturnSignature.getHeight());
+		path2.lineRelativelyTo(-canvasReturnSignature.getWidth(), 0);
+		path2.close();
+		path2.setStrokeWidth(3);
+		path2.setStrokeColor("#7CFC00");
+		canvasReturnSignature.add(path2);
 
 	}
 
@@ -821,13 +894,52 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 			}
 
 			if (sender == btnRentClearSignature) {
-				clearSignatureCanvas();
+				clearRentSignatureCanvas();
 			}
 
 			if (sender == btnSubmitRentEvent) {
 				submitRentEvent();
 			}
+
+			if (sender == btnReturnClearCanvas) {
+				clearReturnSignatureCanvas();
+			}
+
+			if (sender == btnReturnSubmit) {
+				submitReturnEvent();
+			}
 		}
+
+	}
+
+	private void submitReturnEvent() {
+		// Check if renter selected
+		SerializableRenter selectedRenter = rtvm.getSelectedRenter();
+		if (selectedRenter == null)
+			return;
+
+		// Check if devices selected
+		HashSet<PersistentDevice> selectedDevices = rtvm.getSelectedDevices();
+		if (selectedDevices == null || selectedDevices.size() <= 0)
+			return;
+
+		// Collect data
+		Iterator<PersistentDevice> selectedDevicesIt = selectedDevices.iterator();
+		String[] selectedImeiCodes = new String[selectedDevices.size()];
+		int index = -1;
+		while(selectedDevicesIt.hasNext()){
+			index++;
+			selectedImeiCodes[index] = selectedDevicesIt.next().getIMEI();
+		}
+		String comments = txtAreaReturnComments.getText();
+		String signature = canvasReturnSignature.toString();
+		
+		// Submit
+		client.returnDevices(selectedRenter.getMatriculationNumber(), selectedImeiCodes, comments, signature);
+		
+		// Clear Return page
+		clearReturnSignatureCanvas();
+		txtAreaReturnComments.setText("");
 
 	}
 
@@ -911,7 +1023,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		lstViewRentSelectedDevices.getStore().removeAll();
 
 		// Clean Signature
-		clearSignatureCanvas();
+		clearRentSignatureCanvas();
 
 		// Clear comments
 		txtAreaRentComments.setText("");
@@ -942,8 +1054,13 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 				true);
 	}
 
-	private void clearSignatureCanvas() {
+	private void clearRentSignatureCanvas() {
 		canvasRentSignature.clear();
+		injectSignatureCanvasFrame();
+	}
+
+	private void clearReturnSignatureCanvas() {
+		canvasReturnSignature.clear();
 		injectSignatureCanvasFrame();
 	}
 
@@ -1008,25 +1125,53 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	 */
 	@Override
 	public void onMouseDown(MouseDownEvent event) {
+		Object sender = event.getSource();
+		if (sender == canvasRentSignature) {
+			currentRentSignaturePath = new Path(event.getX(), event.getY());
+			currentRentSignaturePath.setStrokeColor("#4169E1");
+			currentRentSignaturePath.setStrokeWidth(4);
+			canvasRentSignature.add(currentRentSignaturePath);
+			signingRent = true;
+			event.preventDefault();
+		}
 
-		currentSignaturePath = new Path(event.getX(), event.getY());
-		currentSignaturePath.setStrokeColor("#4169E1");
-		currentSignaturePath.setStrokeWidth(4);
-		canvasRentSignature.add(currentSignaturePath);
-		signing = true;
+		if (sender == canvasReturnSignature) {
+			currentReturnSignaturePath = new Path(event.getX(), event.getY());
+			currentReturnSignaturePath.setStrokeColor("#4169E1");
+			currentReturnSignaturePath.setStrokeWidth(4);
+			canvasReturnSignature.add(currentReturnSignaturePath);
+			signingReturn = true;
+			event.preventDefault();
+		}
+
 	}
 
 	@Override
 	public void onMouseMove(MouseMoveEvent event) {
-		if (currentSignaturePath != null && signing)
-			currentSignaturePath.lineTo(event.getX(), event.getY());
+		Object sender = event.getSource();
+		if (sender == canvasRentSignature) {
+			if (currentRentSignaturePath != null && signingRent)
+				currentRentSignaturePath.lineTo(event.getX(), event.getY());
+		}
+
+		if (sender == canvasReturnSignature) {
+			if (currentReturnSignaturePath != null && signingReturn)
+				currentReturnSignaturePath.lineTo(event.getX(), event.getY());
+		}
 
 	}
 
 	@Override
 	public void onMouseUp(MouseUpEvent event) {
 		// TODO Auto-generated method stub
-		signing = false;
+		Object sender = event.getSource();
+		if (sender == canvasRentSignature) {
+			signingRent = false;
+		}
+
+		if (sender == canvasReturnSignature) {
+			signingReturn = false;
+		}
 	}
 
 	@Override
@@ -1038,7 +1183,13 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	@Override
 	public void onMouseOut(MouseOutEvent event) {
 		// RootPanel.get().getElement().getStyle().setCursor(Cursor.AUTO);
-		signing = false;
+		Object sender = event.getSource();
+		if (sender == canvasRentSignature) {
+			signingRent = false;
+		}
+		if (sender == canvasReturnSignature) {
+			signingReturn = false;
+		}
 	}
 
 	private class registeredStudentChanged extends
@@ -1063,6 +1214,37 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 
 			if (sender == cBoxHistoryFilterName) {
 				fetchEventsHistoryFiltered();
+			}
+
+			if (sender == cBoxReturnRegisteredStudentMatriculation
+					&& cBoxReturnRegisteredStudentMatriculation.getSelection().size() > 0) {
+				if (cBoxReturnRegisteredStudentMatriculation.getSelection().get(0) != null) {
+					rtvm.selectRenter(cBoxReturnRegisteredStudentMatriculation
+							.getSelection().get(0).getMatriculation());
+					cBoxReturnRegisteredStudentName
+							.setValue(cBoxReturnRegisteredStudentMatriculation
+									.getSelection().get(0));
+					int nodeIndex = rtvm
+							.getRenterIndexByMatriculation(cBoxReturnRegisteredStudentMatriculation
+									.getSelection().get(0).getMatriculation());
+					cellBrowserReturn.getRootTreeNode().setChildOpen(nodeIndex, true);
+
+				}
+			}
+
+			if (sender == cBoxReturnRegisteredStudentName
+					&& cBoxReturnRegisteredStudentName.getSelection().size() > 0) {
+				if (cBoxReturnRegisteredStudentName.getSelection().get(0) != null) {
+					rtvm.selectRenter(cBoxReturnRegisteredStudentName.getSelection()
+							.get(0).getMatriculation());
+					cBoxReturnRegisteredStudentMatriculation
+							.setValue(cBoxReturnRegisteredStudentName.getSelection().get(
+									0));
+					int nodeIndex = rtvm
+							.getRenterIndexByMatriculation(cBoxReturnRegisteredStudentName
+									.getSelection().get(0).getMatriculation());
+					cellBrowserReturn.getRootTreeNode().setChildOpen(nodeIndex, true);
+				}
 			}
 		}
 	}

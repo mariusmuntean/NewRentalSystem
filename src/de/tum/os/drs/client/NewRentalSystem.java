@@ -97,7 +97,7 @@ public class NewRentalSystem implements EntryPoint {
 				fetchEventsHistory();
 				fetchAvailableDevices();
 				fetchUnavailableDevices();
-
+				fetchAllRenters();
 			}
 
 			@Override
@@ -121,8 +121,6 @@ public class NewRentalSystem implements EntryPoint {
 			public void onSuccess(Boolean result) {
 				rentDevicesToExistingRenter(renterMatrNr, deviceImeiCodes, comments,
 						signatureHTML);
-				fetchAllRenters();
-
 			}
 
 			@Override
@@ -134,6 +132,27 @@ public class NewRentalSystem implements EntryPoint {
 
 		service.addRenter(sr, addNewRenterCallback);
 
+	}
+	
+	public void returnDevices(String renterMatrNr, String[] imeiCodes, String comments, String signatureHTML){
+		AsyncCallback<Boolean> returnDevicesCallback = new AsyncCallback<Boolean>() {
+			
+			@Override
+			public void onSuccess(Boolean result) {
+				fetchEventsHistory();
+				fetchAvailableDevices();
+				fetchUnavailableDevices();
+				fetchAllRenters();
+				
+			}
+			
+			@Override
+			public void onFailure(Throwable caught) {
+				// TODO Auto-generated method stub
+				
+			}
+		};
+		service.returnDevices(renterMatrNr, imeiCodes, comments, signatureHTML, returnDevicesCallback);
 	}
 
 	private void fetchData() {
@@ -292,8 +311,8 @@ public class NewRentalSystem implements EntryPoint {
 		allRentedDevicesDataProvider.getList().clear();
 		if (result != null && result.size() > 0) {
 			unavailableDevicesDataProvider.getList().addAll(result);
-//			allRentedDevicesDataProvider.getList().addAll(result);
-			allRentedDevicesDataProvider.setList(result);
+			allRentedDevicesDataProvider.getList().addAll(result);
+//			allRentedDevicesDataProvider.setList(result);
 		}
 		allRentedDevicesDataProvider.refresh();
 		unavailableDevicesDataProvider.refresh();
