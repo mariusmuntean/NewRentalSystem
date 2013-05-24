@@ -15,6 +15,8 @@
 		<servlet-name>rentalServlet</servlet-name>
 		<url-pattern>/newrentalsystem/rentalService</url-pattern>
 	</servlet-mapping>
+	
+	
   
   <!-- Default page to serve -->
   <welcome-file-list>

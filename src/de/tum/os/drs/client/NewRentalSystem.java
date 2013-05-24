@@ -1,5 +1,6 @@
 package de.tum.os.drs.client;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -8,21 +9,28 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.google.api.gwt.oauth2.client.Auth;
+import com.google.api.gwt.oauth2.client.AuthRequest;
+import com.google.gwt.core.client.Callback;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.layout.client.Layout.Alignment;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.view.client.ListDataProvider;
+import com.sun.java.swing.plaf.windows.resources.windows;
 
 import de.tum.os.drs.client.model.DisplayableDevice;
 import de.tum.os.drs.client.model.DisplayableRenter;
+import de.tum.os.drs.client.model.GoogleAuthenticator;
 import de.tum.os.drs.client.model.PersistentDevice;
 import de.tum.os.drs.client.model.PersistentEvent;
 import de.tum.os.drs.client.model.SerializableRenter;
+import de.tum.os.drs.client.view.LoginPageBinder;
 import de.tum.os.drs.client.view.MainPageBinder;
 
 /**
@@ -38,6 +46,8 @@ public class NewRentalSystem implements EntryPoint {
 	String addr = GWT.getModuleBaseURL() + "rentalService";
 
 	MainPageBinder mainPageBinder;
+	LoginPageBinder loginPageBinder;
+
 	ListDataProvider<PersistentDevice> availableDevicesDataProvider = new ListDataProvider<PersistentDevice>();
 	ListDataProvider<PersistentDevice> unavailableDevicesDataProvider = new ListDataProvider<PersistentDevice>();
 
@@ -47,8 +57,10 @@ public class NewRentalSystem implements EntryPoint {
 	ListStore<DisplayableRenter> displayableRentersListStore = new ListStore<DisplayableRenter>();
 	ListStore<DisplayableDevice> availableDevicesListStore = new ListStore<DisplayableDevice>();
 
-	ListDataProvider<SerializableRenter> allRentersDataProvider = new ListDataProvider<SerializableRenter>(new ArrayList<SerializableRenter>());
-	ListDataProvider<PersistentDevice> allRentedDevicesDataProvider = new ListDataProvider<PersistentDevice>(new ArrayList<PersistentDevice>());
+	ListDataProvider<SerializableRenter> allRentersDataProvider = new ListDataProvider<SerializableRenter>(
+			new ArrayList<SerializableRenter>());
+	ListDataProvider<PersistentDevice> allRentedDevicesDataProvider = new ListDataProvider<PersistentDevice>(
+			new ArrayList<PersistentDevice>());
 
 	private ListStore<DisplayableRenter> displayableRentersFilterListStore = new ListStore<DisplayableRenter>();
 	private ListStore<DisplayableDevice> displayableDevicesFilterListStore = new ListStore<DisplayableDevice>();
@@ -67,24 +79,60 @@ public class NewRentalSystem implements EntryPoint {
 			put("nexus 10", "nexus 10.jpg");
 		}
 	};
+	
+	Callback<String, Throwable> loginCallback = new Callback<String, Throwable>() {
+		@Override
+		public void onSuccess(String token) {
+//			 You now have the OAuth2 token needed to sign authenticated requests.
+			 serviceDef.setServiceEntryPoint(addr);
+			
+			 mainPageBinder = new MainPageBinder(NewRentalSystem.this, availableDevicesDataProvider,
+			 unavailableDevicesDataProvider, eventsHistoryDataProvider,
+			 eventsFilteredHistoryDataProvider, displayableRentersListStore,
+			 availableDevicesListStore, displayableRentersFilterListStore,
+			 displayableDevicesFilterListStore, allRentersDataProvider, allRentedDevicesDataProvider);
+			 fetchData();
+			
+			 RootLayoutPanel.get().remove(loginPageBinder);
+			 RootLayoutPanel.get().removeFromParent();
+			 RootPanel.get().add(mainPageBinder);
+		}
+
+		@Override
+		public void onFailure(Throwable caught) {
+			// The authentication process failed for some reason, see caught.getMessage()
+			Window.alert("error: " + caught.getMessage());
+		}
+	};
 
 	private static final String deviceNotFoundImage = "android question.jpg";
 
+
+	// /**
+	// * This is the entry point method.
+	// */
+	// public void onModuleLoad() {
+	// serviceDef.setServiceEntryPoint(addr);
+	//
+	// mainPageBinder = new MainPageBinder(this, availableDevicesDataProvider,
+	// unavailableDevicesDataProvider, eventsHistoryDataProvider,
+	// eventsFilteredHistoryDataProvider, displayableRentersListStore,
+	// availableDevicesListStore, displayableRentersFilterListStore,
+	// displayableDevicesFilterListStore, allRentersDataProvider, allRentedDevicesDataProvider);
+	// fetchData();
+	//
+	// RootPanel.get().add(mainPageBinder);
+	// }
 	/**
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
-		serviceDef.setServiceEntryPoint(addr);
 
-		mainPageBinder = new MainPageBinder(this, availableDevicesDataProvider,
-				unavailableDevicesDataProvider, eventsHistoryDataProvider,
-				eventsFilteredHistoryDataProvider, displayableRentersListStore,
-				availableDevicesListStore, displayableRentersFilterListStore,
-				displayableDevicesFilterListStore, allRentersDataProvider, allRentedDevicesDataProvider);
-		fetchData();
+		loginPageBinder = new LoginPageBinder(new GoogleAuthenticator(this.loginCallback));
 
-		RootPanel.get().add(mainPageBinder);
+		RootLayoutPanel.get().add(loginPageBinder);
 	}
+
 
 	public void rentDevicesToExistingRenter(String renterMatrNr,
 			String[] deviceImeiCodes, String comments, String signatureHTML) {
@@ -133,26 +181,28 @@ public class NewRentalSystem implements EntryPoint {
 		service.addRenter(sr, addNewRenterCallback);
 
 	}
-	
-	public void returnDevices(String renterMatrNr, String[] imeiCodes, String comments, String signatureHTML){
+
+	public void returnDevices(String renterMatrNr, String[] imeiCodes, String comments,
+			String signatureHTML) {
 		AsyncCallback<Boolean> returnDevicesCallback = new AsyncCallback<Boolean>() {
-			
+
 			@Override
 			public void onSuccess(Boolean result) {
 				fetchEventsHistory();
 				fetchAvailableDevices();
 				fetchUnavailableDevices();
 				fetchAllRenters();
-				
+
 			}
-			
+
 			@Override
 			public void onFailure(Throwable caught) {
 				// TODO Auto-generated method stub
-				
+
 			}
 		};
-		service.returnDevices(renterMatrNr, imeiCodes, comments, signatureHTML, returnDevicesCallback);
+		service.returnDevices(renterMatrNr, imeiCodes, comments, signatureHTML,
+				returnDevicesCallback);
 	}
 
 	private void fetchData() {
@@ -186,7 +236,7 @@ public class NewRentalSystem implements EntryPoint {
 		displayableRentersListStore.removeAll();
 		allRentersDataProvider.getList().clear();
 		if (result != null && result.size() > 0) {
-//			allRentersDataProvider.getList().addAll(result);
+			// allRentersDataProvider.getList().addAll(result);
 			allRentersDataProvider.setList(result);
 			for (SerializableRenter sr : result) {
 				displayableRentersListStore.add(new DisplayableRenter(sr.getName(), sr
@@ -312,7 +362,7 @@ public class NewRentalSystem implements EntryPoint {
 		if (result != null && result.size() > 0) {
 			unavailableDevicesDataProvider.getList().addAll(result);
 			allRentedDevicesDataProvider.getList().addAll(result);
-//			allRentedDevicesDataProvider.setList(result);
+			// allRentedDevicesDataProvider.setList(result);
 		}
 		allRentedDevicesDataProvider.refresh();
 		unavailableDevicesDataProvider.refresh();

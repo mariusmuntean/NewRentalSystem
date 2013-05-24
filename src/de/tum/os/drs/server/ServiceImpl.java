@@ -1,5 +1,6 @@
 package de.tum.os.drs.server;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -10,6 +11,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
@@ -31,27 +35,7 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 		factory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
 		// createDummyData();
 	}
-
-	private void createDummyData() {
-
-		EntityManager em = factory.createEntityManager();
-
-		Random rand = new Random();
-		em.getTransaction().begin();
-		for (int i = 0; i < 3; i++) {
-
-			PersistentDevice pd = new PersistentDevice(
-					String.valueOf(rand.nextDouble() * 1000000000), "Nexus ciuciu",
-					"Cel mai ciuciu dintre Nexusuri", "ca nou", DeviceType.Smartphone,
-					"ciuciuNex" + i + ".png", i > 0.5 ? true : false);
-			System.out.println("Generated new devices: " + pd.toString());
-			em.persist(pd);
-
-		}
-		em.getTransaction().commit();
-		em.close();
-	}
-
+	
 	/*
 	 * IClientService implementation START
 	 */
@@ -70,6 +54,7 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 		return (ArrayList<PersistentDevice>) pds;
 
 	}
+
 
 	@Override
 	public PersistentDevice getDeviceByImei(String imei) {
