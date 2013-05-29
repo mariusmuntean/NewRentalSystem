@@ -1,14 +1,28 @@
 <!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
-	xmlns:g="urn:import:com.google.gwt.user.client.ui">
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:p1="urn:import:com.google.gwt.user.cellview.client"
+	xmlns:extGwtWgt="urn:import:com.extjs.gxt.ui.client.widget">
+	<!-- Styles region -->
 	<ui:style>
 		.important {
 			font-weight: bold;
 		}
+		
+		.deckPanelStyle {
+			margin-left: auto;
+			margin-right: auto;
+			width: 1280px;
+			background-color: AliceBlue;
+		}
 	</ui:style>
-	<g:DockLayoutPanel width="100%">
+
+	<!-- Images region -->
+	<ui:image field="facebookLogo"
+		src="../../../../../../Resources/Images/facebookLogoSmall.png"></ui:image>
+
+	<g:DockLayoutPanel width="1280px" styleName="{style.deckPanelStyle}">
 		<g:north size="200">
-					<g:HorizontalPanel horizontalAlignment="ALIGN_CENTER"
+			<g:HorizontalPanel horizontalAlignment="ALIGN_CENTER"
 				width="100%" height="auto">
 				<g:Cell horizontalAlignment="ALIGN_LEFT">
 					<g:Image url="images/Tum_logo.gif" pixelSize="200, 200"
@@ -19,26 +33,38 @@
 						horizontalAlignment="ALIGN_CENTER"></g:Label>
 				</g:Cell>
 				<g:Cell horizontalAlignment="ALIGN_RIGHT">
-					<g:Image url="images/Tum_logo.gif" pixelSize="100, 100"></g:Image>
+					<g:Image url="images/Tum_logo.gif" pixelSize="200, 200"></g:Image>
 				</g:Cell>
 			</g:HorizontalPanel>
 		</g:north>
 		<g:center>
-			<g:VerticalPanel width="100%" height="auto" horizontalAlignment="ALIGN_CENTER" verticalAlignment="ALIGN_MIDDLE">
+			<g:VerticalPanel width="100%" height="auto"
+				horizontalAlignment="ALIGN_CENTER" verticalAlignment="ALIGN_MIDDLE">
 				<g:Cell horizontalAlignment="ALIGN_CENTER">
-					<g:Label text="To access the system you must be authorized and logged in."/>
+					<g:Label
+						text="To access the system you must be authorized and logged in." />
 				</g:Cell>
-				<g:Cell horizontalAlignment="ALIGN_CENTER" verticalAlignment="ALIGN_MIDDLE" width="auto">
+				<g:Cell horizontalAlignment="ALIGN_CENTER" verticalAlignment="ALIGN_MIDDLE"
+					width="auto">
 					<g:HorizontalPanel width="auto" height="auto">
-					<g:Cell horizontalAlignment="ALIGN_RIGHT">
-						<g:Button text="Login with Facebook" ui:field="btnLoginFacebook"/>
-					</g:Cell>
-					<g:Cell horizontalAlignment="ALIGN_CENTER">
-						<g:Button text="Login with Google" ui:field="btnLoginGoogle"/>
-					</g:Cell>
-					<g:Button ui:field="btnLoginTwitter">Login with Twitter</g:Button>
-				</g:HorizontalPanel>
+						<g:Cell horizontalAlignment="ALIGN_RIGHT">
+							<g:Button text="Login with Facebook" ui:field="btnLoginFacebook" />
+						</g:Cell>
+						<g:Cell horizontalAlignment="ALIGN_CENTER">
+							<g:Button text="Login with Google" ui:field="btnLoginGoogle" />
+						</g:Cell>
+						<g:Cell>
+							<g:Button ui:field="btnLoginTwitter" enabled="false">Login with
+								Twitter</g:Button>
+						</g:Cell>
+						<g:Cell>
+							<g:Button ui:field="btnLoginTUM" enabled="false">Login with
+								TUM</g:Button>
+						</g:Cell>
+					</g:HorizontalPanel>
 				</g:Cell>
+				<extGwtWgt:ListView ui:field="lstViewUsers"
+					width="300" height="350"></extGwtWgt:ListView>
 			</g:VerticalPanel>
 		</g:center>
 	</g:DockLayoutPanel>

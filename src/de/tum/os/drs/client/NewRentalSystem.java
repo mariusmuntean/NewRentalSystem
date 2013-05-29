@@ -16,6 +16,7 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.layout.client.Layout.Alignment;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
@@ -26,10 +27,12 @@ import com.sun.java.swing.plaf.windows.resources.windows;
 
 import de.tum.os.drs.client.model.DisplayableDevice;
 import de.tum.os.drs.client.model.DisplayableRenter;
+import de.tum.os.drs.client.model.FacebookAuthenticator;
 import de.tum.os.drs.client.model.GoogleAuthenticator;
 import de.tum.os.drs.client.model.PersistentDevice;
 import de.tum.os.drs.client.model.PersistentEvent;
 import de.tum.os.drs.client.model.SerializableRenter;
+import de.tum.os.drs.client.model.TwitterAuthenticator;
 import de.tum.os.drs.client.view.LoginPageBinder;
 import de.tum.os.drs.client.view.MainPageBinder;
 
@@ -79,23 +82,62 @@ public class NewRentalSystem implements EntryPoint {
 			put("nexus 10", "nexus 10.jpg");
 		}
 	};
-	
-	Callback<String, Throwable> loginCallback = new Callback<String, Throwable>() {
+
+	Callback<String, Throwable> facebookCallback = new Callback<String, Throwable>() {
 		@Override
 		public void onSuccess(String token) {
-//			 You now have the OAuth2 token needed to sign authenticated requests.
-			 serviceDef.setServiceEntryPoint(addr);
+
+			loadMainPage();
+			System.out.println("Token: "+token);
+			Cookies.removeCookie("authenticatorName"); // Values can be: google, facebook, TUM or twitter
+			Cookies.removeCookie("authenticatorToken");
 			
-			 mainPageBinder = new MainPageBinder(NewRentalSystem.this, availableDevicesDataProvider,
-			 unavailableDevicesDataProvider, eventsHistoryDataProvider,
-			 eventsFilteredHistoryDataProvider, displayableRentersListStore,
-			 availableDevicesListStore, displayableRentersFilterListStore,
-			 displayableDevicesFilterListStore, allRentersDataProvider, allRentedDevicesDataProvider);
-			 fetchData();
+			Cookies.setCookie("authenticatorName", "facebook");
+			Cookies.setCookie("authenticatorToken", token);
 			
-			 RootLayoutPanel.get().remove(loginPageBinder);
-			 RootLayoutPanel.get().removeFromParent();
-			 RootPanel.get().add(mainPageBinder);
+//			Window.alert("Token: "+token);
+		}
+
+		@Override
+		public void onFailure(Throwable caught) {
+			// The authentication process failed for some reason, see caught.getMessage()
+			Window.alert("error: " + caught.getMessage());
+		}
+	};
+	
+	Callback<String, Throwable> googleCallback = new Callback<String, Throwable>() {
+		@Override
+		public void onSuccess(String token) {
+
+			loadMainPage();
+			System.out.println("Token: "+token);
+			Cookies.removeCookie("authenticatorName"); // Values can be: google, facebook, TUM or twitter
+			Cookies.removeCookie("authenticatorToken");
+			
+			Cookies.setCookie("authenticatorName", "google");
+			Cookies.setCookie("authenticatorToken", token);
+			
+//			Window.alert("Token: "+token);
+		}
+
+		@Override
+		public void onFailure(Throwable caught) {
+			// The authentication process failed for some reason, see caught.getMessage()
+			Window.alert("error: " + caught.getMessage());
+		}
+	};
+	
+	Callback<String, Throwable> twitterCallback = new Callback<String, Throwable>() {
+		@Override
+		public void onSuccess(String token) {
+
+			loadMainPage();
+//			Window.alert("Token: "+token);
+			Cookies.removeCookie("authenticatorName"); // Values can be: google, facebook, TUM or twitter
+			Cookies.removeCookie("authenticatorToken");
+			
+			Cookies.setCookie("authenticatorName", "twitter");
+			Cookies.setCookie("authenticatorToken", token);
 		}
 
 		@Override
@@ -106,7 +148,6 @@ public class NewRentalSystem implements EntryPoint {
 	};
 
 	private static final String deviceNotFoundImage = "android question.jpg";
-
 
 	// /**
 	// * This is the entry point method.
@@ -128,11 +169,27 @@ public class NewRentalSystem implements EntryPoint {
 	 */
 	public void onModuleLoad() {
 
-		loginPageBinder = new LoginPageBinder(new GoogleAuthenticator(this.loginCallback));
+		loginPageBinder = new LoginPageBinder(facebookCallback, googleCallback, twitterCallback);
 
 		RootLayoutPanel.get().add(loginPageBinder);
 	}
+	
+	private void loadMainPage(){
+		// You now have the OAuth2 token needed to sign authenticated requests.
+		serviceDef.setServiceEntryPoint(addr);
 
+		mainPageBinder = new MainPageBinder(NewRentalSystem.this,
+				availableDevicesDataProvider, unavailableDevicesDataProvider,
+				eventsHistoryDataProvider, eventsFilteredHistoryDataProvider,
+				displayableRentersListStore, availableDevicesListStore,
+				displayableRentersFilterListStore, displayableDevicesFilterListStore,
+				allRentersDataProvider, allRentedDevicesDataProvider);
+		fetchData();
+
+		RootLayoutPanel.get().remove(loginPageBinder);
+		RootLayoutPanel.get().removeFromParent();
+		RootPanel.get().add(mainPageBinder);
+	}
 
 	public void rentDevicesToExistingRenter(String renterMatrNr,
 			String[] deviceImeiCodes, String comments, String signatureHTML) {

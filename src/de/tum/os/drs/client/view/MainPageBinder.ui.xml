@@ -19,6 +19,7 @@
 			width: 1280px;
 			min-width: 85%;
 			max-width: 85%;
+			background-color: AliceBlue;
 		}
 		
 		.vPanelNameOrMatricStyle {

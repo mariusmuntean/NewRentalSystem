@@ -54,6 +54,7 @@ import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasText;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RadioButton;
@@ -65,6 +66,8 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.ChartArea;
 import com.google.gwt.visualization.client.DataTable;
+import com.google.gwt.visualization.client.LegendPosition;
+import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.visualizations.corechart.PieChart;
 import com.google.gwt.visualization.client.visualizations.corechart.PieChart.PieOptions;
 import com.google.gwt.visualization.client.visualizations.corechart.TextStyle;
@@ -504,12 +507,27 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	}
 
 	private void injectPieChart() {
-		DataTable data = getDevicePieChartData(4, 4);
-		PieOptions options = getDevicePieChartOptions(300, 300);
-		pChartRentedVsAvailable = new PieChart(data, options);
 
-		hPanelOverview.insert(pChartRentedVsAvailable, 0);
-		hPanelOverview.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		Runnable onVizApiLoadedCallback = new Runnable() {
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				DataTable data = getDevicePieChartData(4, 4);
+				PieOptions options = getDevicePieChartOptions(300, 300);
+				pChartRentedVsAvailable = new PieChart(data, options);
+				// pChartRentedVsAvailable.getElement().setAttribute("vertical-align", "middle");
+
+				hPanelOverview.insert(pChartRentedVsAvailable, 0);
+				hPanelOverview
+						.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+				hPanelOverview.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+			}
+		};
+
+		// Load the visualization api, passing the onLoadCallback to be called
+		// when loading is done.
+		VisualizationUtils.loadVisualizationApi(onVizApiLoadedCallback, PieChart.PACKAGE);
 	}
 
 	private DataTable getDevicePieChartData(int availableQuantity, int rentedQuantity) {
@@ -532,17 +550,20 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		ChartArea ca = ChartArea.create();
 		ca.setLeft("20");
 		ca.setTop("20");
-		ca.setWidth("100%");
-		ca.setHeight("100%");
+		ca.setWidth("80%");
+		ca.setHeight("80%");
 		options.setChartArea(ca);
-		options.setTitle("Available vs. rented devices");
+		options.setLegend(LegendPosition.BOTTOM);
 
 		TextStyle ts = TextStyle.create();
-		ts.setFontSize(24);
+		ts.set("text-align", "center");
+		ts.setFontName("Verdana");
+		ts.setFontSize(16);
 
 		options.setColors(new String[] { "red", "blue" });
 
 		options.setTitleTextStyle(ts);
+		options.setTitle("Available vs. Rented");
 		options.set3D(true);
 
 		return options;
@@ -824,10 +845,25 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		return newTable;
 	}
 
-	public void setRentedVsAvailable(int availableDevices, int rentedDevices) {
-		DataTable newData = getDevicePieChartData(availableDevices, rentedDevices);
-		PieOptions options = getDevicePieChartOptions(300, 300);
-		pChartRentedVsAvailable.draw(newData, options);
+	public void setRentedVsAvailable(final int availableDevices, final int rentedDevices) {
+		Runnable updatePieChartBallback = new Runnable() {
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				DataTable newData = getDevicePieChartData(availableDevices, rentedDevices);
+				PieOptions options = getDevicePieChartOptions(300, 300);
+				pChartRentedVsAvailable.draw(newData, options);
+			}
+		};
+
+		if (pChartRentedVsAvailable == null) {
+			VisualizationUtils.loadVisualizationApi(updatePieChartBallback,
+					PieChart.PACKAGE);
+		} else {
+			updatePieChartBallback.run();
+		}
+
 	}
 
 	@Override
