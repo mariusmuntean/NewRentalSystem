@@ -25,10 +25,12 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.view.client.ListDataProvider;
 import com.sun.java.swing.plaf.windows.resources.windows;
 
+import de.tum.os.drs.client.helpers.CookieHelper;
 import de.tum.os.drs.client.model.DisplayableDevice;
 import de.tum.os.drs.client.model.DisplayableRenter;
 import de.tum.os.drs.client.model.FacebookAuthenticator;
 import de.tum.os.drs.client.model.GoogleAuthenticator;
+import de.tum.os.drs.client.model.OAuthAuthorities;
 import de.tum.os.drs.client.model.PersistentDevice;
 import de.tum.os.drs.client.model.PersistentEvent;
 import de.tum.os.drs.client.model.SerializableRenter;
@@ -87,15 +89,15 @@ public class NewRentalSystem implements EntryPoint {
 		@Override
 		public void onSuccess(String token) {
 
+			
+			System.out.println("Facebook Token: " + token);
+			CookieHelper.resetOAuthAuthority();
+			CookieHelper.resetAuthToken();
+
+			CookieHelper.setAuthCookie(OAuthAuthorities.facebook, token);
+
+			// Window.alert("Token: "+token);
 			loadMainPage();
-			System.out.println("Token: "+token);
-			Cookies.removeCookie("authenticatorName"); // Values can be: google, facebook, TUM or twitter
-			Cookies.removeCookie("authenticatorToken");
-			
-			Cookies.setCookie("authenticatorName", "facebook");
-			Cookies.setCookie("authenticatorToken", token);
-			
-//			Window.alert("Token: "+token);
 		}
 
 		@Override
@@ -104,20 +106,20 @@ public class NewRentalSystem implements EntryPoint {
 			Window.alert("error: " + caught.getMessage());
 		}
 	};
-	
+
 	Callback<String, Throwable> googleCallback = new Callback<String, Throwable>() {
 		@Override
 		public void onSuccess(String token) {
 
+			System.out.println("Google Token: " + token);
+
+			CookieHelper.resetOAuthAuthority();
+			CookieHelper.resetAuthToken();
+
+			CookieHelper.setAuthCookie(OAuthAuthorities.google, token);
+
+			// Window.alert("Token: "+token);
 			loadMainPage();
-			System.out.println("Token: "+token);
-			Cookies.removeCookie("authenticatorName"); // Values can be: google, facebook, TUM or twitter
-			Cookies.removeCookie("authenticatorToken");
-			
-			Cookies.setCookie("authenticatorName", "google");
-			Cookies.setCookie("authenticatorToken", token);
-			
-//			Window.alert("Token: "+token);
 		}
 
 		@Override
@@ -126,18 +128,20 @@ public class NewRentalSystem implements EntryPoint {
 			Window.alert("error: " + caught.getMessage());
 		}
 	};
-	
+
 	Callback<String, Throwable> twitterCallback = new Callback<String, Throwable>() {
 		@Override
 		public void onSuccess(String token) {
 
+			System.out.println("Twitter Token: " + token);
+
+			CookieHelper.resetOAuthAuthority();
+			CookieHelper.resetAuthToken();
+
+			CookieHelper.setAuthCookie(OAuthAuthorities.twitter, token);
+
+			// Window.alert("Token: "+token);
 			loadMainPage();
-//			Window.alert("Token: "+token);
-			Cookies.removeCookie("authenticatorName"); // Values can be: google, facebook, TUM or twitter
-			Cookies.removeCookie("authenticatorToken");
-			
-			Cookies.setCookie("authenticatorName", "twitter");
-			Cookies.setCookie("authenticatorToken", token);
 		}
 
 		@Override
@@ -169,12 +173,13 @@ public class NewRentalSystem implements EntryPoint {
 	 */
 	public void onModuleLoad() {
 
-		loginPageBinder = new LoginPageBinder(facebookCallback, googleCallback, twitterCallback);
+		loginPageBinder = new LoginPageBinder(facebookCallback, googleCallback,
+				twitterCallback);
 
 		RootLayoutPanel.get().add(loginPageBinder);
 	}
-	
-	private void loadMainPage(){
+
+	private void loadMainPage() {
 		// You now have the OAuth2 token needed to sign authenticated requests.
 		serviceDef.setServiceEntryPoint(addr);
 

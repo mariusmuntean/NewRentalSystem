@@ -6,7 +6,8 @@
 	xmlns:extGwt="urn:import:com.extjs.gxt.ui.client.widget.form"
 	xmlns:extGwtBtn="urn:import:com.extjs.gxt.ui.client.widget.button"
 	xmlns:extGwtWgt="urn:import:com.extjs.gxt.ui.client.widget" xmlns:v="urn:import:org.vaadin.gwtgraphics.client"
-	xmlns:vPath="urn:import:org.vaadin.gwtgraphics.client.shape.path">
+	xmlns:vPath="urn:import:org.vaadin.gwtgraphics.client.shape.path"
+	xmlns:view="urn:import:de.tum.os.drs.client.view">
 
 	<ui:style>
 		.signingCanvasStyle {
@@ -57,7 +58,8 @@
 						horizontalAlignment="ALIGN_CENTER"></g:Label>
 				</g:Cell>
 				<g:Cell horizontalAlignment="ALIGN_RIGHT">
-					<g:Image url="images/Tum_logo.gif" pixelSize="100, 100"></g:Image>
+					<!-- <g:Image url="images/Tum_logo.gif" pixelSize="100, 100"></g:Image> -->
+					<view:UserWidget></view:UserWidget>
 				</g:Cell>
 			</g:HorizontalPanel>
 		</g:cell>

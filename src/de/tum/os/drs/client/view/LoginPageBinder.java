@@ -10,6 +10,8 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.Cookies;
@@ -18,6 +20,10 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.Widget;
+
+import de.tum.os.drs.client.helpers.CookieHelper;
+import de.tum.os.drs.client.helpers.OAuthApiHelper;
+import de.tum.os.drs.client.helpers.OAuthParser;
 import de.tum.os.drs.client.model.DisplayableUser;
 import de.tum.os.drs.client.model.FacebookAuthenticator;
 import de.tum.os.drs.client.model.GoogleAuthenticator;
@@ -26,9 +32,6 @@ import de.tum.os.drs.client.model.OAuthAuthorities;
 import de.tum.os.drs.client.model.TwitterAuthenticator;
 
 public class LoginPageBinder extends Composite implements HasText {
-
-	private static final String googleAuthTokenCheckURL = "https://www.googleapis.com/oauth2/v2/userinfo?access_token=";
-	private static final String facebookAuthTokenCheckURL = "https://graph.facebook.com/me?access_token=";
 
 	private static LoginPageBinderUiBinder uiBinder = GWT
 			.create(LoginPageBinderUiBinder.class);
@@ -87,10 +90,6 @@ public class LoginPageBinder extends Composite implements HasText {
 		this.facebookAuthenticator = new FacebookAuthenticator(fbCallback);
 		this.twitterAuthenticator = new TwitterAuthenticator(twCallback);
 
-		displayableUsersDataProvider.add(new DisplayableUser("Andi M.", "andi@tum.de",
-				"143265", "2523tg24g4gq"));
-		displayableUsersDataProvider.add(new DisplayableUser("Andi M.", "andi@tum.de",
-				"143265", "2523tg24g4gq"));
 
 		wireUpControls();
 
@@ -98,31 +97,24 @@ public class LoginPageBinder extends Composite implements HasText {
 
 	private void authenticateIfValidTokenFound() {
 
-		String authenticatorName = Cookies.getCookie("authenticatorName"); // Values can be: google, facebook, TUM or twitter
-		if (authenticatorName == null || authenticatorName.length() <= 0) {
+		// Values can be: google, facebook, TUM, twitter or none.
+		OAuthAuthorities authenticator = CookieHelper.getOAuthAuthority();
+		if (authenticator == OAuthAuthorities.none) {
 			enableLoginScreenIfNotAuthenticated();
 			return;
 		}
 
-		String token = Cookies.getCookie("authenticatorToken");
+		String token = CookieHelper.getAuthToken();
 		if (token == null || token.length() <= 0) {
 			enableLoginScreenIfNotAuthenticated();
 			return;
 		}
 
-		// Try to cast the string from the cookie to a known Authorization Authority.
-		OAuthAuthorities authorityFromCookie;
-		try {
-			authorityFromCookie = OAuthAuthorities.valueOf(authenticatorName.trim());
-			checkTokenValidity(token, authorityFromCookie);
-		} catch (Exception e) {
-			enableLoginScreenIfNotAuthenticated();
-		}
-
+		checkTokenValidity(token, authenticator);
 	}
 
 	private void checkTokenValidity(final String token, OAuthAuthorities oAuthAuthority) {
-		String url = getAuthUrlFromAuthority(oAuthAuthority);
+		String url = OAuthApiHelper.getAuthUrlFromAuthority(oAuthAuthority);
 		final Callback<String, Throwable> callback = getCallbackFromAuthrity(oAuthAuthority);
 
 		// Leave if any problem occurs. Don't bother the user.
@@ -141,9 +133,14 @@ public class LoginPageBinder extends Composite implements HasText {
 				@Override
 				public void onResponseReceived(Request request, Response response) {
 					// Window.alert("Response: " + response.getText());
-					if (response.getText().contains("error")) {
+					String jsonString = response.getText();
+					if (OAuthParser.hasError(jsonString)) {
 						enableLoginScreenIfNotAuthenticated();
 					} else {
+						// Put user name and ID in cookies
+						String username = OAuthParser
+								.getAuthenticatedUsername(jsonString);
+						CookieHelper.setAuthenticatedUsername(username);
 						callback.onSuccess(token);
 					}
 				}
@@ -159,30 +156,6 @@ public class LoginPageBinder extends Composite implements HasText {
 
 		}
 
-	}
-
-	private String getAuthUrlFromAuthority(OAuthAuthorities oAuthAuthority) {
-
-		switch (oAuthAuthority) {
-		case facebook: {
-			return facebookAuthTokenCheckURL;
-		}
-		case google: {
-			return googleAuthTokenCheckURL;
-		}
-		case linkedin: {
-			return null;
-		}
-		case tum: {
-			return null;
-		}
-		case twitter: {
-			return null;
-		}
-		default: {
-			return null;
-		}
-		}
 	}
 
 	private Callback<String, Throwable> getCallbackFromAuthrity(

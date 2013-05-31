@@ -2,10 +2,10 @@
 
 /** Example rules used by the template application (remove for your app) */
 h1 {
-	font-size: 2em;
-	font-weight: bold;
 	color: #777777;
-
+	margin: 0px 50px;
+	font-size: 24px;
+	font-weight: bold;
 }
 
 captionPanelStyle {
@@ -56,6 +56,9 @@ captionPanelStyle {
 .gwt-StackPanel {
 }
 .gwt-Button {
+	margin: 0px 50px;
+	font-size: 18px;
+	font-weight: bold;
 }
 .signingCanvasPen {
 	cursor: url('/images/cursors/inkPen.png') 1 1, crosshair;
@@ -109,6 +112,10 @@ myButton:hover {
 myButton:active {
 	position: relative;
 	top: 1px;
+}
+.gwt-Label {
+	margin: 0px;
+	font-weight: normal;
 }
 
 

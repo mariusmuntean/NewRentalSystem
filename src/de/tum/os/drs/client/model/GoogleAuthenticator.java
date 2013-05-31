@@ -20,8 +20,9 @@ public class GoogleAuthenticator implements IAuthenticator {
 	String AUTH_URL = "https://accounts.google.com/o/oauth2/auth";
 	String CLIENT_ID = "717487426781.apps.googleusercontent.com"; // available from the APIs console
 	String GOOGLE_EMAIL = "https://www.googleapis.com/auth/userinfo.email";
+	String GOOGLE_USERINFO = "https://www.googleapis.com/auth/userinfo.profile";
 
-	AuthRequest req = new AuthRequest(AUTH_URL, CLIENT_ID).withScopes(GOOGLE_EMAIL);
+	AuthRequest req = new AuthRequest(AUTH_URL, CLIENT_ID).withScopes(GOOGLE_EMAIL, GOOGLE_USERINFO);
 
 	Callback<String, Throwable> callback;
 

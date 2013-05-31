@@ -1,0 +1,57 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui">
+	<ui:style>
+		.important {
+			font-weight: bold;
+		}
+		.helloTextStyle {
+			margin: 5px;
+			padding: 5px;
+			font-size: 24px;
+			font-weight: normal;
+		}
+		.usernameTextStyle {
+			font-size: 24px;
+			font-weight: bold;
+		}
+	</ui:style>
+		<g:DecoratorPanel>
+			<g:VerticalPanel>
+				<g:cell>
+					<g:Grid width="300px" height="auto" cellSpacing="3">
+						<g:row>
+							<g:customCell>
+								<g:Label text="Hello " horizontalAlignment="ALIGN_RIGHT" styleName="{style.helloTextStyle}"></g:Label>
+							</g:customCell>
+							<g:customCell>
+								<g:Label text="Placeholder name" ui:field="lblUsername" styleName="{style.usernameTextStyle}" horizontalAlignment="ALIGN_LEFT"></g:Label>
+							</g:customCell>
+						</g:row>
+						<g:row>
+							<g:customCell>
+								<g:Label text=""></g:Label>
+							</g:customCell>
+							<g:customCell>
+								<g:Button text="Log out" ui:field="btnLogout"></g:Button>
+							</g:customCell>
+						</g:row>
+					</g:Grid>
+				</g:cell>
+				<g:cell>
+					<g:DisclosurePanel title="More" animationEnabled="true"
+						open="false">
+						<g:header>More</g:header>
+						<g:HorizontalPanel>
+							<g:cell>
+								<g:Label text="Logged in since: "></g:Label>
+							</g:cell>
+							<g:cell>
+								<g:Label text="placeholder text" ui:field="lblLoggedInSinceTime"></g:Label>
+							</g:cell>
+						</g:HorizontalPanel>
+					</g:DisclosurePanel>
+				</g:cell>
+			</g:VerticalPanel>
+		</g:DecoratorPanel>
+</ui:UiBinder> 
