@@ -12,6 +12,33 @@ import com.google.gwt.json.client.JSONValue;
  */
 public class OAuthParser {
 
+	/**
+	 * Determines if the JSON response contains an error.
+	 * 
+	 * @param json
+	 *            - The JSON string to be checked for errors.
+	 * @return - true if error present false otherwise.
+	 */
+	public static final boolean hasError(String json) {
+
+		JSONValue val = JSONParser.parseStrict(json);
+		JSONObject obj = val.isObject();
+		if (obj != null) {
+			// if (obj.get("error")!=null && obj.get("error").isString() != null) {
+			if (obj.get("error") != null) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			if (val.isString() != null && val.isString().stringValue().contains("error")) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}
+	
 	public static String getAuthenticatedUsername(String json) {
 		String username = "";
 
@@ -22,6 +49,32 @@ public class OAuthParser {
 		}
 
 		return username;
+
+	}
+	
+	public static String getAuthenticatedUserEmail(String json) {
+		String userEmail = "";
+
+		JSONValue val = JSONParser.parseStrict(json);
+		JSONObject obj = val.isObject();
+		if (obj != null && obj.get("email") != null && obj.get("email").isString() != null) {
+			userEmail = obj.get("email").isString().stringValue();
+		}
+
+		return userEmail;
+
+	}
+	
+	public static String getAuthenticatedUserID(String json) {
+		String userID = "";
+
+		JSONValue val = JSONParser.parseStrict(json);
+		JSONObject obj = val.isObject();
+		if (obj != null && obj.get("id") != null && obj.get("id").isString() != null) {
+			userID = obj.get("id").isString().stringValue();
+		}
+
+		return userID;
 
 	}
 
@@ -55,33 +108,6 @@ public class OAuthParser {
 
 		return userPictureUrl;
 
-	}
-
-	/**
-	 * Determines if the JSON response contains an error.
-	 * 
-	 * @param json
-	 *            - The JSON string to be checked for errors.
-	 * @return - true if error present false otherwise.
-	 */
-	public static final boolean hasError(String json) {
-
-		JSONValue val = JSONParser.parseStrict(json);
-		JSONObject obj = val.isObject();
-		if (obj != null) {
-			// if (obj.get("error")!=null && obj.get("error").isString() != null) {
-			if (obj.get("error") != null) {
-				return true;
-			} else {
-				return false;
-			}
-		} else {
-			if (val.isString() != null && val.isString().stringValue().contains("error")) {
-				return true;
-			} else {
-				return false;
-			}
-		}
 	}
 
 }

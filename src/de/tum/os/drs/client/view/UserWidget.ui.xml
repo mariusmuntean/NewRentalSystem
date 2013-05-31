@@ -18,9 +18,10 @@
 			font-weight: bold;
 		}
 	</ui:style>
-	
-	<ui:image field="genericAvatar" src="../../../../../../Resources/Images/generic.jpg"></ui:image>
-	
+
+	<ui:image field="genericAvatar"
+		src="../../../../../../Resources/Images/generic.jpg"></ui:image>
+
 	<g:DecoratorPanel>
 		<g:VerticalPanel>
 			<g:cell>
@@ -28,8 +29,7 @@
 					<g:cell>
 						<g:HorizontalPanel>
 							<g:cell>
-								<g:Image ui:field="imgUserPic"
-									url="{genericAvatar.getURL}" 
+								<g:Image ui:field="imgUserPic" url="{genericAvatar.getURL}"
 									height="100px"></g:Image>
 							</g:cell>
 							<g:cell>
@@ -42,14 +42,28 @@
 						<g:DisclosurePanel title="More"
 							animationEnabled="true" open="false">
 							<g:header>More</g:header>
-							<g:HorizontalPanel>
+							<g:VerticalPanel>
 								<g:cell>
-									<g:Label text="Logged in since: "></g:Label>
+									<g:HorizontalPanel>
+										<g:cell>
+											<g:Label text="Logged in with :"></g:Label>
+										</g:cell>
+										<g:cell>
+											<g:Label text="placeholder text" ui:field="lblLoggedInWith"></g:Label>
+										</g:cell>
+									</g:HorizontalPanel>
 								</g:cell>
 								<g:cell>
-									<g:Label text="placeholder text" ui:field="lblLoggedInSinceTime"></g:Label>
+									<g:HorizontalPanel>
+										<g:cell>
+											<g:Label text="As :"></g:Label>
+										</g:cell>
+										<g:cell>
+											<g:Label text="placeholder text" ui:field="lblLoggedInAs"></g:Label>
+										</g:cell>
+									</g:HorizontalPanel>
 								</g:cell>
-							</g:HorizontalPanel>
+							</g:VerticalPanel>
 						</g:DisclosurePanel>
 					</g:cell>
 				</g:VerticalPanel>

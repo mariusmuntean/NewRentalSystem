@@ -36,7 +36,10 @@ public class UserWidget extends Composite {
 	Button btnLogout;
 
 	@UiField
-	Label lblLoggedInSinceTime;
+	Label lblLoggedInWith;
+
+	@UiField
+	Label lblLoggedInAs;
 
 	@UiField
 	Image imgUserPic;
@@ -79,7 +82,8 @@ public class UserWidget extends Composite {
 
 				@Override
 				public void onResponseReceived(Request request, Response response) {
-//					 Window.alert("Response: " + response.getText());
+					// Window.alert("Response: " + response.getText());
+					System.out.println("Response: " + response.getText());
 					String jsonString = response.getText();
 					if (OAuthParser.hasError(jsonString)) {
 						// Maybe redirect to first page?
@@ -89,6 +93,16 @@ public class UserWidget extends Composite {
 								.getAuthenticatedUsername(jsonString);
 						CookieHelper.setAuthenticatedUsername(username);
 						lblUsername.setText(username);
+
+						String userID = OAuthParser.getAuthenticatedUserID(jsonString);
+						CookieHelper.setAuthenticatedUserID(userID);
+
+						String userEmail = OAuthParser
+								.getAuthenticatedUserEmail(jsonString);
+						CookieHelper.setAuthenticatedUserEmail(userEmail);
+						lblLoggedInAs.setText(userEmail);
+						lblLoggedInWith.setText(CookieHelper.getOAuthAuthority()
+								.toString());
 
 						String userPicUrl = OAuthParser
 								.getAuthenticatedUserPictureUrl(jsonString);

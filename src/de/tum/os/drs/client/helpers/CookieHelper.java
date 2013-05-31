@@ -7,6 +7,40 @@ import de.tum.os.drs.client.model.OAuthAuthorities;
 public class CookieHelper {
 
 	/**
+	 * Puts the email of an authenticated user in a cookie.
+	 * 
+	 * @param userEmail
+	 *            - the user's email address
+	 */
+	public static void setAuthenticatedUserEmail(String userEmail) {
+		if (userEmail == null && userEmail.length() <= 0) {
+			return;
+		}
+		Cookies.setCookie("authenticatedUserEmail", userEmail);
+	}
+
+	/**
+	 * Deletes the cookie with the authenticated user's email. Call when authentication fails.
+	 */
+	public static void resetAuthenticatedUserEmail() {
+		Cookies.setCookie("authenticatedUserEmail", "");
+		Cookies.removeCookie("authenticatedUserEmail");
+	}
+
+	/**
+	 * 
+	 * @return - Returns a string with the user's email or an empty string if no authenticated user.
+	 */
+	public static String getAuthenticatedUserEmail() {
+		String userEmail = Cookies.getCookie("authenticatedUserEmail");
+		if (userEmail == null || userEmail.isEmpty()) {
+			return "";
+		}
+		return userEmail;
+	}
+	
+	
+	/**
 	 * Puts the name of an authenticated user in a cookie.
 	 * 
 	 * @param username
