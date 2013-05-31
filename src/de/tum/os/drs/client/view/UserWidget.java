@@ -1,6 +1,7 @@
 package de.tum.os.drs.client.view;
 
 import com.google.api.gwt.oauth2.client.Auth;
+import com.google.gwt.aria.client.ImgRole;
 import com.google.gwt.core.client.Callback;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -15,6 +16,7 @@ import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -35,6 +37,9 @@ public class UserWidget extends Composite {
 
 	@UiField
 	Label lblLoggedInSinceTime;
+
+	@UiField
+	Image imgUserPic;
 
 	interface UserWidgetUiBinder extends UiBinder<Widget, UserWidget> {
 	}
@@ -74,7 +79,7 @@ public class UserWidget extends Composite {
 
 				@Override
 				public void onResponseReceived(Request request, Response response) {
-					// Window.alert("Response: " + response.getText());
+//					 Window.alert("Response: " + response.getText());
 					String jsonString = response.getText();
 					if (OAuthParser.hasError(jsonString)) {
 						// Maybe redirect to first page?
@@ -83,8 +88,11 @@ public class UserWidget extends Composite {
 						String username = OAuthParser
 								.getAuthenticatedUsername(jsonString);
 						CookieHelper.setAuthenticatedUsername(username);
-						
 						lblUsername.setText(username);
+
+						String userPicUrl = OAuthParser
+								.getAuthenticatedUserPictureUrl(jsonString);
+						imgUserPic.setUrl(userPicUrl);
 					}
 				}
 
@@ -107,9 +115,9 @@ public class UserWidget extends Composite {
 		CookieHelper.resetOAuthAuthority();
 		CookieHelper.resetAuthenticatedUsername();
 		CookieHelper.resetAuthenticatedUserID();
-		
+
 		Auth.get().clearAllTokens();
-		
+
 		Window.Location
 				.assign("https://127.0.0.1:8888/NewRentalSystem.html?gwt.codesvr=127.0.0.1:9997");
 	}

@@ -5,16 +5,18 @@ import com.google.api.gwt.oauth2.client.AuthRequest;
 import com.google.gwt.core.client.Callback;
 
 public class FacebookAuthenticator implements IAuthenticator {
-	
+
 	/*
 	 * OAuth2 stuff
 	 */
 	String AUTH_URL = "https://www.facebook.com/dialog/oauth";
 	String CLIENT_ID = "384544281662712";
 	String FB_EMAIL_SCOPE = "email";
-	String FB_ABOUTME_SCOPE ="user_about_me";
+	String FB_ABOUTME_SCOPE = "user_about_me";
+	String FB_PICTURE_SCOPE = "picture";
 
-	AuthRequest req = new AuthRequest(AUTH_URL, CLIENT_ID).withScopes(FB_EMAIL_SCOPE);
+	AuthRequest req = new AuthRequest(AUTH_URL, CLIENT_ID).withScopes(FB_EMAIL_SCOPE,
+			FB_ABOUTME_SCOPE);
 
 	Callback<String, Throwable> callback;
 
