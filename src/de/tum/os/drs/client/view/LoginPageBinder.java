@@ -18,7 +18,12 @@ import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasText;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import de.tum.os.drs.client.helpers.CookieHelper;
@@ -44,20 +49,7 @@ public class LoginPageBinder extends Composite implements HasText {
 	@UiField
 	Button btnLoginTUM;
 
-	@UiField(provided = true)
-	ListView<DisplayableUser> lstViewUsers;
-	/*
-	 * Data providers
-	 */
-
-	private ListStore<DisplayableUser> displayableUsersDataProvider = new ListStore<DisplayableUser>();
-
-	/*
-	 * Templates
-	 */
-	final String userTemplate = new String("<table>"
-			+ "<tr><td><strong>{name}</strong></td></tr>" + "<tr><td>{email}</td></tr>"
-			+ "</table>");
+	DialogBox modalLoader;
 
 	/*
 	 * Callbacks
@@ -82,6 +74,7 @@ public class LoginPageBinder extends Composite implements HasText {
 		this.fbCallback = facebookCallback;
 		this.twCallback = twitterCallback;
 
+		showModalLoader();
 		authenticateIfValidTokenFound();
 	}
 
@@ -90,8 +83,8 @@ public class LoginPageBinder extends Composite implements HasText {
 		this.facebookAuthenticator = new FacebookAuthenticator(fbCallback);
 		this.twitterAuthenticator = new TwitterAuthenticator(twCallback);
 
-
 		wireUpControls();
+		hideModalLoader();
 
 	}
 
@@ -137,6 +130,9 @@ public class LoginPageBinder extends Composite implements HasText {
 					if (OAuthParser.hasError(jsonString)) {
 						enableLoginScreenIfNotAuthenticated();
 					} else {
+						// Hide the modal loader
+						hideModalLoader();
+
 						// Put user name and ID in cookies
 						String username = OAuthParser
 								.getAuthenticatedUsername(jsonString);
@@ -183,12 +179,35 @@ public class LoginPageBinder extends Composite implements HasText {
 	}
 
 	private void instantiateControls() {
+		// Init modal loader wheel
+		this.modalLoader = new DialogBox();
+		VerticalPanel dialogContent = new VerticalPanel();
+		Image imgLoader = new Image("../../../../../../Resources/Images/loader.gif");
+		Label lblModalText = new Label("Trying to authenticate you.");
+		dialogContent.add(lblModalText);
+		dialogContent.add(imgLoader);
+		dialogContent.setCellHorizontalAlignment(lblModalText,
+				HasHorizontalAlignment.ALIGN_CENTER);
+		dialogContent.setCellHorizontalAlignment(imgLoader,
+				HasHorizontalAlignment.ALIGN_CENTER);
+		this.modalLoader.setWidget(dialogContent);
+		this.modalLoader.setAnimationEnabled(true);
+		this.modalLoader.setGlassEnabled(true);
+		this.modalLoader.setModal(true);
 
-		this.lstViewUsers = new ListView<DisplayableUser>(
-				this.displayableUsersDataProvider);
-		lstViewUsers.setSimpleTemplate(userTemplate);
-		lstViewUsers.setStore(displayableUsersDataProvider);
+	}
 
+	private void showModalLoader() {
+		if (this.modalLoader != null) {
+			this.modalLoader.center();
+			this.modalLoader.show();
+		}
+
+	}
+
+	private void hideModalLoader() {
+		if (this.modalLoader != null)
+			this.modalLoader.hide();
 	}
 
 	private void wireUpControls() {

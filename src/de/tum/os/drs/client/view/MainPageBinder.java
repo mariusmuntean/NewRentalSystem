@@ -3,6 +3,7 @@ package de.tum.os.drs.client.view;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -50,6 +51,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DeckPanel;
+import com.google.gwt.user.client.ui.DecoratedTabPanel;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -57,7 +59,10 @@ import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.RadioButton;
+import com.google.gwt.user.client.ui.SuggestBox;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
@@ -72,6 +77,7 @@ import com.google.gwt.visualization.client.visualizations.corechart.PieChart;
 import com.google.gwt.visualization.client.visualizations.corechart.PieChart.PieOptions;
 import com.google.gwt.visualization.client.visualizations.corechart.TextStyle;
 import de.tum.os.drs.client.NewRentalSystem;
+import de.tum.os.drs.client.model.DeviceType;
 import de.tum.os.drs.client.model.DisplayableDevice;
 import de.tum.os.drs.client.model.DisplayableRenter;
 import de.tum.os.drs.client.model.PersistentDevice;
@@ -219,9 +225,51 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	Button btnReturnClearCanvas;
 
 	/*
+	 * Manage devices controls
+	 */
+	@UiField
+	DecoratedTabPanel decoratedTabPanelDeviceManagement;
+
+	@UiField
+	ListBox cBoxManageDevicesAddType;
+
+	@UiField(provided = true)
+	SuggestBox cBoxManageDevicesAddName;
+
+	MultiWordSuggestOracle manageDevicesAddNamesOracle;
+
+	@UiField
+	TextBox txtBoxManageDevicesAddIMEI;
+
+	@UiField
+	ListBox cBoxManageDevicesAddState;
+
+	@UiField
+	com.google.gwt.user.client.ui.Button btnManageDevicesAddNewDevice;
+
+	@UiField
+	TextArea txtAreaManageDevicesAddComments;
+
+	/*
 	 * ViewModels
 	 */
 	private RenterTreeViewModel rtvm;
+
+	private HashMap<String, String> deviceNameToImageNameMap = new HashMap<String, String>() {
+		private static final long serialVersionUID = -4645423715285941470L;
+		{
+			put("nexus one", "nexus one.jpg");
+			put("nexus s", "nexus s.jpg");
+			put("galaxy nexus", "galaxy nexus.jpg");
+			put("nexus 4", "nexus 4.jpg");
+			put("nexus 7", "nexus 7.jpg");
+			put("htc one", "htc one.jpg");
+			put("htc one x", "htc one x.jpg");
+			put("htc one x+", "htc one x+.jpg");
+			put("nexus 10", "nexus 10.jpg");
+		}
+	};
+	private static final String deviceNotFoundImage = "android question.jpg";
 
 	/*
 	 * Stores region
@@ -268,7 +316,8 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 			ListStore<DisplayableRenter> displayableRentersFilterListStore,
 			ListStore<DisplayableDevice> displayableDevicesFilterListStore,
 			ListDataProvider<SerializableRenter> allRentersDataProvider,
-			ListDataProvider<PersistentDevice> allRentedDevicesDataProvider) {
+			ListDataProvider<PersistentDevice> allRentedDevicesDataProvider,
+			MultiWordSuggestOracle deviceNamesOracle) {
 
 		this.client = client;
 		this.availableDevicesDataProvider = availableDevicesDataProvider;
@@ -281,6 +330,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		this.displayableDevicesFilterListStore = displayableDevicesFilterListStore;
 		this.allRentersDataProvider = allRentersDataProvider;
 		this.allRentedDevicesDataProvider = allRentedDevicesDataProvider;
+		this.manageDevicesAddNamesOracle = deviceNamesOracle;
 
 		instantiateControls();
 		initWidget(uiBinder.createAndBindUi(this));
@@ -372,6 +422,9 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		cBoxHistoryFilterImei = new ComboBox<DisplayableDevice>();
 		cBoxHistoryFilterImei.setStore(displayableDevicesFilterListStore);
 		tableHistoryEventsFiltered = getCellTableHistory(eventsFilteredHistoryDataProvider);
+
+		// Manage devices page
+		cBoxManageDevicesAddName = new SuggestBox(this.manageDevicesAddNamesOracle);
 
 	}
 
@@ -483,6 +536,14 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 
 			}
 		});
+
+		// Manage devices
+		btnManageDevicesAddNewDevice.addClickHandler(this);
+		for (DeviceType dt : DeviceType.values()) {
+			cBoxManageDevicesAddType.addItem(dt.toString());
+		}
+		
+		decoratedTabPanelDeviceManagement.selectTab(0);
 	}
 
 	private void injectSignatureCanvasFrame() {
@@ -898,8 +959,48 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 			deckPanelActualView.showWidget(2);
 		if (sender == rBtnHistory)
 			deckPanelActualView.showWidget(3);
-		if (sender == rBtnManage)
+		if (sender == rBtnManage) {
+			String parentWidth = String.valueOf(deckPanelActualView.getElement()
+					.getClientWidth()) + "px";
+			decoratedTabPanelDeviceManagement.setWidth(parentWidth);
 			deckPanelActualView.showWidget(4);
+		}
+
+		// Manage Devices region
+		if (sender == btnManageDevicesAddNewDevice) {
+			addNewDevice();
+		}
+
+	}
+
+	private void addNewDevice() {
+		int devTypeSelectedIndex = cBoxManageDevicesAddType.getSelectedIndex();
+		DeviceType devType = null;
+		try {
+			devType = DeviceType.valueOf(cBoxManageDevicesAddType
+					.getItemText(devTypeSelectedIndex));
+		} catch (Exception e) {
+			return;
+		}
+
+		String devName = cBoxManageDevicesAddName.getText();
+		String devState = cBoxManageDevicesAddState.getItemText(cBoxManageDevicesAddState
+				.getSelectedIndex());
+		String devIMEI = txtBoxManageDevicesAddIMEI.getText();
+		String devComments = txtAreaManageDevicesAddComments.getText();
+		if (devType == null || devName == null || devName.isEmpty() || devState == null
+				|| devState.isEmpty() || devIMEI == null || devIMEI.isEmpty()) {
+			return;
+		}
+		String devPictureName = deviceNameToImageNameMap
+				.get(devName.toLowerCase().trim());
+		if (devPictureName == null) {
+			devPictureName = deviceNotFoundImage;
+		}
+
+		PersistentDevice pd = new PersistentDevice(devIMEI, devName, devComments,
+				devState, devType, devPictureName, new Boolean(true));
+		client.addNewDevice(pd);
 
 	}
 
@@ -963,16 +1064,17 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		Iterator<PersistentDevice> selectedDevicesIt = selectedDevices.iterator();
 		String[] selectedImeiCodes = new String[selectedDevices.size()];
 		int index = -1;
-		while(selectedDevicesIt.hasNext()){
+		while (selectedDevicesIt.hasNext()) {
 			index++;
 			selectedImeiCodes[index] = selectedDevicesIt.next().getIMEI();
 		}
 		String comments = txtAreaReturnComments.getText();
 		String signature = canvasReturnSignature.toString();
-		
+
 		// Submit
-		client.returnDevices(selectedRenter.getMatriculationNumber(), selectedImeiCodes, comments, signature);
-		
+		client.returnDevices(selectedRenter.getMatriculationNumber(), selectedImeiCodes,
+				comments, signature);
+
 		// Clear Return page
 		clearReturnSignatureCanvas();
 		txtAreaReturnComments.setText("");

@@ -17,5 +17,6 @@
 	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="war/WEB-INF/lib/gwt-hashcode-equals-0.1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="war/WEB-INF/lib/gwt-oauth2-0.2-alpha.jar"/>
+	<classpathentry exported="true" kind="lib" path="war/WEB-INF/lib/gwtsjcl-1.0.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

@@ -20,6 +20,7 @@ import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
+import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.view.client.ListDataProvider;
@@ -52,6 +53,8 @@ public class NewRentalSystem implements EntryPoint {
 
 	MainPageBinder mainPageBinder;
 	LoginPageBinder loginPageBinder;
+
+	MultiWordSuggestOracle deviceNamesSuggestOracle = new MultiWordSuggestOracle();
 
 	ListDataProvider<PersistentDevice> availableDevicesDataProvider = new ListDataProvider<PersistentDevice>();
 	ListDataProvider<PersistentDevice> unavailableDevicesDataProvider = new ListDataProvider<PersistentDevice>();
@@ -89,7 +92,6 @@ public class NewRentalSystem implements EntryPoint {
 		@Override
 		public void onSuccess(String token) {
 
-			
 			System.out.println("Facebook Token: " + token);
 			CookieHelper.resetOAuthAuthority();
 			CookieHelper.resetAuthToken();
@@ -188,7 +190,7 @@ public class NewRentalSystem implements EntryPoint {
 				eventsHistoryDataProvider, eventsFilteredHistoryDataProvider,
 				displayableRentersListStore, availableDevicesListStore,
 				displayableRentersFilterListStore, displayableDevicesFilterListStore,
-				allRentersDataProvider, allRentedDevicesDataProvider);
+				allRentersDataProvider, allRentedDevicesDataProvider, deviceNamesSuggestOracle);
 		fetchData();
 
 		RootLayoutPanel.get().remove(loginPageBinder);
@@ -425,6 +427,11 @@ public class NewRentalSystem implements EntryPoint {
 			unavailableDevicesDataProvider.getList().addAll(result);
 			allRentedDevicesDataProvider.getList().addAll(result);
 			// allRentedDevicesDataProvider.setList(result);
+
+			// Populate the device names oracle
+			for (PersistentDevice pd : result) {
+				deviceNamesSuggestOracle.add(pd.getName());
+			}
 		}
 		allRentedDevicesDataProvider.refresh();
 		unavailableDevicesDataProvider.refresh();
@@ -457,6 +464,9 @@ public class NewRentalSystem implements EntryPoint {
 			availableDevicesDataProvider.getList().addAll(result);
 
 			for (PersistentDevice pd : result) {
+				// Populate the device names oracle
+				deviceNamesSuggestOracle.add(pd.getName());
+				// Populate the available devices list store
 				String imgName = deviceNameToImageNameMap.get(pd.getName().toLowerCase());
 				if (imgName == null)
 					imgName = deviceNotFoundImage;
@@ -472,4 +482,28 @@ public class NewRentalSystem implements EntryPoint {
 					.size(), unavailableDevicesDataProvider.getList().size());
 
 	}
+	
+	public void addNewDevice(PersistentDevice pd){
+		if(pd == null)
+			return;
+		
+		AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>() {
+			
+			@Override
+			public void onSuccess(Boolean result) {
+				fetchAvailableDevices();
+				
+			}
+			
+			@Override
+			public void onFailure(Throwable caught) {
+				// TODO Auto-generated method stub
+				
+			}
+		};
+		
+		service.addNewDevice(pd, callback);
+		
+	}
+	
 }

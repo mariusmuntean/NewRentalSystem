@@ -1,5 +1,7 @@
 package de.tum.os.drs.client.view;
 
+import org.sgx.gwtsjcl.client.HashSha256;
+
 import com.google.api.gwt.oauth2.client.Auth;
 import com.google.gwt.aria.client.ImgRole;
 import com.google.gwt.core.client.Callback;
@@ -95,6 +97,11 @@ public class UserWidget extends Composite {
 						lblUsername.setText(username);
 
 						String userID = OAuthParser.getAuthenticatedUserID(jsonString);
+						// Should be computed with SHA256 and only the hash should be sent to the server
+						String userIdHash = String.valueOf(userID.hashCode());
+
+						System.out.println("User id:" + userID);
+						System.out.println("User id hash (SHA256):" + userIdHash);
 						CookieHelper.setAuthenticatedUserID(userID);
 
 						String userEmail = OAuthParser

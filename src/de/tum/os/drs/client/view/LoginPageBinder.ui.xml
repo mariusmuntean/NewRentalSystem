@@ -2,6 +2,7 @@
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
 	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:p1="urn:import:com.google.gwt.user.cellview.client"
 	xmlns:extGwtWgt="urn:import:com.extjs.gxt.ui.client.widget">
+
 	<!-- Styles region -->
 	<ui:style>
 		.important {
@@ -63,8 +64,6 @@
 						</g:Cell>
 					</g:HorizontalPanel>
 				</g:Cell>
-				<extGwtWgt:ListView ui:field="lstViewUsers"
-					width="300" height="350"></extGwtWgt:ListView>
 			</g:VerticalPanel>
 		</g:center>
 	</g:DockLayoutPanel>
