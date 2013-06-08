@@ -21,6 +21,8 @@ import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.state.Provider;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.DatePicker;
+import com.extjs.gxt.ui.client.widget.Info;
+import com.extjs.gxt.ui.client.widget.InfoConfig;
 import com.extjs.gxt.ui.client.widget.ListView;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
@@ -49,6 +51,8 @@ import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.DecoratedTabPanel;
@@ -58,6 +62,7 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
@@ -176,11 +181,17 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	@UiField
 	Button btnSubmitRentEvent;
 
+	/*
+	 * History controls
+	 */
 	@UiField(provided = true)
 	ComboBox<DisplayableRenter> cBoxHistoryFilterName;
 
 	@UiField(provided = true)
 	ComboBox<DisplayableDevice> cBoxHistoryFilterImei;
+	
+	@UiField
+	com.google.gwt.user.client.ui.Button btnHistoryresetFilters;
 
 	@UiField
 	DatePicker datePickerHistoryFilterTo;
@@ -227,6 +238,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	/*
 	 * Manage devices controls
 	 */
+	// Add
 	@UiField
 	DecoratedTabPanel decoratedTabPanelDeviceManagement;
 
@@ -249,6 +261,31 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 
 	@UiField
 	TextArea txtAreaManageDevicesAddComments;
+
+	// View
+	@UiField(provided = true)
+	ComboBox<DisplayableDevice> cBoxManageDevicesViewDevName;
+
+	@UiField(provided = true)
+	ComboBox<DisplayableDevice> cBoxManageDevicesViewDevIMEI;
+
+	@UiField
+	TextBox txtBoxManageDevicesViewDevName;
+	@UiField
+	TextBox txtBoxManageDevicesViewDevImei;
+	@UiField
+	ListBox cBoxManageDevicesViewDevState;
+	@UiField
+	TextArea txtBoxManageDevicesViewDevComments;
+	@UiField
+	Image imgManageDevicesViewDevImage;
+	@UiField
+	CheckBox checkBoxManageDevicesViewEnableEdit;
+	@UiField
+	com.google.gwt.user.client.ui.Button btnManageDevicesViewUpdate;
+	PersistentDevice currentlyDIsplayedPD;
+	@UiField
+	com.google.gwt.user.client.ui.Button btnManageDevicesViewUpdateDelete;
 
 	/*
 	 * ViewModels
@@ -279,6 +316,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	private ListStore<DisplayableDevice> selectedDevicesListStore = new ListStore<DisplayableDevice>();
 	private ListStore<DisplayableRenter> displayableRentersFilterListStore = new ListStore<DisplayableRenter>();
 	private ListStore<DisplayableDevice> displayableDevicesFilterListStore = new ListStore<DisplayableDevice>();
+	private ListStore<DisplayableDevice> allDisplayableDevicesListStore = new ListStore<DisplayableDevice>();
 
 	/*
 	 * Data providers
@@ -317,7 +355,8 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 			ListStore<DisplayableDevice> displayableDevicesFilterListStore,
 			ListDataProvider<SerializableRenter> allRentersDataProvider,
 			ListDataProvider<PersistentDevice> allRentedDevicesDataProvider,
-			MultiWordSuggestOracle deviceNamesOracle) {
+			MultiWordSuggestOracle deviceNamesOracle,
+			ListStore<DisplayableDevice> allDisplayableDevicesListStore) {
 
 		this.client = client;
 		this.availableDevicesDataProvider = availableDevicesDataProvider;
@@ -331,6 +370,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		this.allRentersDataProvider = allRentersDataProvider;
 		this.allRentedDevicesDataProvider = allRentedDevicesDataProvider;
 		this.manageDevicesAddNamesOracle = deviceNamesOracle;
+		this.allDisplayableDevicesListStore = allDisplayableDevicesListStore;
 
 		instantiateControls();
 		initWidget(uiBinder.createAndBindUi(this));
@@ -418,13 +458,27 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		cBoxHistoryFilterName = new ComboBox<DisplayableRenter>();
 		cBoxHistoryFilterName.setSimpleTemplate(rentStudentComboTemplate);
 		cBoxHistoryFilterName.setStore(displayableRentersFilterListStore);
+		cBoxHistoryFilterName.setTriggerAction(TriggerAction.ALL);
 
 		cBoxHistoryFilterImei = new ComboBox<DisplayableDevice>();
 		cBoxHistoryFilterImei.setStore(displayableDevicesFilterListStore);
+		cBoxHistoryFilterImei.setTriggerAction(TriggerAction.ALL);
 		tableHistoryEventsFiltered = getCellTableHistory(eventsFilteredHistoryDataProvider);
 
 		// Manage devices page
 		cBoxManageDevicesAddName = new SuggestBox(this.manageDevicesAddNamesOracle);
+
+		cBoxManageDevicesViewDevIMEI = new ComboBox<DisplayableDevice>();
+		cBoxManageDevicesViewDevIMEI.setSimpleTemplate(displayableDeviceTemplate);
+		cBoxManageDevicesViewDevIMEI.setStore(allDisplayableDevicesListStore);
+		cBoxManageDevicesViewDevIMEI.setForceSelection(true);
+		cBoxManageDevicesViewDevIMEI.setTriggerAction(TriggerAction.ALL);
+
+		cBoxManageDevicesViewDevName = new ComboBox<DisplayableDevice>();
+		cBoxManageDevicesViewDevName.setSimpleTemplate(displayableDeviceTemplate);
+		cBoxManageDevicesViewDevName.setStore(allDisplayableDevicesListStore);
+		cBoxManageDevicesViewDevName.setForceSelection(true);
+		cBoxManageDevicesViewDevName.setTriggerAction(TriggerAction.ALL);
 
 	}
 
@@ -468,6 +522,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		cBoxHistoryFilterName.addSelectionChangedListener(rsc);
 		rentedDeviceChanged rdc = new rentedDeviceChanged();
 		cBoxHistoryFilterImei.addSelectionChangedListener(rdc);
+		btnHistoryresetFilters.addClickHandler(this);
 
 		datePickerHistoryFilterFrom.addListener(Events.Select,
 				new Listener<ComponentEvent>() {
@@ -538,12 +593,96 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		});
 
 		// Manage devices
+		// Add
 		btnManageDevicesAddNewDevice.addClickHandler(this);
 		for (DeviceType dt : DeviceType.values()) {
 			cBoxManageDevicesAddType.addItem(dt.toString());
 		}
-		
+
 		decoratedTabPanelDeviceManagement.selectTab(0);
+
+		// View
+		cBoxManageDevicesViewDevIMEI
+				.addSelectionChangedListener(new SelectionChangedListener<DisplayableDevice>() {
+
+					@Override
+					public void selectionChanged(
+							SelectionChangedEvent<DisplayableDevice> se) {
+						DisplayableDevice dd = se.getSelectedItem();
+						if (dd != null) {
+							cBoxManageDevicesViewDevName.setRawValue(dd.getName());
+							displayDeviceDetails(dd.getImei());
+						}
+
+					}
+				});
+		cBoxManageDevicesViewDevName
+				.addSelectionChangedListener(new SelectionChangedListener<DisplayableDevice>() {
+
+					@Override
+					public void selectionChanged(
+							SelectionChangedEvent<DisplayableDevice> se) {
+						DisplayableDevice dd = se.getSelectedItem();
+						if (dd != null) {
+							cBoxManageDevicesViewDevIMEI.setRawValue(dd.getImei());
+							displayDeviceDetails(dd.getImei());
+						}
+					}
+				});
+		checkBoxManageDevicesViewEnableEdit.addClickHandler(this);
+		// Update
+		btnManageDevicesViewUpdate.addClickHandler(this);
+
+		// Delete
+		btnManageDevicesViewUpdateDelete.addClickHandler(this);
+
+	}
+
+	protected void displayDeviceDetails(String imei) {
+		if (imei == null || imei.isEmpty())
+			return;
+
+		AsyncCallback<PersistentDevice> getPDcallback = new AsyncCallback<PersistentDevice>() {
+
+			@Override
+			public void onSuccess(PersistentDevice result) {
+				currentlyDIsplayedPD = result;
+				if (result == null)
+					return;
+
+				String devPictureName = deviceNameToImageNameMap.get(result.getName()
+						.toLowerCase().trim());
+				if (devPictureName == null) {
+					devPictureName = deviceNotFoundImage;
+				}
+				imgManageDevicesViewDevImage.setUrl("images/devices/" + devPictureName);
+				txtBoxManageDevicesViewDevName.setText(result.getName());
+				txtBoxManageDevicesViewDevImei.setText(result.getIMEI());
+				boolean found = false;
+				for (int i = 0; i < cBoxManageDevicesViewDevState.getItemCount(); i++) {
+					if (cBoxManageDevicesViewDevState.getValue(i).toLowerCase()
+							.equals(result.getState())) {
+						found = true;
+						cBoxManageDevicesViewDevState.setSelectedIndex(i);
+						break;
+					}
+				}
+				if (!found) {
+					cBoxManageDevicesViewDevState.insertItem(result.getState(), 0);
+					cBoxManageDevicesViewDevState.setSelectedIndex(0);
+				}
+				txtBoxManageDevicesViewDevComments.setText(result.getDescription());
+
+			}
+
+			@Override
+			public void onFailure(Throwable caught) {
+				// TODO Auto-generated method stub
+
+			}
+		};
+
+		client.getPersistentDeviceByImei(imei, getPDcallback);
 	}
 
 	private void injectSignatureCanvasFrame() {
@@ -722,7 +861,6 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		// We know that the data is sorted alphabetically by default.
 		newTable.getColumnSortList().push(nameColumn);
 
-		
 		ListHandler<PersistentDevice> imeiSortHandler = new ListHandler<PersistentDevice>(
 				list);
 		columnSortHandler.setComparator(imeiColumn, new Comparator<PersistentDevice>() {
@@ -739,22 +877,24 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 			}
 		});
 		newTable.addColumnSortHandler(imeiSortHandler);
-		
+
 		ListHandler<PersistentDevice> typeSortHandler = new ListHandler<PersistentDevice>(
 				list);
-		columnSortHandler.setComparator(deviceTypeColumn, new Comparator<PersistentDevice>() {
-			public int compare(PersistentDevice p1, PersistentDevice p2) {
-				if (p1 == p2) {
-					return 0;
-				}
+		columnSortHandler.setComparator(deviceTypeColumn,
+				new Comparator<PersistentDevice>() {
+					public int compare(PersistentDevice p1, PersistentDevice p2) {
+						if (p1 == p2) {
+							return 0;
+						}
 
-				// Compare the type columns.
-				if (p1 != null) {
-					return (p2 != null) ? p1.getDeviceType().compareTo(p2.getDeviceType()) : 1;
-				}
-				return -1;
-			}
-		});
+						// Compare the type columns.
+						if (p1 != null) {
+							return (p2 != null) ? p1.getDeviceType().compareTo(
+									p2.getDeviceType()) : 1;
+						}
+						return -1;
+					}
+				});
 		newTable.addColumnSortHandler(typeSortHandler);
 
 		return newTable;
@@ -899,24 +1039,25 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		// java.util.List.
 		ListHandler<PersistentEvent> eventTypeColumnSortHandler = new ListHandler<PersistentEvent>(
 				list);
-		columnSortHandler.setComparator(eventTypeColumn, new Comparator<PersistentEvent>() {
-			public int compare(PersistentEvent p1, PersistentEvent p2) {
-				if (p1 == p2) {
-					return 0;
-				}
+		columnSortHandler.setComparator(eventTypeColumn,
+				new Comparator<PersistentEvent>() {
+					public int compare(PersistentEvent p1, PersistentEvent p2) {
+						if (p1 == p2) {
+							return 0;
+						}
 
-				// if (p1 != null) {
-				// return (p2 != null) ? ((p1.getEventType().index() < p2.getEventType()
-				// .index()) ? -1 : (p1.getEventType().index() == p2
-				// .getEventType().index() ? 0 : 1)) : 1;
-				// }
-				if (p1 != null) {
-					return (p2 != null) ? ((p1.getEventType().toString().compareTo(p2
-							.getEventType().toString()))) : 1;
-				}
-				return -1;
-			}
-		});
+						// if (p1 != null) {
+						// return (p2 != null) ? ((p1.getEventType().index() < p2.getEventType()
+						// .index()) ? -1 : (p1.getEventType().index() == p2
+						// .getEventType().index() ? 0 : 1)) : 1;
+						// }
+						if (p1 != null) {
+							return (p2 != null) ? ((p1.getEventType().toString()
+									.compareTo(p2.getEventType().toString()))) : 1;
+						}
+						return -1;
+					}
+				});
 		newTable.addColumnSortHandler(eventTypeColumnSortHandler);
 
 		return newTable;
@@ -981,12 +1122,127 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 			decoratedTabPanelDeviceManagement.setWidth(parentWidth);
 			deckPanelActualView.showWidget(4);
 		}
+		
+		// History region
+		if(sender == btnHistoryresetFilters){
+			resetHistoryFilters();
+		}
 
 		// Manage Devices region
 		if (sender == btnManageDevicesAddNewDevice) {
 			addNewDevice();
 		}
+		if (sender == checkBoxManageDevicesViewEnableEdit) {
+			toggleDeviceDataFields(checkBoxManageDevicesViewEnableEdit.isChecked());
+		}
+		if (sender == btnManageDevicesViewUpdate) {
+			updateDevice();
+		}
+		if (sender == btnManageDevicesViewUpdateDelete) {
+			deleteDevice();
+		}
 
+	}
+
+	private void resetHistoryFilters() {
+		cBoxHistoryFilterImei.setRawValue("");
+		cBoxHistoryFilterName.setRawValue("");
+		datePickerHistoryFilterFrom.clearState();
+		datePickerHistoryFilterTo.clearState();
+		txtBoxHistoryFilterFrom.setText("");
+		txtBoxHistoryFilterTo.setText("");
+		fetchEventsHistoryFiltered();
+		
+	}
+
+	private void deleteDevice() {
+		AsyncCallback<Boolean> deleteDeviceCallback = new AsyncCallback<Boolean>() {
+
+			@Override
+			public void onSuccess(Boolean result) {
+				if (result) {
+					// Clear fields
+					txtBoxManageDevicesViewDevComments.setText("");
+					txtBoxManageDevicesViewDevImei.setText("");
+					txtBoxManageDevicesViewDevName.setText("");
+					cBoxManageDevicesViewDevState.setSelectedIndex(0);
+					imgManageDevicesViewDevImage.setUrl("images/devices/"
+							+ deviceNotFoundImage);
+					
+					Info.display("Success!", "Deleted " + currentlyDIsplayedPD.getName());
+				} else {
+					Info.display("Server Error!", "Error deleting "
+							+ currentlyDIsplayedPD.getName());
+				}
+
+			}
+
+			@Override
+			public void onFailure(Throwable caught) {
+				Info.display("Network Error!",
+						"Error deleting " + currentlyDIsplayedPD.getName());
+
+			}
+		};
+
+		client.deleteDevice(currentlyDIsplayedPD, deleteDeviceCallback);
+	}
+
+	private void updateDevice() {
+		if (currentlyDIsplayedPD == null)
+			return;
+
+		String devName = txtBoxManageDevicesViewDevName.getText();
+		String devImei = txtBoxManageDevicesViewDevImei.getText();
+		String devState = cBoxManageDevicesViewDevState
+				.getValue(cBoxManageDevicesViewDevState.getSelectedIndex());
+		String devComments = txtBoxManageDevicesViewDevComments.getText();
+		if (devName == null || devImei == null || devState == null || devComments == null) {
+			Info.display("Error", "Please review fields");
+			return;
+		}
+
+		currentlyDIsplayedPD.setDescription(devComments);
+		currentlyDIsplayedPD.setName(devName);
+		currentlyDIsplayedPD.setIMEI(devImei);
+		currentlyDIsplayedPD.setState(devState);
+
+		AsyncCallback<Boolean> updateDeviceCallback = new AsyncCallback<Boolean>() {
+
+			@Override
+			public void onSuccess(Boolean result) {
+				if (result) {
+					Info.display("Success!", currentlyDIsplayedPD.getName() + " updated.");
+					// // Clear fields
+					// txtBoxManageDevicesViewDevComments.setText("");
+					// txtBoxManageDevicesViewDevImei.setText("");
+					// txtBoxManageDevicesViewDevName.setText("");
+					// cBoxManageDevicesViewDevState.setSelectedIndex(0);
+				} else {
+					Info.display("Server Error", "Could not update "
+							+ currentlyDIsplayedPD.getName() + " info.");
+				}
+
+			}
+
+			@Override
+			public void onFailure(Throwable caught) {
+				Info.display("Network Error",
+						"Could not update " + currentlyDIsplayedPD.getName() + " info.");
+
+			}
+		};
+
+		client.updateExistingDevice(currentlyDIsplayedPD, updateDeviceCallback);
+
+	}
+
+	private void toggleDeviceDataFields(boolean b) {
+		txtBoxManageDevicesViewDevName.setEnabled(b);
+		txtBoxManageDevicesViewDevImei.setEnabled(b);
+		txtBoxManageDevicesViewDevComments.setEnabled(b);
+		cBoxManageDevicesViewDevState.setEnabled(b);
+		btnManageDevicesViewUpdate.setEnabled(b);
 	}
 
 	private void addNewDevice() {
@@ -1017,6 +1273,16 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		PersistentDevice pd = new PersistentDevice(devIMEI, devName, devComments,
 				devState, devType, devPictureName, new Boolean(true));
 		client.addNewDevice(pd);
+
+		// Clear fields
+		cBoxManageDevicesAddType.setSelectedIndex(0);
+		cBoxManageDevicesAddName.setText("");
+		cBoxManageDevicesAddState.setSelectedIndex(0);
+		txtBoxManageDevicesAddIMEI.setText("");
+		txtAreaManageDevicesAddComments.setText("");
+
+		// Inform the user
+		Info.display("Success!", "Added a new {0}", pd.getName());
 
 	}
 

@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import com.extjs.gxt.ui.client.event.EventType;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.google.api.gwt.oauth2.client.Auth;
 import com.google.api.gwt.oauth2.client.AuthRequest;
@@ -73,6 +75,8 @@ public class NewRentalSystem implements EntryPoint {
 
 	private ListStore<DisplayableRenter> displayableRentersFilterListStore = new ListStore<DisplayableRenter>();
 	private ListStore<DisplayableDevice> displayableDevicesFilterListStore = new ListStore<DisplayableDevice>();
+
+	private ListStore<DisplayableDevice> allDisplayableDevicesListStore = new ListStore<DisplayableDevice>();
 
 	private HashMap<String, String> deviceNameToImageNameMap = new HashMap<String, String>() {
 		private static final long serialVersionUID = -4645423715285941470L;
@@ -192,7 +196,7 @@ public class NewRentalSystem implements EntryPoint {
 				displayableRentersListStore, availableDevicesListStore,
 				displayableRentersFilterListStore, displayableDevicesFilterListStore,
 				allRentersDataProvider, allRentedDevicesDataProvider,
-				deviceNamesSuggestOracle);
+				deviceNamesSuggestOracle, allDisplayableDevicesListStore);
 		fetchData();
 
 		RootLayoutPanel.get().remove(loginPageBinder);
@@ -277,6 +281,42 @@ public class NewRentalSystem implements EntryPoint {
 		fetchEventsHistory();
 
 		fetchAllRenters();
+		fetchAllDevices();
+
+	}
+
+	private void fetchAllDevices() {
+		AsyncCallback<ArrayList<PersistentDevice>> callback = new AsyncCallback<ArrayList<PersistentDevice>>() {
+
+			@Override
+			public void onSuccess(ArrayList<PersistentDevice> result) {
+				updateAllDevices(result);
+
+			}
+
+			@Override
+			public void onFailure(Throwable caught) {
+				// TODO Auto-generated method stub
+
+			}
+		};
+		service.getAllDevices(callback);
+	}
+
+	protected void updateAllDevices(ArrayList<PersistentDevice> result) {
+		this.allDisplayableDevicesListStore.removeAll();
+		if (result != null && result.size() > 0) {
+			for (PersistentDevice pd : result) {
+				String imgName = deviceNameToImageNameMap.get(pd.getName().toLowerCase()
+						.trim());
+				if (imgName == null)
+					imgName = deviceNotFoundImage;
+				DisplayableDevice dd = new DisplayableDevice(pd.getName(), pd.getIMEI(),
+						imgName);
+				this.allDisplayableDevicesListStore.add(dd);
+			}
+			this.allDisplayableDevicesListStore.fireEvent(Events.Update);
+		}
 
 	}
 
@@ -337,6 +377,9 @@ public class NewRentalSystem implements EntryPoint {
 		eventsFilteredHistoryDataProvider.getList().clear();
 		if (result != null && result.size() > 0) {
 			eventsFilteredHistoryDataProvider.getList().addAll(result);
+			CellTable<PersistentEvent> historyTable = (CellTable<PersistentEvent>) eventsFilteredHistoryDataProvider
+					.getDataDisplays().toArray()[0];
+			historyTable.setPageSize(eventsFilteredHistoryDataProvider.getList().size());
 		}
 
 	}
@@ -488,9 +531,9 @@ public class NewRentalSystem implements EntryPoint {
 		// Update the rowcount of the table
 		if (availableDevicesDataProvider.getDataDisplays().toArray()[0].getClass()
 				.equals(CellTable.class)) {
-			((CellTable<PersistentDevice>) availableDevicesDataProvider
-					.getDataDisplays().toArray()[0])
-					.setPageSize(availableDevicesDataProvider.getList().size());
+			((CellTable<PersistentDevice>) availableDevicesDataProvider.getDataDisplays()
+					.toArray()[0]).setPageSize(availableDevicesDataProvider.getList()
+					.size());
 		}
 
 		if (mainPageBinder != null)
@@ -508,6 +551,7 @@ public class NewRentalSystem implements EntryPoint {
 			@Override
 			public void onSuccess(Boolean result) {
 				fetchAvailableDevices();
+				fetchAllDevices();
 
 			}
 
@@ -522,4 +566,69 @@ public class NewRentalSystem implements EntryPoint {
 
 	}
 
+	public void getPersistentDeviceByImei(String imei,
+			final AsyncCallback<PersistentDevice> getPDcallback) {
+		if (imei == null || imei.isEmpty() || getPDcallback == null)
+			return;
+
+		AsyncCallback<PersistentDevice> callback = new AsyncCallback<PersistentDevice>() {
+			@Override
+			public void onSuccess(PersistentDevice result) {
+				getPDcallback.onSuccess(result);
+			}
+
+			@Override
+			public void onFailure(Throwable caught) {
+				getPDcallback.onFailure(caught);
+			}
+		};
+		service.getDeviceByImei(imei, callback);
+	}
+
+	public void updateExistingDevice(PersistentDevice currentlyDIsplayedPD,
+			final AsyncCallback<Boolean> updateDeviceCallback) {
+		AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>() {
+
+			@Override
+			public void onSuccess(Boolean result) {
+				updateDeviceCallback.onSuccess(result);
+				fetchAllDevices();
+
+			}
+
+			@Override
+			public void onFailure(Throwable caught) {
+				updateDeviceCallback.onFailure(caught);
+
+			}
+		};
+
+		service.updateDeviceInfo(currentlyDIsplayedPD, callback);
+	}
+
+	public void deleteDevice(PersistentDevice currentlyDIsplayedPD,
+			final AsyncCallback<Boolean> deleteDeviceCallback) {
+		if (currentlyDIsplayedPD == null || deleteDeviceCallback == null)
+			return;
+
+		AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>() {
+
+			@Override
+			public void onSuccess(Boolean result) {
+				fetchAllDevices();
+				fetchUnavailableDevices();
+				fetchAvailableDevices();
+				deleteDeviceCallback.onSuccess(result);
+
+			}
+
+			@Override
+			public void onFailure(Throwable caught) {
+				deleteDeviceCallback.onFailure(caught);
+
+			}
+		};
+
+		service.deleteDevice(currentlyDIsplayedPD, callback);
+	}
 }

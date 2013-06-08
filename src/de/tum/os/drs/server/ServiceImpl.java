@@ -35,7 +35,7 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 		factory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
 		// createDummyData();
 	}
-	
+
 	/*
 	 * IClientService implementation START
 	 */
@@ -54,7 +54,6 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 		return (ArrayList<PersistentDevice>) pds;
 
 	}
-
 
 	@Override
 	public PersistentDevice getDeviceByImei(String imei) {
@@ -152,9 +151,7 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 
 	@Override
 	public Boolean deleteDevice(PersistentDevice device) {
-		return null;
-		// TODO Auto-generated method stub
-
+		return deleteDevice(device.getIMEI());
 	}
 
 	@Override
@@ -405,7 +402,8 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 	}
 
 	@Override
-	public Boolean returnDevice(String renterMatrNr, String deviceImeiCode, String comments, String signatureHTML) {
+	public Boolean returnDevice(String renterMatrNr, String deviceImeiCode,
+			String comments, String signatureHTML) {
 		EntityManager em = factory.createEntityManager();
 		try {
 			// Delete returned device from list of rented devices.
@@ -434,7 +432,8 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 	}
 
 	@Override
-	public Boolean returnDevices(String renterMatrNr, String[] imeiCodes, String comments, String signatureHTML) {
+	public Boolean returnDevices(String renterMatrNr, String[] imeiCodes,
+			String comments, String signatureHTML) {
 		EntityManager em = factory.createEntityManager();
 		try {
 			// Delete returned devices from list of rented devices.

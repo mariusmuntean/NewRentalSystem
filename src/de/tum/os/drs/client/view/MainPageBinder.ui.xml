@@ -94,9 +94,8 @@
 
 				<!-- Current page -->
 				<g:cell>
-					<g:DeckPanel ui:field="deckPanelActualView" animationEnabled="true" visible="true"
-						styleName="{style.deckPanelStyle}"
-						>
+					<g:DeckPanel ui:field="deckPanelActualView"
+						animationEnabled="true" visible="true" styleName="{style.deckPanelStyle}">
 						<!-- OverView -->
 						<g:Grid height="auto" borderWidth="2" styleName="overviewGridStyle"
 							width="100%">
@@ -358,62 +357,68 @@
 						<g:VerticalPanel>
 							<g:cell>
 								<g:CaptionPanel captionText="Filters">
-									<g:Grid>
-										<g:row>
-											<g:customCell>
-												<g:Label text="Person name: "></g:Label>
-											</g:customCell>
-											<g:customCell>
-												<extGwt:ComboBox ui:field="cBoxHistoryFilterName"
-													typeAhead="true" displayField="name" emptyText="Type a name"
-													selectOnFocus="true" width="250">
-												</extGwt:ComboBox>
-											</g:customCell>
-											<g:customCell>
-												<g:Label text="IMEI code: "></g:Label>
-											</g:customCell>
-											<g:customCell>
-												<extGwt:ComboBox ui:field="cBoxHistoryFilterImei"
-													typeAhead="true" displayField="imei" emptyText="Type a name"
-													selectOnFocus="true" width="250">
-												</extGwt:ComboBox>
-											</g:customCell>
-											<g:customCell>
-												<g:Label text="Date interval: "></g:Label>
-											</g:customCell>
-											<g:customCell>
-												<g:HorizontalPanel spacing="5">
-													<g:cell>
-														<g:VerticalPanel horizontalAlignment="ALIGN_CENTER">
-															<g:cell>
-																<g:Label text="FROM:"></g:Label>
-															</g:cell>
-															<g:cell>
-																<extGwtWgt:DatePicker ui:field="datePickerHistoryFilterFrom"
-																	shim="true"></extGwtWgt:DatePicker>
-															</g:cell>
-															<g:cell>
-																<g:TextBox width="90%" ui:field="txtBoxHistoryFilterFrom"></g:TextBox>
-															</g:cell>
-														</g:VerticalPanel>
-													</g:cell>
-													<g:cell>
-														<g:VerticalPanel horizontalAlignment="ALIGN_CENTER">
-															<g:cell>
-																<g:Label text="TO:"></g:Label>
-															</g:cell>
-															<g:cell>
-																<extGwtWgt:DatePicker ui:field="datePickerHistoryFilterTo"></extGwtWgt:DatePicker>
-															</g:cell>
-															<g:cell>
-																<g:TextBox width="90%" ui:field="txtBoxHistoryFilterTo"></g:TextBox>
-															</g:cell>
-														</g:VerticalPanel>
-													</g:cell>
-												</g:HorizontalPanel>
-											</g:customCell>
-										</g:row>
-									</g:Grid>
+									<g:HorizontalPanel>
+										<g:cell height="100%">
+											<g:VerticalPanel>
+												<g:cell>
+													<g:Label text="Person name: "></g:Label>
+												</g:cell>
+												<g:cell verticalAlignment="ALIGN_BOTTOM">
+													<g:Button text="Reset Filters" ui:field="btnHistoryresetFilters"></g:Button>
+												</g:cell>
+											</g:VerticalPanel>
+
+										</g:cell>
+										<g:cell>
+											<extGwt:ComboBox ui:field="cBoxHistoryFilterName"
+												typeAhead="true" displayField="name" emptyText="Type a name"
+												selectOnFocus="true" width="250">
+											</extGwt:ComboBox>
+										</g:cell>
+										<g:cell>
+											<g:Label text="IMEI code: "></g:Label>
+										</g:cell>
+										<g:cell>
+											<extGwt:ComboBox ui:field="cBoxHistoryFilterImei"
+												typeAhead="true" displayField="imei" emptyText="Type a name"
+												selectOnFocus="true" width="250">
+											</extGwt:ComboBox>
+										</g:cell>
+										<g:cell>
+											<g:Label text="Date interval: "></g:Label>
+										</g:cell>
+										<g:cell>
+											<g:HorizontalPanel spacing="5">
+												<g:cell>
+													<g:VerticalPanel horizontalAlignment="ALIGN_CENTER">
+														<g:cell>
+															<g:Label text="FROM:"></g:Label>
+														</g:cell>
+														<g:cell>
+															<extGwtWgt:DatePicker ui:field="datePickerHistoryFilterFrom"
+																shim="true"></extGwtWgt:DatePicker>
+														</g:cell>
+														<g:cell>
+															<g:TextBox width="90%" ui:field="txtBoxHistoryFilterFrom"></g:TextBox>
+														</g:cell>
+													</g:VerticalPanel>
+												</g:cell>
+												<g:cell>
+													<g:VerticalPanel horizontalAlignment="ALIGN_CENTER">
+														<g:cell>
+															<g:Label text="TO:"></g:Label>
+														</g:cell>
+														<g:cell>
+															<extGwtWgt:DatePicker ui:field="datePickerHistoryFilterTo"></extGwtWgt:DatePicker>
+														</g:cell>
+														<g:cell>
+															<g:TextBox width="90%" ui:field="txtBoxHistoryFilterTo"></g:TextBox>
+														</g:cell>
+													</g:VerticalPanel>
+												</g:cell>
+											</g:HorizontalPanel>
+										</g:cell>
+									</g:HorizontalPanel>
 								</g:CaptionPanel>
 							</g:cell>
 							<g:cell>
@@ -424,7 +429,7 @@
 							</g:cell>
 						</g:VerticalPanel>
 						<!-- Manage Devices -->
-						<g:DecoratedTabPanel animationEnabled="true" 
+						<g:DecoratedTabPanel animationEnabled="true"
 							ui:field="decoratedTabPanelDeviceManagement">
 							<g:Tab text="Add">
 								<g:VerticalPanel styleName="{style.deviceManagementVpanelStyle}">
@@ -473,8 +478,9 @@
 												</g:Label>
 											</g:cell>
 											<g:cell>
-												<g:TextArea ui:field="txtAreaManageDevicesAddComments" title="Additional comments if needed"
-													visibleLines="6" characterWidth="50">
+												<g:TextArea ui:field="txtAreaManageDevicesAddComments"
+													title="Additional comments if needed" visibleLines="6"
+													characterWidth="50">
 												</g:TextArea>
 											</g:cell>
 											<g:cell verticalAlignment="ALIGN_BOTTOM">
@@ -485,14 +491,104 @@
 									</g:cell>
 								</g:VerticalPanel>
 							</g:Tab>
-							<g:Tab text="View">
-								<g:VerticalPanel></g:VerticalPanel>
-							</g:Tab>
-							<g:Tab text="Update">
-								<g:VerticalPanel></g:VerticalPanel>
-							</g:Tab>
-							<g:Tab text="Delete">
-								<g:VerticalPanel></g:VerticalPanel>
+							<g:Tab text="View/Update/Delete">
+								<g:Grid>
+									<g:row>
+										<g:customCell>
+											<g:DecoratorPanel>
+												<g:CaptionPanel captionText="Select a device">
+													<g:VerticalPanel styleName="{style.vPanelNameOrMatricStyle}">
+														<extGwt:ComboBox ui:field="cBoxManageDevicesViewDevName"
+															loadingText="Searching ..." forceSelection="true"
+															hideTrigger="false" shim="true" autoHeight="true"
+															selectOnFocus="true" typeAhead="true" width="300"
+															emptyText="Type a device name" stateful="true"
+															displayField="name">
+														</extGwt:ComboBox>
+														<g:cell>
+															<g:Label text="or" horizontalAlignment="ALIGN_CENTER" />
+														</g:cell>
+														<extGwt:ComboBox ui:field="cBoxManageDevicesViewDevIMEI"
+															loadingText="Searching ..." forceSelection="true"
+															autoHeight="true" selectOnFocus="true" width="300"
+															typeAhead="true" emptyText="Type an IMEI code" stateful="true"
+															displayField="imei">
+														</extGwt:ComboBox>
+													</g:VerticalPanel>
+												</g:CaptionPanel>
+											</g:DecoratorPanel>
+										</g:customCell>
+										<g:customCell>
+											<g:HorizontalPanel>
+												<g:cell verticalAlignment="ALIGN_MIDDLE">
+													<g:VerticalPanel>
+														<g:cell>
+															<g:Image ui:field="imgManageDevicesViewDevImage"></g:Image>
+														</g:cell>
+														<g:cell horizontalAlignment="ALIGN_CENTER">
+															<g:Button ui:field="btnManageDevicesViewUpdateDelete"
+																text="Delete Device"></g:Button>
+														</g:cell>
+													</g:VerticalPanel>
+												</g:cell>
+												<g:cell verticalAlignment="ALIGN_MIDDLE">
+													<g:CaptionPanel captionText="Device Info">
+														<g:HorizontalPanel>
+															<g:cell>
+																<g:VerticalPanel>
+																	<g:cell>
+																		<g:HorizontalPanel>
+																			<g:cell verticalAlignment="ALIGN_MIDDLE">
+																				<g:CheckBox ui:field="checkBoxManageDevicesViewEnableEdit"
+																					checked="false" text="Enable editing"></g:CheckBox>
+																			</g:cell>
+																			<g:cell>
+																				<g:Button ui:field="btnManageDevicesViewUpdate"
+																					text="Update" enabled="false"></g:Button>
+																			</g:cell>
+																		</g:HorizontalPanel>
+																	</g:cell>
+																	<g:cell>
+																		<g:Label text="Name :"></g:Label>
+																	</g:cell>
+																	<g:TextBox ui:field="txtBoxManageDevicesViewDevName"
+																		enabled="false"></g:TextBox>
+																	<g:cell>
+																		<g:Label text="IMEI :"></g:Label>
+																	</g:cell>
+																	<g:TextBox ui:field="txtBoxManageDevicesViewDevImei"
+																		enabled="false"></g:TextBox>
+																	<g:cell>
+																		<g:Label text="State :"></g:Label>
+																	</g:cell>
+																	<g:cell>
+																		<g:ListBox ui:field="cBoxManageDevicesViewDevState"
+																			enabled="false">
+																			<g:item value="1">New</g:item>
+																			<g:item value="2">Used</g:item>
+																			<g:item value="3">Broken</g:item>
+																		</g:ListBox>
+																	</g:cell>
+																</g:VerticalPanel>
+															</g:cell>
+															<g:cell verticalAlignment="ALIGN_BOTTOM">
+																<g:VerticalPanel>
+																	<g:cell>
+																		<g:Label text="Comments :"></g:Label>
+																	</g:cell>
+																	<g:cell>
+																		<g:TextArea ui:field="txtBoxManageDevicesViewDevComments"
+																			visibleLines="6" characterWidth="36" enabled="false"></g:TextArea>
+																	</g:cell>
+																</g:VerticalPanel>
+															</g:cell>
+														</g:HorizontalPanel>
+													</g:CaptionPanel>
+												</g:cell>
+											</g:HorizontalPanel>
+										</g:customCell>
+									</g:row>
+								</g:Grid>
 							</g:Tab>
 						</g:DecoratedTabPanel>
 					</g:DeckPanel>
