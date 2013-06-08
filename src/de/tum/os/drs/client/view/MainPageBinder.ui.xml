@@ -25,6 +25,7 @@
 		
 		.deckPanelStyle {
 			background-color: aqua;
+			width: 100%;
 		}
 		
 		.vPanelNameOrMatricStyle {
@@ -93,8 +94,7 @@
 
 				<!-- Current page -->
 				<g:cell>
-					<g:DeckPanel ui:field="deckPanelActualView" width="100%"
-						height="100%" animationEnabled="true" visible="true"
+					<g:DeckPanel ui:field="deckPanelActualView" animationEnabled="true" visible="true"
 						styleName="{style.deckPanelStyle}"
 						>
 						<!-- OverView -->
@@ -117,7 +117,7 @@
 									<g:CaptionPanel captionText="Available Devices">
 										<!-- available devices -->
 										<cell:CellTable ui:field="tableAvailableDevices"
-											width="100%" height="auto" tableLayoutFixed="true"></cell:CellTable>
+											width="100%" height="auto"></cell:CellTable>
 									</g:CaptionPanel>
 								</g:customCell>
 							</g:row>

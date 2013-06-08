@@ -16,6 +16,7 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.layout.client.Layout.Alignment;
+import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -190,7 +191,8 @@ public class NewRentalSystem implements EntryPoint {
 				eventsHistoryDataProvider, eventsFilteredHistoryDataProvider,
 				displayableRentersListStore, availableDevicesListStore,
 				displayableRentersFilterListStore, displayableDevicesFilterListStore,
-				allRentersDataProvider, allRentedDevicesDataProvider, deviceNamesSuggestOracle);
+				allRentersDataProvider, allRentedDevicesDataProvider,
+				deviceNamesSuggestOracle);
 		fetchData();
 
 		RootLayoutPanel.get().remove(loginPageBinder);
@@ -435,6 +437,13 @@ public class NewRentalSystem implements EntryPoint {
 		}
 		allRentedDevicesDataProvider.refresh();
 		unavailableDevicesDataProvider.refresh();
+		// Update the rowcount of the table
+		if (unavailableDevicesDataProvider.getDataDisplays().toArray()[0].getClass()
+				.equals(CellTable.class)) {
+			((CellTable<PersistentDevice>) unavailableDevicesDataProvider
+					.getDataDisplays().toArray()[0])
+					.setPageSize(unavailableDevicesDataProvider.getList().size());
+		}
 
 		if (mainPageBinder != null)
 			mainPageBinder.setRentedVsAvailable(availableDevicesDataProvider.getList()
@@ -476,34 +485,41 @@ public class NewRentalSystem implements EntryPoint {
 		}
 
 		availableDevicesDataProvider.refresh();
+		// Update the rowcount of the table
+		if (availableDevicesDataProvider.getDataDisplays().toArray()[0].getClass()
+				.equals(CellTable.class)) {
+			((CellTable<PersistentDevice>) availableDevicesDataProvider
+					.getDataDisplays().toArray()[0])
+					.setPageSize(availableDevicesDataProvider.getList().size());
+		}
 
 		if (mainPageBinder != null)
 			mainPageBinder.setRentedVsAvailable(availableDevicesDataProvider.getList()
 					.size(), unavailableDevicesDataProvider.getList().size());
 
 	}
-	
-	public void addNewDevice(PersistentDevice pd){
-		if(pd == null)
+
+	public void addNewDevice(PersistentDevice pd) {
+		if (pd == null)
 			return;
-		
+
 		AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>() {
-			
+
 			@Override
 			public void onSuccess(Boolean result) {
 				fetchAvailableDevices();
-				
+
 			}
-			
+
 			@Override
 			public void onFailure(Throwable caught) {
 				// TODO Auto-generated method stub
-				
+
 			}
 		};
-		
+
 		service.addNewDevice(pd, callback);
-		
+
 	}
-	
+
 }

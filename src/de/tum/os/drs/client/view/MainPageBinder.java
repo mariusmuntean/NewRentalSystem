@@ -352,9 +352,9 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 
 	private void instantiateControls() {
 		// Overview page
+		this.tableHistoryOverview = getCellTableHistory(eventsHistoryDataProvider);
 		this.tableAvailableDevices = getDevicesTableFromDataprovider(availableDevicesDataProvider);
 		this.tableUnavailableDevices = getDevicesTableFromDataprovider(unavailableDevicesDataProvider);
-		this.tableHistoryOverview = getCellTableHistory(eventsHistoryDataProvider);
 
 		// Rent page
 		cBoxRentRegisteredStudentName = new ComboBox<DisplayableRenter>();
@@ -722,8 +722,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		// We know that the data is sorted alphabetically by default.
 		newTable.getColumnSortList().push(nameColumn);
 
-		// Add a ColumnSortEvent.ListHandler to connect sorting to the
-		// java.util.List.
+		
 		ListHandler<PersistentDevice> imeiSortHandler = new ListHandler<PersistentDevice>(
 				list);
 		columnSortHandler.setComparator(imeiColumn, new Comparator<PersistentDevice>() {
@@ -732,7 +731,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 					return 0;
 				}
 
-				// Compare the name columns.
+				// Compare the imei columns.
 				if (p1 != null) {
 					return (p2 != null) ? p1.getIMEI().compareTo(p2.getIMEI()) : 1;
 				}
@@ -740,6 +739,23 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 			}
 		});
 		newTable.addColumnSortHandler(imeiSortHandler);
+		
+		ListHandler<PersistentDevice> typeSortHandler = new ListHandler<PersistentDevice>(
+				list);
+		columnSortHandler.setComparator(deviceTypeColumn, new Comparator<PersistentDevice>() {
+			public int compare(PersistentDevice p1, PersistentDevice p2) {
+				if (p1 == p2) {
+					return 0;
+				}
+
+				// Compare the type columns.
+				if (p1 != null) {
+					return (p2 != null) ? p1.getDeviceType().compareTo(p2.getDeviceType()) : 1;
+				}
+				return -1;
+			}
+		});
+		newTable.addColumnSortHandler(typeSortHandler);
 
 		return newTable;
 	}
@@ -883,7 +899,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		// java.util.List.
 		ListHandler<PersistentEvent> eventTypeColumnSortHandler = new ListHandler<PersistentEvent>(
 				list);
-		columnSortHandler.setComparator(emailColumn, new Comparator<PersistentEvent>() {
+		columnSortHandler.setComparator(eventTypeColumn, new Comparator<PersistentEvent>() {
 			public int compare(PersistentEvent p1, PersistentEvent p2) {
 				if (p1 == p2) {
 					return 0;
