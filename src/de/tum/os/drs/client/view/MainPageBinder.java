@@ -129,7 +129,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	HorizontalPanel hPanelOverview;
 
 	@UiField
-	RadioButton rBtnOverview, rBtnRent, rBtnReturn, rBtnHistory, rBtnManage;
+	RadioButton rBtnOverview, rBtnRent, rBtnReturn, rBtnHistory, rBtnManage, rBtnManageStudents;
 
 	PieChart pChartRentedVsAvailable;
 
@@ -287,6 +287,21 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	@UiField
 	com.google.gwt.user.client.ui.Button btnManageDevicesViewUpdateDelete;
 
+	/*
+	 * Manage Students region
+	 */
+	// View
+	
+	// Update
+	@UiField
+	DecoratedTabPanel decoratedTabPanelStudentsManagement;
+	
+	@UiField(provided=true)
+	ComboBox<DisplayableRenter> cBoxManageStudentsViewStudentName;
+	
+	@UiField(provided=true)
+	ComboBox<DisplayableRenter> cBoxManageStudentsViewStudentMatriculation;
+	
 	/*
 	 * ViewModels
 	 */
@@ -479,6 +494,18 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		cBoxManageDevicesViewDevName.setStore(allDisplayableDevicesListStore);
 		cBoxManageDevicesViewDevName.setForceSelection(true);
 		cBoxManageDevicesViewDevName.setTriggerAction(TriggerAction.ALL);
+		
+		//Manage students page
+		cBoxManageStudentsViewStudentName = new ComboBox<DisplayableRenter>();
+		cBoxManageStudentsViewStudentName.setSimpleTemplate(rentStudentComboTemplate);
+		cBoxManageStudentsViewStudentName.setStore(displayableRentersListStore);
+		cBoxManageStudentsViewStudentName.setTriggerAction(TriggerAction.ALL);
+
+		cBoxManageStudentsViewStudentMatriculation = new ComboBox<DisplayableRenter>();
+		cBoxManageStudentsViewStudentMatriculation
+				.setSimpleTemplate(rentStudentComboTemplate);
+		cBoxManageStudentsViewStudentMatriculation.setStore(displayableRentersListStore);
+		cBoxManageStudentsViewStudentMatriculation.setTriggerAction(TriggerAction.ALL);
 
 	}
 
@@ -489,6 +516,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		rBtnOverview.addClickHandler(this);
 		rBtnRent.addClickHandler(this);
 		rBtnReturn.addClickHandler(this);
+		rBtnManageStudents.addClickHandler(this);
 
 		// Rent page
 		registeredStudentChanged rsc = new registeredStudentChanged();
@@ -1121,6 +1149,12 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 					.getClientWidth()) + "px";
 			decoratedTabPanelDeviceManagement.setWidth(parentWidth);
 			deckPanelActualView.showWidget(4);
+		}
+		if(sender == rBtnManageStudents){
+			String parentWidth = String.valueOf(deckPanelActualView.getElement()
+					.getClientWidth()) + "px";
+			decoratedTabPanelStudentsManagement.setWidth(parentWidth);
+			deckPanelActualView.showWidget(5);
 		}
 		
 		// History region

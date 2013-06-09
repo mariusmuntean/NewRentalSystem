@@ -89,6 +89,8 @@
 							ui:field="rBtnHistory"></g:RadioButton>
 						<g:RadioButton text="Devices" name="rBtnActionGroup"
 							ui:field="rBtnManage"></g:RadioButton>
+						<g:RadioButton text="Students" name="rBtnActionGroup"
+							ui:field="rBtnManageStudents"></g:RadioButton>
 					</g:VerticalPanel>
 				</g:cell>
 
@@ -591,6 +593,170 @@
 								</g:Grid>
 							</g:Tab>
 						</g:DecoratedTabPanel>
+
+						<!-- Manage Students -->
+						<g:DecoratedTabPanel animationEnabled="true"
+							ui:field="decoratedTabPanelStudentsManagement">
+							<g:Tab text="Add">
+								<g:VerticalPanel styleName="{style.deviceManagementVpanelStyle}">
+									<g:cell>
+										<g:HorizontalPanel width="100%">
+											<g:cell>
+												<g:Label text="Name: "></g:Label>
+											</g:cell>
+											<g:cell>
+												<g:TextBox ui:field="txtBoxManageStudentsAddName">
+												</g:TextBox>
+											</g:cell>
+											<g:cell>
+												<g:Label text="Matriculation number: "></g:Label>
+											</g:cell>
+											<g:cell>
+												<g:TextBox ui:field="txtBoxManageStudentsAddMatriculation">
+												</g:TextBox>
+											</g:cell>
+											<g:cell>
+												<g:Label text="Email: "></g:Label>
+											</g:cell>
+											<g:cell>
+												<g:TextBox ui:field="txtBoxManageStudentsAddEmail">
+												</g:TextBox>
+											</g:cell>
+											<g:cell>
+												<g:Label text="Phone: "></g:Label>
+											</g:cell>
+											<g:cell>
+												<g:TextBox ui:field="txtBoxManageStudentsAddPhone">
+												</g:TextBox>
+											</g:cell>
+										</g:HorizontalPanel>
+									</g:cell>
+									<g:cell width="100%">
+										<g:HorizontalPanel width="100%">
+											<g:cell width="auto">
+												<g:Label text="Comments: ">
+												</g:Label>
+											</g:cell>
+											<g:cell width="auto">
+												<g:TextArea ui:field="txtAreaManageStudentsAddComments"
+													title="Additional comments if needed" visibleLines="6"
+													characterWidth="50">
+												</g:TextArea>
+											</g:cell>
+											<g:cell verticalAlignment="ALIGN_BOTTOM"
+												horizontalAlignment="ALIGN_RIGHT" width="100%">
+												<g:Button text="Add device" ui:field="btnManageStudentsAddNewStudent">
+												</g:Button>
+											</g:cell>
+										</g:HorizontalPanel>
+									</g:cell>
+								</g:VerticalPanel>
+							</g:Tab>
+							<g:Tab text="View/Update/Delete">
+								<g:Grid>
+									<g:row>
+										<g:customCell>
+											<g:DecoratorPanel>
+												<g:CaptionPanel captionText="Select a student">
+													<g:VerticalPanel styleName="{style.vPanelNameOrMatricStyle}">
+														<g:cell>
+															<extGwt:ComboBox ui:field="cBoxManageStudentsViewStudentName"
+																loadingText="Searching ..." forceSelection="true"
+																hideTrigger="false" shim="true" autoHeight="true"
+																selectOnFocus="true" typeAhead="true" width="300"
+																emptyText="Type name" stateful="true" displayField="name">
+															</extGwt:ComboBox>
+														</g:cell>
+														<g:cell>
+															<g:Label text="or" horizontalAlignment="ALIGN_CENTER" />
+														</g:cell>
+														<g:cell>
+															<extGwt:ComboBox
+																ui:field="cBoxManageStudentsViewStudentMatriculation"
+																loadingText="Searching ..." forceSelection="true"
+																autoHeight="true" selectOnFocus="true" width="300"
+																typeAhead="true" emptyText="Type matriculation number"
+																stateful="true" displayField="matriculation">
+															</extGwt:ComboBox>
+														</g:cell>
+													</g:VerticalPanel>
+												</g:CaptionPanel>
+											</g:DecoratorPanel>
+										</g:customCell>
+										<g:customCell>
+											<g:HorizontalPanel>
+												<g:cell verticalAlignment="ALIGN_MIDDLE">
+													<g:VerticalPanel>
+														<g:cell>
+															<g:Image ui:field="imgManageStudentsViewStudentSignature"></g:Image>
+														</g:cell>
+														<g:cell horizontalAlignment="ALIGN_CENTER">
+															<g:Button ui:field="btnManageStudentsViewUpdateDelete"
+																text="Delete Student Info"></g:Button>
+														</g:cell>
+													</g:VerticalPanel>
+												</g:cell>
+												<g:cell verticalAlignment="ALIGN_MIDDLE">
+													<g:CaptionPanel captionText="Student Info">
+														<g:HorizontalPanel>
+															<g:cell>
+																<g:VerticalPanel>
+																	<g:cell>
+																		<g:HorizontalPanel>
+																			<g:cell verticalAlignment="ALIGN_MIDDLE">
+																				<g:CheckBox ui:field="checkBoxManageStudentsViewEnableEdit"
+																					checked="false" text="Enable editing"></g:CheckBox>
+																			</g:cell>
+																			<g:cell>
+																				<g:Button ui:field="btnManageStudentsViewUpdate"
+																					text="Update" enabled="false"></g:Button>
+																			</g:cell>
+																		</g:HorizontalPanel>
+																	</g:cell>
+																	<g:cell>
+																		<g:Label text="Name :"></g:Label>
+																	</g:cell>
+																	<g:TextBox ui:field="txtBoxManageStudentsViewStudentName"
+																		enabled="false"></g:TextBox>
+																	<g:cell>
+																		<g:Label text="Matriculation :"></g:Label>
+																	</g:cell>
+																	<g:TextBox
+																		ui:field="txtBoxManageStudentsViewStudentMatriculation"
+																		enabled="false"></g:TextBox>
+																	<g:cell>
+																		<g:Label text="Email :"></g:Label>
+																	</g:cell>
+																	<g:TextBox ui:field="txtBoxManageStudentsViewStudentEmail"
+																		enabled="false"></g:TextBox>
+																	<g:cell>
+																		<g:Label text="Phone :"></g:Label>
+																	</g:cell>
+																	<g:TextBox ui:field="txtBoxManageStudentsViewStudentPhone"
+																		enabled="false"></g:TextBox>
+																</g:VerticalPanel>
+															</g:cell>
+															<g:cell verticalAlignment="ALIGN_BOTTOM">
+																<g:VerticalPanel>
+																	<g:cell>
+																		<g:Label text="Comments :"></g:Label>
+																	</g:cell>
+																	<g:cell>
+																		<g:TextArea ui:field="txtBoxManageStudentsViewStudentComments"
+																			visibleLines="6" characterWidth="36" enabled="false"></g:TextArea>
+																	</g:cell>
+																</g:VerticalPanel>
+															</g:cell>
+														</g:HorizontalPanel>
+													</g:CaptionPanel>
+												</g:cell>
+											</g:HorizontalPanel>
+										</g:customCell>
+									</g:row>
+								</g:Grid>
+							</g:Tab>
+						</g:DecoratedTabPanel>
+
 					</g:DeckPanel>
 				</g:cell>
 			</g:HorizontalPanel>
