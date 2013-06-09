@@ -43,10 +43,13 @@ import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.event.dom.client.MouseUpHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.resources.client.CssResource.NotStrict;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.cellview.client.CellBrowser;
 import com.google.gwt.user.cellview.client.CellTable;
+import com.google.gwt.user.cellview.client.CellTable.Resources;
+import com.google.gwt.user.cellview.client.RowStyles;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.client.DOM;
@@ -98,6 +101,13 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 			.create(MainPageBinderUiBinder.class);
 
 	interface MainPageBinderUiBinder extends UiBinder<Widget, MainPageBinder> {
+	}
+
+	interface CellTableResources extends CellTable.Resources {
+		@NotStrict
+		@Source(value = { CellTable.Style.DEFAULT_CSS,
+				"../../../../../../Resources/Styles/CellTableStyle.css" })
+		CellTable.Style cellTableStyle();
 	}
 
 	/*
@@ -422,8 +432,10 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	private void instantiateControls() {
 		// Overview page
 		this.tableHistoryOverview = getCellTableHistory(eventsHistoryDataProvider);
-		this.tableAvailableDevices = getDevicesTableFromDataprovider(availableDevicesDataProvider);
-		this.tableUnavailableDevices = getDevicesTableFromDataprovider(unavailableDevicesDataProvider);
+		this.tableAvailableDevices = getDevicesTableFromDataprovider(
+				availableDevicesDataProvider, false);
+		this.tableUnavailableDevices = getDevicesTableFromDataprovider(
+				unavailableDevicesDataProvider, true);
 
 		// Rent page
 		cBoxRentRegisteredStudentName = new ComboBox<DisplayableRenter>();
@@ -682,7 +694,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		 * Manage Students
 		 */
 		decoratedTabPanelStudentsManagement.selectTab(0);
-		
+
 		// View
 		btnManageStudentsAddNewStudent.addClickHandler(this);
 
@@ -820,9 +832,25 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	}
 
 	private CellTable<PersistentDevice> getDevicesTableFromDataprovider(
-			ListDataProvider<PersistentDevice> lstDataProvider) {
-		CellTable<PersistentDevice> newTable = new CellTable<PersistentDevice>();
+			ListDataProvider<PersistentDevice> lstDataProvider, boolean forRentedDevices) {
+		CellTable<PersistentDevice> newTable = new CellTable<PersistentDevice>(15,
+				(Resources) GWT.create(CellTableResources.class));
 		newTable.setTableLayoutFixed(true);
+
+		// In case it is the table for rented devices color overdue device rows differently
+		if (forRentedDevices) {
+			newTable.setRowStyles(new RowStyles<PersistentDevice>() {
+
+				@Override
+				public String getStyleNames(PersistentDevice row, int rowIndex) {
+					if ((new Date()).after(row.getEstimatedReturnDate())) {
+						return "overdueDeviceRowStyle";
+					} else {
+						return "inTimeDeviceRowStyle";
+					}
+				}
+			});
+		}
 
 		// Create name column.
 		TextColumn<PersistentDevice> nameColumn = new TextColumn<PersistentDevice>() {
@@ -839,6 +867,18 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 				return persistentDevice.getIMEI();
 			}
 		};
+
+		// In case it is the table for rented devices add another column
+		TextColumn<PersistentDevice> estimatedReturnDateColumn = null;
+		if (forRentedDevices) {
+			// Return date column
+			estimatedReturnDateColumn = new TextColumn<PersistentDevice>() {
+				@Override
+				public String getValue(PersistentDevice persistentDevice) {
+					return persistentDevice.getEstimatedReturnDate().toString();
+				}
+			};
+		}
 
 		// Create state column.
 		TextColumn<PersistentDevice> stateColumn = new TextColumn<PersistentDevice>() {
@@ -868,10 +908,16 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		nameColumn.setSortable(true);
 		imeiColumn.setSortable(true);
 		deviceTypeColumn.setSortable(true);
+		if (forRentedDevices) {
+			estimatedReturnDateColumn.setSortable(true);
+		}
 
 		// Add columns to table
 		newTable.addColumn(nameColumn, "Name");
 		newTable.addColumn(imeiColumn, "IMEI");
+		if (forRentedDevices) {
+			newTable.addColumn(estimatedReturnDateColumn, "Return Date");
+		}
 		newTable.addColumn(deviceTypeColumn, "Type");
 		newTable.addColumn(stateColumn, "Condition");
 		newTable.addColumn(descColumn, "Description");
@@ -927,6 +973,25 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 			}
 		});
 		newTable.addColumnSortHandler(imeiSortHandler);
+
+		ListHandler<PersistentDevice> returnDateSortHandler = new ListHandler<PersistentDevice>(
+				list);
+		columnSortHandler.setComparator(estimatedReturnDateColumn,
+				new Comparator<PersistentDevice>() {
+					public int compare(PersistentDevice p1, PersistentDevice p2) {
+						if (p1 == p2) {
+							return 0;
+						}
+
+						// Compare the return date columns.
+						if (p1 != null) {
+							return (p2 != null) ? p1.getEstimatedReturnDate().compareTo(
+									p2.getEstimatedReturnDate()) : 1;
+						}
+						return -1;
+					}
+				});
+		newTable.addColumnSortHandler(returnDateSortHandler);
 
 		ListHandler<PersistentDevice> typeSortHandler = new ListHandler<PersistentDevice>(
 				list);
@@ -1372,7 +1437,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		}
 
 		PersistentDevice pd = new PersistentDevice(devIMEI, devName, devComments,
-				devState, devType, devPictureName, new Boolean(true));
+				devState, devType, devPictureName, new Boolean(true), null);
 		client.addNewDevice(pd);
 
 		// Clear fields

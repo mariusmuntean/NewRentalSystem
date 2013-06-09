@@ -118,4 +118,12 @@ myButton:active {
 	font-weight: normal;
 }
 
+.overdueDeviceRowStyle{
+background-color: #FF0000 !important;
+}
+
+.inTimeDeviceRowStyle{
+background-color: yellow;
+}
+
 
