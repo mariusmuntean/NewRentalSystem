@@ -645,7 +645,7 @@
 											</g:cell>
 											<g:cell verticalAlignment="ALIGN_BOTTOM"
 												horizontalAlignment="ALIGN_RIGHT" width="100%">
-												<g:Button text="Add device" ui:field="btnManageStudentsAddNewStudent">
+												<g:Button text="Add Student" ui:field="btnManageStudentsAddNewStudent">
 												</g:Button>
 											</g:cell>
 										</g:HorizontalPanel>

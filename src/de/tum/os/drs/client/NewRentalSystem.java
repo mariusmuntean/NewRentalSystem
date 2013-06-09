@@ -631,4 +631,26 @@ public class NewRentalSystem implements EntryPoint {
 
 		service.deleteDevice(currentlyDIsplayedPD, callback);
 	}
+
+	public void addNewStudent(SerializableRenter sr,
+			final AsyncCallback<Boolean> addStudentCallback) {
+		if (sr == null || addStudentCallback == null)
+			return;
+
+		AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>() {
+
+			@Override
+			public void onSuccess(Boolean result) {
+				addStudentCallback.onSuccess(result);
+				fetchAllRenters();
+			}
+
+			@Override
+			public void onFailure(Throwable caught) {
+				addStudentCallback.onFailure(caught);
+			}
+		};
+
+		service.addRenter(sr, callback);
+	}
 }

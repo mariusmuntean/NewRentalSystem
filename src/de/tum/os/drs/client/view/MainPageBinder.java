@@ -129,7 +129,8 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	HorizontalPanel hPanelOverview;
 
 	@UiField
-	RadioButton rBtnOverview, rBtnRent, rBtnReturn, rBtnHistory, rBtnManage, rBtnManageStudents;
+	RadioButton rBtnOverview, rBtnRent, rBtnReturn, rBtnHistory, rBtnManage,
+			rBtnManageStudents;
 
 	PieChart pChartRentedVsAvailable;
 
@@ -189,7 +190,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 
 	@UiField(provided = true)
 	ComboBox<DisplayableDevice> cBoxHistoryFilterImei;
-	
+
 	@UiField
 	com.google.gwt.user.client.ui.Button btnHistoryresetFilters;
 
@@ -291,17 +292,30 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	 * Manage Students region
 	 */
 	// View
-	
+	@UiField
+	com.google.gwt.user.client.ui.Button btnManageStudentsAddNewStudent;
+
+	@UiField
+	TextBox txtBoxManageStudentsAddName;
+	@UiField
+	TextBox txtBoxManageStudentsAddMatriculation;
+	@UiField
+	TextBox txtBoxManageStudentsAddEmail;
+	@UiField
+	TextBox txtBoxManageStudentsAddPhone;
+	@UiField
+	TextArea txtAreaManageStudentsAddComments;
+
 	// Update
 	@UiField
 	DecoratedTabPanel decoratedTabPanelStudentsManagement;
-	
-	@UiField(provided=true)
+
+	@UiField(provided = true)
 	ComboBox<DisplayableRenter> cBoxManageStudentsViewStudentName;
-	
-	@UiField(provided=true)
+
+	@UiField(provided = true)
 	ComboBox<DisplayableRenter> cBoxManageStudentsViewStudentMatriculation;
-	
+
 	/*
 	 * ViewModels
 	 */
@@ -494,8 +508,8 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		cBoxManageDevicesViewDevName.setStore(allDisplayableDevicesListStore);
 		cBoxManageDevicesViewDevName.setForceSelection(true);
 		cBoxManageDevicesViewDevName.setTriggerAction(TriggerAction.ALL);
-		
-		//Manage students page
+
+		// Manage students page
 		cBoxManageStudentsViewStudentName = new ComboBox<DisplayableRenter>();
 		cBoxManageStudentsViewStudentName.setSimpleTemplate(rentStudentComboTemplate);
 		cBoxManageStudentsViewStudentName.setStore(displayableRentersListStore);
@@ -663,6 +677,14 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 
 		// Delete
 		btnManageDevicesViewUpdateDelete.addClickHandler(this);
+
+		/*
+		 * Manage Students
+		 */
+		decoratedTabPanelStudentsManagement.selectTab(0);
+		
+		// View
+		btnManageStudentsAddNewStudent.addClickHandler(this);
 
 	}
 
@@ -1150,15 +1172,15 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 			decoratedTabPanelDeviceManagement.setWidth(parentWidth);
 			deckPanelActualView.showWidget(4);
 		}
-		if(sender == rBtnManageStudents){
+		if (sender == rBtnManageStudents) {
 			String parentWidth = String.valueOf(deckPanelActualView.getElement()
 					.getClientWidth()) + "px";
 			decoratedTabPanelStudentsManagement.setWidth(parentWidth);
 			deckPanelActualView.showWidget(5);
 		}
-		
+
 		// History region
-		if(sender == btnHistoryresetFilters){
+		if (sender == btnHistoryresetFilters) {
 			resetHistoryFilters();
 		}
 
@@ -1176,6 +1198,51 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 			deleteDevice();
 		}
 
+		// Manage students region
+		if (sender == btnManageStudentsAddNewStudent) {
+			addNewStudent();
+		}
+
+	}
+
+	private void addNewStudent() {
+		String studentName = txtBoxManageStudentsAddName.getText();
+		String studentMatric = txtBoxManageStudentsAddMatriculation.getText();
+		String studentEmail = txtBoxManageStudentsAddEmail.getText();
+		String studentPhone = txtBoxManageStudentsAddPhone.getText();
+		String studentComments = txtAreaManageStudentsAddComments.getText();
+		if (studentName == null || studentName.isEmpty() || studentMatric == null
+				|| studentMatric.isEmpty() || studentEmail == null
+				|| studentEmail.isEmpty()) {
+			Info.display("Error!", "Name, Matriculation or Email cannot be empty.");
+			return;
+		}
+
+		final SerializableRenter sr = new SerializableRenter(studentName, studentMatric,
+				studentEmail, studentPhone, studentComments, null);
+		AsyncCallback<Boolean> addStudentCallback = new AsyncCallback<Boolean>() {
+
+			@Override
+			public void onSuccess(Boolean result) {
+				if (result) {
+					Info.display("Success!", "Added " + sr.getName());
+					// Clear fields
+					txtBoxManageStudentsAddEmail.setText("");
+					txtBoxManageStudentsAddMatriculation.setText("");
+					txtBoxManageStudentsAddName.setText("");
+					txtBoxManageStudentsAddPhone.setText("");
+					txtAreaManageStudentsAddComments.setText("");
+				} else {
+					Info.display("Server error!", "Could not add " + sr.getName());
+				}
+			}
+
+			@Override
+			public void onFailure(Throwable caught) {
+				Info.display("Network error!", "Could not add " + sr.getName());
+			}
+		};
+		client.addNewStudent(sr, addStudentCallback);
 	}
 
 	private void resetHistoryFilters() {
@@ -1186,7 +1253,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		txtBoxHistoryFilterFrom.setText("");
 		txtBoxHistoryFilterTo.setText("");
 		fetchEventsHistoryFiltered();
-		
+
 	}
 
 	private void deleteDevice() {
@@ -1202,7 +1269,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 					cBoxManageDevicesViewDevState.setSelectedIndex(0);
 					imgManageDevicesViewDevImage.setUrl("images/devices/"
 							+ deviceNotFoundImage);
-					
+
 					Info.display("Success!", "Deleted " + currentlyDIsplayedPD.getName());
 				} else {
 					Info.display("Server Error!", "Error deleting "
