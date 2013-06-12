@@ -20,6 +20,7 @@
 			width: 1280px;
 			min-width: 85%;
 			max-width: 85%;
+			background-color: AliceBlue;
 		}
 		
 		.deckPanelStyle {
@@ -133,10 +134,9 @@
 							</g:row>
 						</g:Grid>
 						<!-- Rent -->
-						<g:VerticalPanel width="800px">
+						<g:VerticalPanel width="100%">
 							<g:cell>
-								<g:CaptionPanel captionText="1. Choose Student"
-									width="100%">
+								<g:CaptionPanel captionText="1. Choose Student">
 									<g:Grid>
 										<g:row>
 											<g:customCell>
@@ -229,6 +229,16 @@
 															<g:cell horizontalAlignment="ALIGN_CENTER">
 																<extGwtBtn:Button text="Remove"
 																	ui:field="btnRentClearRentedList"></extGwtBtn:Button>
+															</g:cell>
+														</g:VerticalPanel>
+													</g:cell>
+													<g:cell>
+														<g:VerticalPanel>
+															<g:cell>
+																<g:Label text="Estimated return date"></g:Label>
+															</g:cell>
+															<g:cell>
+																<extGwtWgt:DatePicker ui:field="datePickerRentEstimatedRD"></extGwtWgt:DatePicker>
 															</g:cell>
 														</g:VerticalPanel>
 													</g:cell>
@@ -378,11 +388,11 @@
 											</extGwt:ComboBox>
 										</g:cell>
 										<g:cell>
-											<g:Label text="IMEI code: "></g:Label>
+											<g:Label text="Device IMEI code: "></g:Label>
 										</g:cell>
 										<g:cell>
 											<extGwt:ComboBox ui:field="cBoxHistoryFilterImei"
-												typeAhead="true" displayField="imei" emptyText="Type a name"
+												typeAhead="true" displayField="imei" emptyText="Type an IMEI code"
 												selectOnFocus="true" width="250">
 											</extGwt:ComboBox>
 										</g:cell>
@@ -554,12 +564,12 @@
 																		<g:Label text="Name :"></g:Label>
 																	</g:cell>
 																	<g:TextBox ui:field="txtBoxManageDevicesViewDevName"
-																		enabled="false"></g:TextBox>
+																		readOnly="true"></g:TextBox>
 																	<g:cell>
 																		<g:Label text="IMEI :"></g:Label>
 																	</g:cell>
 																	<g:TextBox ui:field="txtBoxManageDevicesViewDevImei"
-																		enabled="false"></g:TextBox>
+																		readOnly="true"></g:TextBox>
 																	<g:cell>
 																		<g:Label text="State :"></g:Label>
 																	</g:cell>
@@ -580,7 +590,7 @@
 																	</g:cell>
 																	<g:cell>
 																		<g:TextArea ui:field="txtBoxManageDevicesViewDevComments"
-																			visibleLines="6" characterWidth="36" enabled="false"></g:TextArea>
+																			visibleLines="7" characterWidth="36" readOnly="true"></g:TextArea>
 																	</g:cell>
 																</g:VerticalPanel>
 															</g:cell>
@@ -684,18 +694,7 @@
 											</g:DecoratorPanel>
 										</g:customCell>
 										<g:customCell>
-											<g:HorizontalPanel>
-												<g:cell verticalAlignment="ALIGN_MIDDLE">
-													<g:VerticalPanel>
-														<g:cell>
-															<g:Image ui:field="imgManageStudentsViewStudentSignature"></g:Image>
-														</g:cell>
-														<g:cell horizontalAlignment="ALIGN_CENTER">
-															<g:Button ui:field="btnManageStudentsViewUpdateDelete"
-																text="Delete Student Info"></g:Button>
-														</g:cell>
-													</g:VerticalPanel>
-												</g:cell>
+											<g:VerticalPanel>
 												<g:cell verticalAlignment="ALIGN_MIDDLE">
 													<g:CaptionPanel captionText="Student Info">
 														<g:HorizontalPanel>
@@ -717,23 +716,23 @@
 																		<g:Label text="Name :"></g:Label>
 																	</g:cell>
 																	<g:TextBox ui:field="txtBoxManageStudentsViewStudentName"
-																		enabled="false"></g:TextBox>
+																	readOnly="true"></g:TextBox>
 																	<g:cell>
 																		<g:Label text="Matriculation :"></g:Label>
 																	</g:cell>
 																	<g:TextBox
 																		ui:field="txtBoxManageStudentsViewStudentMatriculation"
-																		enabled="false"></g:TextBox>
+																		readOnly="true"></g:TextBox>
 																	<g:cell>
 																		<g:Label text="Email :"></g:Label>
 																	</g:cell>
 																	<g:TextBox ui:field="txtBoxManageStudentsViewStudentEmail"
-																		enabled="false"></g:TextBox>
+																		readOnly="true"></g:TextBox>
 																	<g:cell>
 																		<g:Label text="Phone :"></g:Label>
 																	</g:cell>
 																	<g:TextBox ui:field="txtBoxManageStudentsViewStudentPhone"
-																		enabled="false"></g:TextBox>
+																		readOnly="true"></g:TextBox>
 																</g:VerticalPanel>
 															</g:cell>
 															<g:cell verticalAlignment="ALIGN_BOTTOM">
@@ -743,14 +742,25 @@
 																	</g:cell>
 																	<g:cell>
 																		<g:TextArea ui:field="txtBoxManageStudentsViewStudentComments"
-																			visibleLines="6" characterWidth="36" enabled="false"></g:TextArea>
+																			visibleLines="8" characterWidth="36" readOnly="true"></g:TextArea>
 																	</g:cell>
 																</g:VerticalPanel>
 															</g:cell>
 														</g:HorizontalPanel>
 													</g:CaptionPanel>
 												</g:cell>
-											</g:HorizontalPanel>
+												<g:cell verticalAlignment="ALIGN_MIDDLE">
+													<g:VerticalPanel>
+														<!-- <g:cell> -->
+														<!-- <g:Image ui:field="imgManageStudentsViewStudentSignature"></g:Image> -->
+														<!-- </g:cell> -->
+														<g:cell horizontalAlignment="ALIGN_CENTER">
+															<g:Button ui:field="btnManageStudentsViewUpdateDelete"
+																text="Delete Student Info"></g:Button>
+														</g:cell>
+													</g:VerticalPanel>
+												</g:cell>
+											</g:VerticalPanel>
 										</g:customCell>
 									</g:row>
 								</g:Grid>

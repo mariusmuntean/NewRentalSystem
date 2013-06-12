@@ -152,6 +152,9 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 
 	PieChart pChartRentedVsAvailable;
 
+	/*
+	 * Rent Controls
+	 */
 	@UiField(provided = true)
 	ComboBox<DisplayableRenter> cBoxRentRegisteredStudentName;
 
@@ -175,6 +178,9 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 
 	@UiField(provided = true)
 	ListView<DisplayableDevice> lstViewRentSelectedDevices;
+
+	@UiField
+	DatePicker datePickerRentEstimatedRD;
 
 	@UiField
 	Button btnRent;
@@ -334,6 +340,33 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	@UiField(provided = true)
 	ComboBox<DisplayableRenter> cBoxManageStudentsViewStudentMatriculation;
 
+	@UiField
+	CheckBox checkBoxManageStudentsViewEnableEdit;
+
+	@UiField
+	com.google.gwt.user.client.ui.Button btnManageStudentsViewUpdate;
+
+	@UiField
+	TextBox txtBoxManageStudentsViewStudentName;
+
+	@UiField
+	TextBox txtBoxManageStudentsViewStudentMatriculation;
+
+	@UiField
+	TextBox txtBoxManageStudentsViewStudentEmail;
+
+	@UiField
+	TextBox txtBoxManageStudentsViewStudentPhone;
+
+	@UiField
+	TextArea txtBoxManageStudentsViewStudentComments;
+
+	SerializableRenter currentlyDisplayedSRenter = null;
+
+	// Delete
+	@UiField
+	com.google.gwt.user.client.ui.Button btnManageStudentsViewUpdateDelete;
+
 	/*
 	 * ViewModels
 	 */
@@ -466,6 +499,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		lstViewRentSelectedDevices = new ListView<DisplayableDevice>();
 		lstViewRentSelectedDevices.setSimpleTemplate(displayableDeviceTemplate);
 		lstViewRentSelectedDevices.setStore(selectedDevicesListStore);
+
 		canvasRentSignature = new DrawingArea(500, 300);
 
 		// Return page
@@ -511,6 +545,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		cBoxHistoryFilterName.setTriggerAction(TriggerAction.ALL);
 
 		cBoxHistoryFilterImei = new ComboBox<DisplayableDevice>();
+		cBoxHistoryFilterImei.setSimpleTemplate(displayableDeviceTemplate);
 		cBoxHistoryFilterImei.setStore(displayableDevicesFilterListStore);
 		cBoxHistoryFilterImei.setTriggerAction(TriggerAction.ALL);
 		tableHistoryEventsFiltered = getCellTableHistory(eventsFilteredHistoryDataProvider);
@@ -567,7 +602,8 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		canvasRentSignature.addMouseOverHandler(this);
 		canvasRentSignature.addMouseOutHandler(this);
 		btnRentClearSignature.addListener(Events.OnClick, this);
-
+		datePickerRentEstimatedRD.setValue(new Date(System.currentTimeMillis()
+				+ (1000L * 60L * 60L * 24L * 7L * 6L)));
 		btnSubmitRentEvent.addListener(Events.OnClick, this);
 
 		// Return page
@@ -704,9 +740,78 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		 */
 		decoratedTabPanelStudentsManagement.selectTab(0);
 
-		// View
+		// Add
 		btnManageStudentsAddNewStudent.addClickHandler(this);
 
+		// View
+		cBoxManageStudentsViewStudentName
+				.addSelectionChangedListener(new SelectionChangedListener<DisplayableRenter>() {
+
+					@Override
+					public void selectionChanged(
+							SelectionChangedEvent<DisplayableRenter> se) {
+						DisplayableRenter dr = se.getSelectedItem();
+						if (dr != null) {
+							cBoxManageStudentsViewStudentMatriculation.setValue(dr);
+							displayStudentDetails(dr.getMatriculation());
+						}
+					}
+				});
+		cBoxManageStudentsViewStudentMatriculation
+				.addSelectionChangedListener(new SelectionChangedListener<DisplayableRenter>() {
+
+					@Override
+					public void selectionChanged(
+							SelectionChangedEvent<DisplayableRenter> se) {
+						DisplayableRenter dr = se.getSelectedItem();
+						if (dr != null) {
+							cBoxManageStudentsViewStudentName.setValue(dr);
+							displayStudentDetails(dr.getMatriculation());
+						}
+					}
+				});
+
+		// Update
+//		cBoxManageStudentsViewStudentMatriculation.addListener(com.extjs.gxt.ui.client.event.EventType., this);
+		checkBoxManageStudentsViewEnableEdit.addClickHandler(this);
+		btnManageStudentsViewUpdate.addClickHandler(this);
+
+		// Delete
+		btnManageStudentsViewUpdateDelete.addClickHandler(this);
+
+	}
+
+	protected void displayStudentDetails(String matriculation) {
+		if (matriculation == null || matriculation.isEmpty())
+			return;
+
+		AsyncCallback<SerializableRenter> displaySerializableRenterDetailsCallback = new AsyncCallback<SerializableRenter>() {
+
+			@Override
+			public void onSuccess(SerializableRenter result) {
+				if (result == null) {
+					return;
+				}
+
+				txtBoxManageStudentsViewStudentName.setText(result.getName());
+				txtBoxManageStudentsViewStudentMatriculation.setText(result
+						.getMatriculationNumber());
+				txtBoxManageStudentsViewStudentEmail.setText(result.getEmail());
+				txtBoxManageStudentsViewStudentPhone.setText(result.getPhoneNUmber());
+				txtBoxManageStudentsViewStudentComments.setText(result.getComments());
+
+				currentlyDisplayedSRenter = result;
+			}
+
+			@Override
+			public void onFailure(Throwable caught) {
+				// TODO Auto-generated method stub
+
+			}
+		};
+
+		client.getSerializableRenterByMatric(matriculation,
+				displaySerializableRenterDetailsCallback);
 	}
 
 	protected void displayDeviceDetails(String imei) {
@@ -1331,6 +1436,62 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		if (sender == btnManageStudentsAddNewStudent) {
 			addNewStudent();
 		}
+		if (sender == checkBoxManageStudentsViewEnableEdit) {
+			toggleStudentDataFields(checkBoxManageStudentsViewEnableEdit.isChecked());
+		}
+		if (sender == btnManageStudentsViewUpdateDelete) {
+
+		}
+		if (sender == btnManageStudentsViewUpdate) {
+			updateStudentInfo();
+		}
+
+	}
+
+	private void updateStudentInfo() {
+		String studName = txtBoxManageStudentsViewStudentName.getText();
+		String studMatric = txtBoxManageStudentsViewStudentMatriculation.getText();
+		String studEmail = txtBoxManageStudentsViewStudentEmail.getText();
+		String studPhone = txtBoxManageStudentsViewStudentPhone.getText();
+		String studComments = txtBoxManageStudentsViewStudentComments.getText();
+		if (studName == null || studName.isEmpty() || studMatric == null
+				|| studMatric.isEmpty() || studEmail == null || studEmail.isEmpty()) {
+			Info.display("Error!", "Name/Matriculation/Email cannot be empty!");
+			return;
+		}
+
+		final SerializableRenter sr = new SerializableRenter(studName, studMatric,
+				studEmail, studPhone, studComments,
+				currentlyDisplayedSRenter.getRentedDevices());
+		AsyncCallback<Boolean> updateStudentInfocallback = new AsyncCallback<Boolean>() {
+			@Override
+			public void onSuccess(Boolean result) {
+				if (result) {
+					Info.display("Success!", "Updated " + sr.getName());
+					cBoxManageStudentsViewStudentMatriculation.setRawValue(sr.getMatriculationNumber());
+					cBoxManageStudentsViewStudentName.setRawValue(sr.getName());
+				} else {
+					Info.display("Server error!", "Could not update" + sr.getName());
+				}
+			}
+
+			@Override
+			public void onFailure(Throwable caught) {
+				Info.display("Network error!", "Could not update" + sr.getName());
+
+			}
+		};
+		
+		client.updateExistingRenter(currentlyDisplayedSRenter.getMatriculationNumber(), sr, updateStudentInfocallback);
+	}
+
+	private void toggleStudentDataFields(boolean checked) {
+		btnManageStudentsViewUpdate.setEnabled(checked);
+		txtBoxManageStudentsViewStudentName.setReadOnly(!checked);
+		txtBoxManageStudentsViewStudentMatriculation.setReadOnly(!checked);
+		txtBoxManageStudentsViewStudentEmail.setReadOnly(!checked);
+		txtBoxManageStudentsViewStudentPhone.setReadOnly(!checked);
+		txtBoxManageStudentsViewStudentComments.setReadOnly(!checked);
 
 	}
 
@@ -1472,9 +1633,9 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	}
 
 	private void toggleDeviceDataFields(boolean b) {
-		txtBoxManageDevicesViewDevName.setEnabled(b);
-		txtBoxManageDevicesViewDevImei.setEnabled(b);
-		txtBoxManageDevicesViewDevComments.setEnabled(b);
+		txtBoxManageDevicesViewDevName.setReadOnly(!b);
+		txtBoxManageDevicesViewDevImei.setReadOnly(!b);
+		txtBoxManageDevicesViewDevComments.setReadOnly(!b);
 		cBoxManageDevicesViewDevState.setEnabled(b);
 		btnManageDevicesViewUpdate.setEnabled(b);
 	}
@@ -1653,12 +1814,14 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		/*
 		 * Either add the selected devices to an existing Renter's list or create a new renter and add the devices to his list.
 		 */
+		Date estimatedReturnDate = datePickerRentEstimatedRD.getValue();
 		if (sr == null && renterMatr != null && !renterMatr.isEmpty()) {
 			// Add devices to a registered student
 			String rentEventComments = txtAreaRentComments.getText() != null ? txtAreaRentComments
 					.getText() : " ";
 			this.client.rentDevicesToExistingRenter(renterMatr, selectedDevicesImeis,
-					rentEventComments, canvasRentSignature.toString());
+					estimatedReturnDate, rentEventComments,
+					canvasRentSignature.toString());
 
 		} else {
 			final String rentEventComments = txtAreaRentComments.getText() != null ? txtAreaRentComments
@@ -1666,15 +1829,18 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 			if (sr != null) {
 				// Add new renter and add to his rented devices list.
 				client.rentDevicesToNewRenter(sr, sr.getMatriculationNumber(),
-						selectedDevicesImeis, rentEventComments,
+						selectedDevicesImeis, estimatedReturnDate, rentEventComments,
 						canvasRentSignature.toString());
-
 			}
 		}
 
 		// Clean up.
 		// Clean list of selected devices
 		lstViewRentSelectedDevices.getStore().removeAll();
+
+		// Set estimated return date to six weeks from now
+		datePickerRentEstimatedRD.setValue(new Date(System.currentTimeMillis()
+				+ (1000L * 60L * 60L * 24L * 7L * 6L)));
 
 		// Clean Signature
 		clearRentSignatureCanvas();

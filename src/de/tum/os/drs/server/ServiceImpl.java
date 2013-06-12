@@ -285,14 +285,14 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 	}
 
 	@Override
-	public Boolean updateRenter(SerializableRenter renter) {
+	public Boolean updateRenter(String matriculationNumber, SerializableRenter renter) {
 		EntityManager em = factory.createEntityManager();
 
 		try {
 			// Get a reference to the PersistentRenter corresponding to the provided SerializableRenter
 			Query q = em
 					.createQuery("select p from PersistentRenter p where p.matriculationNumber = :matrNr");
-			q.setParameter("matrNr", renter.getMatriculationNumber());
+			q.setParameter("matrNr", matriculationNumber);
 			PersistentRenter pr = (PersistentRenter) q.getSingleResult();
 
 			// ... then update its fields with the data from the SerializableRenter
@@ -337,8 +337,8 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 	}
 
 	@Override
-	public Boolean rentDeviceTo(String renterMatrNr, String deviceImeiCode,
-			String comments, String signatureHTML) {
+	public Boolean rentDeviceTo(String renterMatrNr, String deviceImeiCode, Date estimatedReturnDate
+			,String comments, String signatureHTML) {
 		EntityManager em = factory.createEntityManager();
 		try {
 			// Add device to list of rented devices
@@ -349,6 +349,7 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 			// Mark device as rented
 			PersistentDevice pd = getPersistentDeviceFromIMEI(em, deviceImeiCode);
 			pd.setIsAvailable(false);
+			pd.setEstimatedReturnDate(estimatedReturnDate);
 			updateEntity(em, pd);
 
 			// Log this event.
@@ -367,8 +368,8 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 	}
 
 	@Override
-	public Boolean rentDevicesTo(String renterMatrNr, String[] imeiCodes,
-			String comments, String signatureHTML) {
+	public boolean rentDevicesTo(String renterMatrNr, String[] imeiCodes,
+			Date estimatedReturnDate, String comments, String signatureHTML) {
 		EntityManager em = factory.createEntityManager();
 		try {
 			// Add devices to list of rented devices.
@@ -383,6 +384,7 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 			for (String deviceImeiCode : imeiCodes) {
 				PersistentDevice pd = getPersistentDeviceFromIMEI(em, deviceImeiCode);
 				pd.setIsAvailable(false);
+				pd.setEstimatedReturnDate(estimatedReturnDate);
 				em.merge(pd);
 
 				PersistentEvent pe = new PersistentEvent(pr.getName(),

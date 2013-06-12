@@ -205,7 +205,8 @@ public class NewRentalSystem implements EntryPoint {
 	}
 
 	public void rentDevicesToExistingRenter(String renterMatrNr,
-			String[] deviceImeiCodes, String comments, String signatureHTML) {
+			String[] deviceImeiCodes, Date estimatedReturnDate, String comments,
+			String signatureHTML) {
 
 		AsyncCallback<Boolean> rentDevicesCallback = new AsyncCallback<Boolean>() {
 
@@ -224,21 +225,20 @@ public class NewRentalSystem implements EntryPoint {
 
 			}
 		};
-		service.rentDevicesTo(renterMatrNr, deviceImeiCodes, comments, signatureHTML,
-				rentDevicesCallback);
-
+		service.rentDevicesTo(renterMatrNr, deviceImeiCodes, estimatedReturnDate,
+				comments, signatureHTML, rentDevicesCallback);
 	}
 
 	public void rentDevicesToNewRenter(SerializableRenter sr, final String renterMatrNr,
-			final String[] deviceImeiCodes, final String comments,
-			final String signatureHTML) {
+			final String[] deviceImeiCodes, final Date estimatedReturnDate,
+			final String comments, final String signatureHTML) {
 
 		AsyncCallback<Boolean> addNewRenterCallback = new AsyncCallback<Boolean>() {
 
 			@Override
 			public void onSuccess(Boolean result) {
-				rentDevicesToExistingRenter(renterMatrNr, deviceImeiCodes, comments,
-						signatureHTML);
+				rentDevicesToExistingRenter(renterMatrNr, deviceImeiCodes,
+						estimatedReturnDate, comments, signatureHTML);
 			}
 
 			@Override
@@ -350,8 +350,6 @@ public class NewRentalSystem implements EntryPoint {
 			}
 		}
 		allRentersDataProvider.refresh();
-		// displayableRentersListStore
-
 	}
 
 	public void fetchEventsHistoryFiltered(String personName, String IMEI, Date from,
@@ -421,12 +419,12 @@ public class NewRentalSystem implements EntryPoint {
 		HashSet<DisplayableDevice> devices = new HashSet<DisplayableDevice>();
 		for (PersistentEvent pe : result) {
 			// Populate devices filter
-			String imgName = deviceNameToImageNameMap.get("");
+			String imgName = deviceNameToImageNameMap.get(pe.getDevName().toLowerCase());
 			if (imgName == null)
 				imgName = deviceNotFoundImage;
 			DisplayableDevice dd = new DisplayableDevice(pe.getDevName(),
 					pe.getImeiCode(), imgName);
-			// displayableDevicesFilterListStore.add(dd);
+//			 displayableDevicesFilterListStore.add(dd);
 			devices.add(dd);
 			// Populate renters filter.
 			DisplayableRenter dr = new DisplayableRenter(pe.getPersName(),
@@ -652,5 +650,52 @@ public class NewRentalSystem implements EntryPoint {
 		};
 
 		service.addRenter(sr, callback);
+	}
+
+	public void getSerializableRenterByMatric(
+			String matriculation,
+			final AsyncCallback<SerializableRenter> displaySerializableRenterDetailsCallback) {
+		if (matriculation == null || matriculation.isEmpty()
+				|| displaySerializableRenterDetailsCallback == null) {
+			return;
+		}
+
+		AsyncCallback<SerializableRenter> getSerializableRenterCallback = new AsyncCallback<SerializableRenter>() {
+
+			@Override
+			public void onSuccess(SerializableRenter result) {
+				displaySerializableRenterDetailsCallback.onSuccess(result);
+			}
+
+			@Override
+			public void onFailure(Throwable caught) {
+				displaySerializableRenterDetailsCallback.onFailure(caught);
+			}
+		};
+
+		service.getRenter(matriculation, getSerializableRenterCallback);
+	}
+
+	public void updateExistingRenter(String matriculationNumber, SerializableRenter sr,
+			final AsyncCallback<Boolean> updateStudentInfocallback) {
+		if (sr == null || updateStudentInfocallback == null) {
+			return;
+		}
+
+		AsyncCallback<Boolean> updateRenterCallback = new AsyncCallback<Boolean>() {
+
+			@Override
+			public void onSuccess(Boolean result) {
+				updateStudentInfocallback.onSuccess(result);
+				fetchAllRenters();
+			}
+
+			@Override
+			public void onFailure(Throwable caught) {
+				updateStudentInfocallback.onFailure(caught);
+			}
+		};
+
+		service.updateRenter(matriculationNumber, sr, updateRenterCallback);
 	}
 }

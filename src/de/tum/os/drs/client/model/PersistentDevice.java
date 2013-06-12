@@ -109,7 +109,13 @@ public class PersistentDevice implements Serializable {
 	}
 
 	public void setEstimatedReturnDate(Date estimatedReturnDate) {
-		this.estimatedReturnDate = estimatedReturnDate;
+		if (estimatedReturnDate != null) {
+			this.estimatedReturnDate = estimatedReturnDate;
+		} else {
+			long sixWeeksInMillis = (1000 * 60 * 60 * 24 * 7) * 6;
+			this.estimatedReturnDate = new Date(System.currentTimeMillis()
+					+ sixWeeksInMillis);
+		}
 	}
 
 	public Boolean getIsAvailable() {
