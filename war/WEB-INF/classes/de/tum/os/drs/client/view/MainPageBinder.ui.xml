@@ -20,11 +20,9 @@
 			width: 1280px;
 			min-width: 85%;
 			max-width: 85%;
-			background-color: AliceBlue;
 		}
 		
 		.deckPanelStyle {
-			background-color: aqua;
 			width: 100%;
 		}
 		
@@ -104,11 +102,13 @@
 							<g:row>
 								<g:customCell>
 									<g:HorizontalPanel width="100%" height="auto"
-										ui:field="hPanelOverview">
+										verticalAlignment="ALIGN_MIDDLE" ui:field="hPanelOverview">
 										<g:Cell width="100%" height="auto">
 											<!-- PieChart -->
-											<cell:CellTable ui:field="tableHistoryOverview"
-												width="100%" height="auto" />
+											<g:CaptionPanel captionText="Recent Events">
+												<cell:CellTable ui:field="tableHistoryOverview"
+													width="100%" height="auto" />
+											</g:CaptionPanel>
 										</g:Cell>
 									</g:HorizontalPanel>
 								</g:customCell>
@@ -361,7 +361,7 @@
 								<g:CaptionPanel captionText="Filters">
 									<g:HorizontalPanel>
 										<g:cell height="100%">
-											<g:VerticalPanel>
+											<g:VerticalPanel height="100%">
 												<g:cell>
 													<g:Label text="Person name: "></g:Label>
 												</g:cell>

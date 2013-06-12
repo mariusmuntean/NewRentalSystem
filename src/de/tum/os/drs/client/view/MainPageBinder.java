@@ -43,6 +43,7 @@ import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.event.dom.client.MouseUpHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.resources.client.CssResource.NotStrict;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -81,6 +82,7 @@ import com.google.gwt.visualization.client.ChartArea;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.LegendPosition;
 import com.google.gwt.visualization.client.VisualizationUtils;
+import com.google.gwt.visualization.client.formatters.DateFormat;
 import com.google.gwt.visualization.client.visualizations.corechart.PieChart;
 import com.google.gwt.visualization.client.visualizations.corechart.PieChart.PieOptions;
 import com.google.gwt.visualization.client.visualizations.corechart.TextStyle;
@@ -88,6 +90,7 @@ import de.tum.os.drs.client.NewRentalSystem;
 import de.tum.os.drs.client.model.DeviceType;
 import de.tum.os.drs.client.model.DisplayableDevice;
 import de.tum.os.drs.client.model.DisplayableRenter;
+import de.tum.os.drs.client.model.EventType;
 import de.tum.os.drs.client.model.PersistentDevice;
 import de.tum.os.drs.client.model.PersistentEvent;
 import de.tum.os.drs.client.model.RenterTreeViewModel;
@@ -103,6 +106,11 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	interface MainPageBinderUiBinder extends UiBinder<Widget, MainPageBinder> {
 	}
 
+	/**
+	 * Defines resources for the devices tables in the overview page
+	 * 
+	 * @author Marius
+	 */
 	interface CellTableResources extends CellTable.Resources {
 		@NotStrict
 		@Source(value = { CellTable.Style.DEFAULT_CSS,
@@ -337,6 +345,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 			put("nexus one", "nexus one.jpg");
 			put("nexus s", "nexus s.jpg");
 			put("galaxy nexus", "galaxy nexus.jpg");
+			put("galaxy nexus 16gb", "galaxy nexus.jpg");
 			put("nexus 4", "nexus 4.jpg");
 			put("nexus 7", "nexus 7.jpg");
 			put("htc one", "htc one.jpg");
@@ -586,7 +595,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 						String dateText = DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss")
 								.format(datePickerHistoryFilterFrom.getValue());
 						txtBoxHistoryFilterFrom.setText(dateText);
-						fetchEventsHistoryFiltered();
+						fetchEventsHistoryFiltered(false);
 					}
 				});
 		txtBoxHistoryFilterFrom.addChangeHandler(new ChangeHandler() {
@@ -606,7 +615,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 				}
 				if (newDate != null) {
 					datePickerHistoryFilterFrom.setValue(newDate, true);
-					fetchEventsHistoryFiltered();
+					fetchEventsHistoryFiltered(false);
 				}
 
 			}
@@ -619,7 +628,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 						String dateText = DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss")
 								.format(datePickerHistoryFilterTo.getValue());
 						txtBoxHistoryFilterTo.setText(dateText);
-						fetchEventsHistoryFiltered();
+						fetchEventsHistoryFiltered(false);
 					}
 				});
 
@@ -640,7 +649,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 				}
 				if (newDate != null) {
 					datePickerHistoryFilterTo.setValue(newDate, true);
-					fetchEventsHistoryFiltered();
+					fetchEventsHistoryFiltered(false);
 				}
 
 			}
@@ -810,6 +819,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		options.setHeight(height);
 		options.setWidth(width);
 		ChartArea ca = ChartArea.create();
+
 		ca.setLeft("20");
 		ca.setTop("20");
 		ca.setWidth("80%");
@@ -817,12 +827,23 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		options.setChartArea(ca);
 		options.setLegend(LegendPosition.BOTTOM);
 
+		TextStyle pieSliceTextStyle = TextStyle.create();
+		pieSliceTextStyle.setColor("black");
+		pieSliceTextStyle.setFontSize(16);
+		options.setPieSliceTextStyle(pieSliceTextStyle);
+
+		TextStyle legendTextStyle = TextStyle.create();
+		legendTextStyle.setColor("black");
+		legendTextStyle.setFontSize(16);
+		options.setLegendTextStyle(legendTextStyle);
+
 		TextStyle ts = TextStyle.create();
 		ts.set("text-align", "center");
 		ts.setFontName("Verdana");
 		ts.setFontSize(16);
 
-		options.setColors(new String[] { "red", "blue" });
+		// Rented - Available
+		options.setColors(new String[] { "#FFFF00", "#7FFF00" });
 
 		options.setTitleTextStyle(ts);
 		options.setTitle("Available vs. Rented");
@@ -832,15 +853,24 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	}
 
 	private CellTable<PersistentDevice> getDevicesTableFromDataprovider(
-			ListDataProvider<PersistentDevice> lstDataProvider, boolean forRentedDevices) {
+			final ListDataProvider<PersistentDevice> lstDataProvider,
+			boolean forRentedDevices) {
 		CellTable<PersistentDevice> newTable = new CellTable<PersistentDevice>(15,
 				(Resources) GWT.create(CellTableResources.class));
-		newTable.setTableLayoutFixed(true);
+		newTable.setTableLayoutFixed(false);
+
+		// Create the number column
+		TextColumn<PersistentDevice> numberColumn = new TextColumn<PersistentDevice>() {
+
+			@Override
+			public String getValue(PersistentDevice object) {
+				return String.valueOf(lstDataProvider.getList().indexOf(object));
+			}
+		};
 
 		// In case it is the table for rented devices color overdue device rows differently
 		if (forRentedDevices) {
 			newTable.setRowStyles(new RowStyles<PersistentDevice>() {
-
 				@Override
 				public String getStyleNames(PersistentDevice row, int rowIndex) {
 					if ((new Date()).after(row.getEstimatedReturnDate())) {
@@ -848,6 +878,13 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 					} else {
 						return "inTimeDeviceRowStyle";
 					}
+				}
+			});
+		} else {
+			newTable.setRowStyles(new RowStyles<PersistentDevice>() {
+				@Override
+				public String getStyleNames(PersistentDevice row, int rowIndex) {
+					return "returnEventRowtyle";
 				}
 			});
 		}
@@ -913,10 +950,11 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		}
 
 		// Add columns to table
+		newTable.addColumn(numberColumn, "#");
 		newTable.addColumn(nameColumn, "Name");
 		newTable.addColumn(imeiColumn, "IMEI");
 		if (forRentedDevices) {
-			newTable.addColumn(estimatedReturnDateColumn, "Return Date");
+			newTable.addColumn(estimatedReturnDateColumn, "Estimated Return Date");
 		}
 		newTable.addColumn(deviceTypeColumn, "Type");
 		newTable.addColumn(stateColumn, "Condition");
@@ -1016,15 +1054,37 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	}
 
 	private CellTable<PersistentEvent> getCellTableHistory(
-			ListDataProvider<PersistentEvent> lstDataProvider) {
-		CellTable<PersistentEvent> newTable = new CellTable<PersistentEvent>();
-		newTable.setTableLayoutFixed(true);
+			final ListDataProvider<PersistentEvent> lstDataProvider) {
+		CellTable<PersistentEvent> newTable = new CellTable<PersistentEvent>(15,
+				(Resources) GWT.create(CellTableResources.class));
+		newTable.setTableLayoutFixed(false);
+
+		// Set row styles based on rent event type (i.e. rent or return)
+		newTable.setRowStyles(new RowStyles<PersistentEvent>() {
+			@Override
+			public String getStyleNames(PersistentEvent row, int rowIndex) {
+				if (row.getEventType() == EventType.Rented) {
+					return "rentEventRowStyle";
+				} else {
+					return "returnEventRowtyle";
+				}
+			}
+		});
+
+		// Create the number column
+		TextColumn<PersistentEvent> numberColumn = new TextColumn<PersistentEvent>() {
+
+			@Override
+			public String getValue(PersistentEvent object) {
+				return String.valueOf(lstDataProvider.getList().indexOf(object));
+			}
+		};
 
 		// Create name column.
 		TextColumn<PersistentEvent> nameColumn = new TextColumn<PersistentEvent>() {
 			@Override
 			public String getValue(PersistentEvent persistentEvent) {
-				return persistentEvent.getPersName() + "("
+				return persistentEvent.getPersName() + "\n("
 						+ persistentEvent.getPersMatriculationNumber() + ")";
 			}
 		};
@@ -1041,7 +1101,10 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		TextColumn<PersistentEvent> dateColumn = new TextColumn<PersistentEvent>() {
 			@Override
 			public String getValue(PersistentEvent persistentEvent) {
-				return persistentEvent.getEventDate().toString();
+				String niceDate = DateTimeFormat.getFormat(
+						PredefinedFormat.DATE_TIME_MEDIUM).format(
+						persistentEvent.getEventDate());
+				return niceDate;
 			}
 		};
 
@@ -1069,6 +1132,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		eventTypeColumn.setSortable(true);
 
 		// Add columns to table
+		newTable.addColumn(numberColumn, "#");
 		newTable.addColumn(nameColumn, "Student Name");
 		newTable.addColumn(emailColumn, "Email");
 		newTable.addColumn(dateColumn, "Date");
@@ -1315,9 +1379,13 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		cBoxHistoryFilterName.setRawValue("");
 		datePickerHistoryFilterFrom.clearState();
 		datePickerHistoryFilterTo.clearState();
+		datePickerHistoryFilterFrom.setValue(new Date(System.currentTimeMillis()
+				- (1000L * 3600L * 24L * 30L * 6L)));
+		datePickerHistoryFilterTo.setValue(new Date(System.currentTimeMillis()
+				+ (1000 * 60 * 60 * 24)));
 		txtBoxHistoryFilterFrom.setText("");
 		txtBoxHistoryFilterTo.setText("");
-		fetchEventsHistoryFiltered();
+		fetchEventsHistoryFiltered(true);
 
 	}
 
@@ -1620,7 +1688,13 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 
 	}
 
-	private void fetchEventsHistoryFiltered() {
+	private void fetchEventsHistoryFiltered(boolean ignoreFilters) {
+		if (ignoreFilters) {
+			client.fetchEventsHistoryFiltered(null, null, null, null, Integer.MAX_VALUE,
+					true);
+			return;
+		}
+
 		String persName = null, devImei = null;
 		Date from = null, to = null;
 
@@ -1799,7 +1873,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 			}
 
 			if (sender == cBoxHistoryFilterName) {
-				fetchEventsHistoryFiltered();
+				fetchEventsHistoryFiltered(false);
 			}
 
 			if (sender == cBoxReturnRegisteredStudentMatriculation
@@ -1842,7 +1916,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 			Object sender = se.getSource();
 
 			if (sender == cBoxHistoryFilterImei) {
-				fetchEventsHistoryFiltered();
+				fetchEventsHistoryFiltered(false);
 			}
 		}
 	}
