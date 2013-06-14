@@ -2,10 +2,6 @@ package de.tum.os.drs.client;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-
-import net.sourceforge.htmlunit.corejs.javascript.ast.ArrayLiteral;
-
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 

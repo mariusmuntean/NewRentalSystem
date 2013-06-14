@@ -1,2 +1,0 @@
-serviceClass: de.tum.os.drs.client.IClientService
-path: CE58EDA071DBCCFB8D9203622714FE67.gwt.rpc

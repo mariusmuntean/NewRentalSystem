@@ -1,20 +1,17 @@
 package de.tum.os.drs.server;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Random;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import de.tum.os.drs.client.IClientService;
@@ -29,11 +26,69 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 
 	private static final String PERSISTENCE_UNIT_NAME = "rentalsystem";
 	private static EntityManagerFactory factory;
+	FileOutputStream logOutStream;
 
 	public ServiceImpl() {
 		super();
 		factory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
-		// createDummyData();
+
+		try {
+			createLogFile();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		createDummyData();
+
+	}
+
+	private void createLogFile() throws IOException {
+		String userHome = System.getProperty("user.home");
+		File logFile = new File(userHome, "log.txt");
+
+		if (!logFile.exists()) {
+			logFile.createNewFile();
+		}
+
+		// open the stream in append mode
+		logOutStream = new FileOutputStream(logFile, true);
+
+	}
+
+	private void logData(String data) {
+		if (logOutStream == null)
+			return;
+
+		try {
+			logOutStream.write(("\n" + data).getBytes());
+			logOutStream.flush();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private void createDummyData() {
+
+		EntityManager em = factory.createEntityManager();
+
+		Random rand = new Random();
+		em.getTransaction().begin();
+		for (int i = 0; i < 3; i++) {
+
+			PersistentDevice pd = new PersistentDevice(
+					String.valueOf(rand.nextDouble() * 1000000000), "Nexus X",
+					"Mistery Nexus", "as new?!", DeviceType.Smartphone, "???" + i
+							+ ".png", i > 0.5 ? true : false, new Date());
+			System.out.println("Generated new devices: " + pd.toString());
+			em.persist(pd);
+
+		}
+		em.getTransaction().commit();
+		em.close();
+		
+		logData("Dummy datacreated");
 	}
 
 	/*
@@ -50,7 +105,9 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 			System.out.println(pd.toString());
 		}
 		System.out.println("Size: " + pds.size());
-
+		
+		logData("Called getAllDevices");
+		
 		return (ArrayList<PersistentDevice>) pds;
 
 	}
@@ -337,8 +394,8 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 	}
 
 	@Override
-	public Boolean rentDeviceTo(String renterMatrNr, String deviceImeiCode, Date estimatedReturnDate
-			,String comments, String signatureHTML) {
+	public Boolean rentDeviceTo(String renterMatrNr, String deviceImeiCode,
+			Date estimatedReturnDate, String comments, String signatureHTML) {
 		EntityManager em = factory.createEntityManager();
 		try {
 			// Add device to list of rented devices

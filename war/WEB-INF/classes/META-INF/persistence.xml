@@ -10,8 +10,8 @@ version="2.0" xmlns="http://java.sun.com/xml/ns/persistence">
 		<properties>
 			<property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />
 			<property name="javax.persistence.jdbc.url"
-			value="jdbc:mysql://localhost:3306/RentalDB"/>
-			<property name="javax.persistence.jdbc.user" value="marius" />
+			value="jdbc:mysql://localhost:3306/rentaldb"/>
+			<property name="javax.persistence.jdbc.user" value="root" />
 			<property name="javax.persistence.jdbc.password" value="suiram" />
 
 			<!-- EclipseLink should create the database schema automatically -->

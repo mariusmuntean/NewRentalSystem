@@ -3,7 +3,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" output="test-classes" path="test"/>
 	<classpathentry exported="true" kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="lib" path="war/WEB-INF/lib/eclipselink.jar"/>
 	<classpathentry exported="true" kind="lib" path="war/WEB-INF/lib/gwt-graphics-1.0.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="war/WEB-INF/lib/gwt-visualization.jar"/>
@@ -13,5 +12,10 @@
 	<classpathentry exported="true" kind="lib" path="war/WEB-INF/lib/gwt-hashcode-equals-0.1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="war/WEB-INF/lib/gwt-oauth2-0.2-alpha.jar"/>
 	<classpathentry exported="true" kind="lib" path="war/WEB-INF/lib/gwtsjcl-1.0.jar"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6">
+		<attributes>
+			<attribute name="owner.project.facets" value="java"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

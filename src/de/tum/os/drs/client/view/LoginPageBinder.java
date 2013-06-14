@@ -1,7 +1,5 @@
 package de.tum.os.drs.client.view;
 
-import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.ListView;
 import com.google.gwt.core.client.Callback;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -10,11 +8,8 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
@@ -29,7 +24,6 @@ import com.google.gwt.user.client.ui.Widget;
 import de.tum.os.drs.client.helpers.CookieHelper;
 import de.tum.os.drs.client.helpers.OAuthApiHelper;
 import de.tum.os.drs.client.helpers.OAuthParser;
-import de.tum.os.drs.client.model.DisplayableUser;
 import de.tum.os.drs.client.model.FacebookAuthenticator;
 import de.tum.os.drs.client.model.GoogleAuthenticator;
 import de.tum.os.drs.client.model.IAuthenticator;

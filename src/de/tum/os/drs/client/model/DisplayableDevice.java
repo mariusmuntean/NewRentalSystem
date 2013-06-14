@@ -1,7 +1,6 @@
 package de.tum.os.drs.client.model;
 
 import java.io.Serializable;
-import com.extjs.gxt.ui.client.core.El;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.flipthebird.gwthashcodeequals.HashCodeBuilder;
 

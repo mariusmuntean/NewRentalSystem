@@ -1,25 +1,15 @@
 package de.tum.os.drs.client;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-
-import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.google.api.gwt.oauth2.client.Auth;
-import com.google.api.gwt.oauth2.client.AuthRequest;
 import com.google.gwt.core.client.Callback;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.Style.Unit;
-import com.google.gwt.layout.client.Layout.Alignment;
 import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
@@ -27,18 +17,13 @@ import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.view.client.ListDataProvider;
-import com.sun.java.swing.plaf.windows.resources.windows;
-
 import de.tum.os.drs.client.helpers.CookieHelper;
 import de.tum.os.drs.client.model.DisplayableDevice;
 import de.tum.os.drs.client.model.DisplayableRenter;
-import de.tum.os.drs.client.model.FacebookAuthenticator;
-import de.tum.os.drs.client.model.GoogleAuthenticator;
 import de.tum.os.drs.client.model.OAuthAuthorities;
 import de.tum.os.drs.client.model.PersistentDevice;
 import de.tum.os.drs.client.model.PersistentEvent;
 import de.tum.os.drs.client.model.SerializableRenter;
-import de.tum.os.drs.client.model.TwitterAuthenticator;
 import de.tum.os.drs.client.view.LoginPageBinder;
 import de.tum.os.drs.client.view.MainPageBinder;
 
