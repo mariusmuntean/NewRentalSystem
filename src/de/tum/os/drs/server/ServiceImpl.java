@@ -26,47 +26,14 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 
 	private static final String PERSISTENCE_UNIT_NAME = "rentalsystem";
 	private static EntityManagerFactory factory;
-	FileOutputStream logOutStream;
 
 	public ServiceImpl() {
 		super();
 		factory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
-
-		try {
-			createLogFile();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		
-		createDummyData();
+//		createDummyData();
 
-	}
-
-	private void createLogFile() throws IOException {
-		String userHome = System.getProperty("user.home");
-		File logFile = new File(userHome, "log.txt");
-
-		if (!logFile.exists()) {
-			logFile.createNewFile();
-		}
-
-		// open the stream in append mode
-		logOutStream = new FileOutputStream(logFile, true);
-
-	}
-
-	private void logData(String data) {
-		if (logOutStream == null)
-			return;
-
-		try {
-			logOutStream.write(("\n" + data).getBytes());
-			logOutStream.flush();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		System.out.println("Servlet constructor done!");
 	}
 
 	private void createDummyData() {
@@ -87,8 +54,6 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 		}
 		em.getTransaction().commit();
 		em.close();
-		
-		logData("Dummy datacreated");
 	}
 
 	/*
@@ -106,10 +71,7 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 		}
 		System.out.println("Size: " + pds.size());
 		
-		logData("Called getAllDevices");
-		
 		return (ArrayList<PersistentDevice>) pds;
-
 	}
 
 	@Override

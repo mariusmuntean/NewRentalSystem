@@ -134,7 +134,11 @@ public class UserWidget extends Composite {
 
 		Auth.get().clearAllTokens();
 
-		Window.Location
-				.assign("https://127.0.0.1:8888/NewRentalSystem.html?gwt.codesvr=127.0.0.1:9997");
+		Window.Location.reload();
+		// String redirectUrl = Window.Location.getHref();
+
+		// Window.Location
+		// .assign("https://127.0.0.1:8888/NewRentalSystem.html?gwt.codesvr=127.0.0.1:9997");
+		// Window.Location.assign(redirectUrl);
 	}
 }
