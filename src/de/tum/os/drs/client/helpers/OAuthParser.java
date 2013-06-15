@@ -20,9 +20,16 @@ public class OAuthParser {
 	 * @return - true if error present false otherwise.
 	 */
 	public static final boolean hasError(String json) {
-
-		JSONValue val = JSONParser.parseStrict(json);
-		JSONObject obj = val.isObject();
+		JSONValue val;
+		JSONObject obj;
+		try {
+			val = JSONParser.parseStrict(json);
+			obj = val.isObject();
+		} catch (NullPointerException e) {
+			return true;
+		} catch (IllegalArgumentException e) {
+			return true;
+		}
 		if (obj != null) {
 			// if (obj.get("error")!=null && obj.get("error").isString() != null) {
 			if (obj.get("error") != null) {
@@ -38,7 +45,7 @@ public class OAuthParser {
 			}
 		}
 	}
-	
+
 	public static String getAuthenticatedUsername(String json) {
 		String username = "";
 
@@ -51,20 +58,21 @@ public class OAuthParser {
 		return username;
 
 	}
-	
+
 	public static String getAuthenticatedUserEmail(String json) {
 		String userEmail = "";
 
 		JSONValue val = JSONParser.parseStrict(json);
 		JSONObject obj = val.isObject();
-		if (obj != null && obj.get("email") != null && obj.get("email").isString() != null) {
+		if (obj != null && obj.get("email") != null
+				&& obj.get("email").isString() != null) {
 			userEmail = obj.get("email").isString().stringValue();
 		}
 
 		return userEmail;
 
 	}
-	
+
 	public static String getAuthenticatedUserID(String json) {
 		String userID = "";
 

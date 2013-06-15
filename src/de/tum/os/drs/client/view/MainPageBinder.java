@@ -51,6 +51,7 @@ import com.google.gwt.user.cellview.client.RowStyles;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.CaptionPanel;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DeckPanel;
@@ -64,10 +65,12 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
+import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.SuggestBox;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -148,6 +151,9 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	/*
 	 * Rent Controls
 	 */
+	@UiField
+	VerticalPanel vPanelRentPage;
+
 	@UiField(provided = true)
 	ComboBox<DisplayableRenter> cBoxRentRegisteredStudentName;
 
@@ -176,10 +182,10 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	DatePicker datePickerRentEstimatedRD;
 
 	@UiField
-	Button btnRent;
+	com.google.gwt.user.client.ui.Button btnRent;
 
 	@UiField
-	Button btnRentClearRentedList;
+	com.google.gwt.user.client.ui.Button btnRentClearRentedList;
 
 	@UiField
 	TextArea txtAreaRentComments;
@@ -191,17 +197,23 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	boolean signingRent = false;
 
 	@UiField
-	Button btnRentClearSignature;
+	com.google.gwt.user.client.ui.Button btnRentClearSignature;
 
 	@UiField
-	Grid gridRentDevices;
+	com.google.gwt.user.client.ui.Button btnSubmitRentEvent;
 
+	/*
+	 * Return controls
+	 */
 	@UiField
-	Button btnSubmitRentEvent;
+	CaptionPanel captionPanelReturnPage;
 
 	/*
 	 * History controls
 	 */
+	@UiField
+	VerticalPanel vPanelHistoryPage;
+
 	@UiField(provided = true)
 	ComboBox<DisplayableRenter> cBoxHistoryFilterName;
 
@@ -232,6 +244,9 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	@UiField
 	Label lblRentSelectedDevices;
 
+	/*
+	 * Return controls
+	 */
 	@UiField(provided = true)
 	ComboBox<DisplayableRenter> cBoxReturnRegisteredStudentName;
 
@@ -248,10 +263,10 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	boolean signingReturn = false;
 
 	@UiField
-	Button btnReturnSubmit;
+	com.google.gwt.user.client.ui.Button btnReturnSubmit;
 
 	@UiField
-	Button btnReturnClearCanvas;
+	com.google.gwt.user.client.ui.Button btnReturnClearCanvas;
 
 	/*
 	 * Manage devices controls
@@ -586,18 +601,18 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		cBoxRentRegisteredStudentMatriculation.addSelectionChangedListener(rsc);
 		cBoxRentRegisteredStudentName.addSelectionChangedListener(rsc);
 		tBoxRentNewStudentEmail.addChangeHandler(this);
-		btnRent.addListener(Events.OnClick, this);
-		btnRentClearRentedList.addListener(Events.OnClick, this);
+		btnRent.addClickHandler(this);
+		btnRentClearRentedList.addClickHandler(this);
 		injectSignatureCanvasFrame();
 		canvasRentSignature.addMouseDownHandler(this);
 		canvasRentSignature.addMouseMoveHandler(this);
 		canvasRentSignature.addMouseUpHandler(this);
 		canvasRentSignature.addMouseOverHandler(this);
 		canvasRentSignature.addMouseOutHandler(this);
-		btnRentClearSignature.addListener(Events.OnClick, this);
+		btnRentClearSignature.addClickHandler(this);
 		datePickerRentEstimatedRD.setValue(new Date(System.currentTimeMillis()
 				+ (1000L * 60L * 60L * 24L * 7L * 6L)));
-		btnSubmitRentEvent.addListener(Events.OnClick, this);
+		btnSubmitRentEvent.addClickHandler(this);
 
 		// Return page
 		cBoxReturnRegisteredStudentMatriculation.addSelectionChangedListener(rsc);
@@ -607,8 +622,12 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		canvasReturnSignature.addMouseUpHandler(this);
 		canvasReturnSignature.addMouseOverHandler(this);
 		canvasReturnSignature.addMouseOutHandler(this);
-		btnReturnSubmit.addListener(Events.OnClick, this);
-		btnReturnClearCanvas.addListener(Events.OnClick, this);
+		btnReturnSubmit.addClickHandler(this);
+		btnReturnClearCanvas.addClickHandler(this);
+		// btnReturnClearCanvas.getElement().appendChild(
+		// new Image(
+		// "http://www.googleventures.com/img/social-media/google_plus.png")
+		// .getElement());
 
 		// History page
 		cBoxHistoryFilterName.addSelectionChangedListener(rsc);
@@ -765,7 +784,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 				});
 
 		// Update
-//		cBoxManageStudentsViewStudentMatriculation.addListener(com.extjs.gxt.ui.client.event.EventType., this);
+		// cBoxManageStudentsViewStudentMatriculation.addListener(com.extjs.gxt.ui.client.event.EventType., this);
 		checkBoxManageStudentsViewEnableEdit.addClickHandler(this);
 		btnManageStudentsViewUpdate.addClickHandler(this);
 
@@ -1385,23 +1404,27 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 			return;
 
 		// A little unsafe. Make sure there really exist enough widgets such that the index is right.
+		String parentWidth = String.valueOf(deckPanelActualView.getElement()
+				.getClientWidth()) + "px";
 		if (sender == rBtnOverview)
 			deckPanelActualView.showWidget(0);
-		if (sender == rBtnRent)
+		if (sender == rBtnRent) {
+			vPanelRentPage.setWidth(parentWidth);
 			deckPanelActualView.showWidget(1);
-		if (sender == rBtnReturn)
+		}
+		if (sender == rBtnReturn) {
+			captionPanelReturnPage.setWidth(parentWidth);
 			deckPanelActualView.showWidget(2);
-		if (sender == rBtnHistory)
+		}
+		if (sender == rBtnHistory) {
+			vPanelHistoryPage.setWidth(parentWidth);
 			deckPanelActualView.showWidget(3);
+		}
 		if (sender == rBtnManage) {
-			String parentWidth = String.valueOf(deckPanelActualView.getElement()
-					.getClientWidth()) + "px";
 			decoratedTabPanelDeviceManagement.setWidth(parentWidth);
 			deckPanelActualView.showWidget(4);
 		}
 		if (sender == rBtnManageStudents) {
-			String parentWidth = String.valueOf(deckPanelActualView.getElement()
-					.getClientWidth()) + "px";
 			decoratedTabPanelStudentsManagement.setWidth(parentWidth);
 			deckPanelActualView.showWidget(5);
 		}
@@ -1409,6 +1432,28 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		// History region
 		if (sender == btnHistoryresetFilters) {
 			resetHistoryFilters();
+		}
+
+		// Rent region
+		if (sender == btnRent) {
+			markDeviceForRent();
+		}
+		if (sender == btnRentClearRentedList) {
+			unMarkDeviceForRent();
+		}
+		if (sender == btnRentClearSignature) {
+			clearRentSignatureCanvas();
+		}
+		if (sender == btnSubmitRentEvent) {
+			submitRentEvent();
+		}
+
+		// Return region
+		if (sender == btnReturnClearCanvas) {
+			clearReturnSignatureCanvas();
+		}
+		if (sender == btnReturnSubmit) {
+			submitReturnEvent();
 		}
 
 		// Manage Devices region
@@ -1461,7 +1506,8 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 			public void onSuccess(Boolean result) {
 				if (result) {
 					Info.display("Success!", "Updated " + sr.getName());
-					cBoxManageStudentsViewStudentMatriculation.setRawValue(sr.getMatriculationNumber());
+					cBoxManageStudentsViewStudentMatriculation.setRawValue(sr
+							.getMatriculationNumber());
 					cBoxManageStudentsViewStudentName.setRawValue(sr.getName());
 				} else {
 					Info.display("Server error!", "Could not update" + sr.getName());
@@ -1474,8 +1520,9 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 
 			}
 		};
-		
-		client.updateExistingRenter(currentlyDisplayedSRenter.getMatriculationNumber(), sr, updateStudentInfocallback);
+
+		client.updateExistingRenter(currentlyDisplayedSRenter.getMatriculationNumber(),
+				sr, updateStudentInfocallback);
 	}
 
 	private void toggleStudentDataFields(boolean checked) {
@@ -1692,29 +1739,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		}
 
 		if (be.getType() == Events.OnClick) {
-			if (sender == btnRent) {
-				markDeviceForRent();
-			}
-
-			if (sender == btnRentClearRentedList) {
-				unMarkDeviceForRent();
-			}
-
-			if (sender == btnRentClearSignature) {
-				clearRentSignatureCanvas();
-			}
-
-			if (sender == btnSubmitRentEvent) {
-				submitRentEvent();
-			}
-
-			if (sender == btnReturnClearCanvas) {
-				clearReturnSignatureCanvas();
-			}
-
-			if (sender == btnReturnSubmit) {
-				submitReturnEvent();
-			}
+			// handle click events from ext gwt buttons
 		}
 
 	}

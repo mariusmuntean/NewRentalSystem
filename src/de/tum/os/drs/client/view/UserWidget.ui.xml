@@ -18,9 +18,10 @@
 			font-weight: bold;
 		}
 	</ui:style>
-
-	<ui:image field="genericAvatar"
-		src="../../../../../../Resources/Images/generic.jpg"></ui:image>
+	
+	<ui:with type="de.tum.os.drs.client.Resources.Images.ResourcesImage" field="imageResources"/>
+	<ui:image field="genericAvatar" 
+		src="../Resources/Images/generic.jpg"></ui:image>
 
 	<g:DecoratorPanel>
 		<g:VerticalPanel>

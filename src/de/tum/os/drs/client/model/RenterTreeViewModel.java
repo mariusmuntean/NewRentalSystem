@@ -6,9 +6,16 @@ import java.util.HashSet;
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.dom.client.Style.FontWeight;
+import com.google.gwt.layout.client.Layout.Alignment;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
+import com.google.gwt.user.client.ui.HasVerticalAlignment.VerticalAlignmentConstant;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.SingleSelectionModel;
@@ -16,6 +23,22 @@ import com.google.gwt.view.client.TreeViewModel;
 import com.google.gwt.view.client.SelectionChangeEvent;
 
 public class RenterTreeViewModel implements TreeViewModel {
+
+	private HashMap<String, String> deviceNameToImageNameMap = new HashMap<String, String>() {
+		private static final long serialVersionUID = -4645423715285941470L;
+		{
+			put("nexus one", "nexus one.jpg");
+			put("nexus s", "nexus s.jpg");
+			put("galaxy nexus", "galaxy nexus.jpg");
+			put("nexus 4", "nexus 4.jpg");
+			put("nexus 7", "nexus 7.jpg");
+			put("htc one", "htc one.jpg");
+			put("htc one x", "htc one x.jpg");
+			put("htc one x+", "htc one x+.jpg");
+			put("nexus 10", "nexus 10.jpg");
+		}
+	};
+	private static final String deviceNotFoundImage = "android question.jpg";
 
 	// private ArrayList<SerializableRenter> rentersModel;
 	private ListDataProvider<SerializableRenter> rentersModel;
@@ -63,12 +86,12 @@ public class RenterTreeViewModel implements TreeViewModel {
 	 *            - Marks the given SerializableRenter instance as selected.
 	 */
 	public void selectRenter(SerializableRenter sr) {
-//		if (renterSelectionModel.getSelectedSet() == null
-//				|| renterSelectionModel.getSelectedSet().size() <= 0
-//				|| !renterSelectionModel.getSelectedSet().contains(sr) || sr == null) {
-//			return;
-//		}
-		if(sr==null)
+		// if (renterSelectionModel.getSelectedSet() == null
+		// || renterSelectionModel.getSelectedSet().size() <= 0
+		// || !renterSelectionModel.getSelectedSet().contains(sr) || sr == null) {
+		// return;
+		// }
+		if (sr == null)
 			return;
 		renterSelectionModel.clear();
 		renterSelectionModel.getSelectedSet().clear();
@@ -78,8 +101,9 @@ public class RenterTreeViewModel implements TreeViewModel {
 
 	/**
 	 * 
-	 * @param matriculation - Searches for an instance of SerializableRenter that has the same Matriculation number. If 
-	 *            				one is found it marks it as selected.
+	 * @param matriculation
+	 *            - Searches for an instance of SerializableRenter that has the same Matriculation number. If one is found it marks it
+	 *            as selected.
 	 */
 	public void selectRenter(String matriculation) {
 		SerializableRenter sr = getRenterByMatriculation(matriculation);
@@ -115,7 +139,7 @@ public class RenterTreeViewModel implements TreeViewModel {
 		}
 		return sr;
 	}
-	
+
 	public int getRenterIndexByMatriculation(String matric) {
 		if (matric == null || matric.length() <= 0) {
 			return -1;
@@ -160,6 +184,8 @@ public class RenterTreeViewModel implements TreeViewModel {
 		return devices;
 	}
 
+	
+	
 	@Override
 	public <T> NodeInfo<?> getNodeInfo(T value) {
 
@@ -179,9 +205,9 @@ public class RenterTreeViewModel implements TreeViewModel {
 					Label lblMatric = new Label(value.getMatriculationNumber());
 					lblMatric.getElement().getStyle().setFontWeight(FontWeight.LIGHTER);
 					sb.append(SafeHtmlUtils.fromTrustedString(lblName.getElement()
-							.toString()));
+							.getString()));
 					sb.append(SafeHtmlUtils.fromTrustedString(lblMatric.getElement()
-							.toString()));
+							.getString()));
 
 				}
 			};
@@ -200,14 +226,34 @@ public class RenterTreeViewModel implements TreeViewModel {
 					@Override
 					public void render(com.google.gwt.cell.client.Cell.Context context,
 							PersistentDevice value, SafeHtmlBuilder sb) {
+						HorizontalPanel hPanel = new HorizontalPanel();
+						hPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+						
+						String imgName = deviceNameToImageNameMap.get(value.getName()
+								.toLowerCase().trim());
+						if (imgName == null)
+							imgName = deviceNotFoundImage;
+						Image devImage = new Image("images/devices/" + imgName);
+						devImage.setSize("100px", "100px");
+						hPanel.add(devImage);
+
+						VerticalPanel vPanel = new VerticalPanel();
+						vPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+						
 						Label lblName = new Label(value.getName());
 						lblName.getElement().getStyle().setFontWeight(FontWeight.BOLD);
 						Label lblImei = new Label(value.getIMEI());
 						lblImei.getElement().getStyle().setFontWeight(FontWeight.LIGHTER);
-						sb.append(SafeHtmlUtils.fromTrustedString(lblName.getElement()
-								.toString()));
-						sb.append(SafeHtmlUtils.fromTrustedString(lblImei.getElement()
-								.toString()));
+
+						vPanel.add(lblName);
+						vPanel.add(lblImei);
+
+						hPanel.add(vPanel);
+
+						sb.append(SafeHtmlUtils.fromTrustedString(hPanel.getElement()
+								.getString()));
+						// sb.append(SafeHtmlUtils.fromTrustedString(lblImei.getElement()
+						// .getString()));
 					}
 				};
 

@@ -14,6 +14,17 @@
 			cursor: url('/images/cursors/inkPen.png') 1 1, crosshair;
 		}
 		
+		.clearSignatureButtonStyle {
+			background-image: url("/images/buttons/clearIconSmall.png");
+			background-repeat: no-repeat;
+			background-color: transparent;
+			border-color: transparent;
+			width: 32px;
+			height: 32px;
+			margin-top: 3px;
+			margin-left: -35px;
+		}
+		
 		.vPanelStyle {
 			margin-left: auto;
 			margin-right: auto;
@@ -21,6 +32,10 @@
 			min-width: 85%;
 			max-width: 85%;
 			background-color: AliceBlue;
+		}
+		
+		.panelMarginstyle {
+			margin: 15px;
 		}
 		
 		.deckPanelStyle {
@@ -134,195 +149,218 @@
 							</g:row>
 						</g:Grid>
 						<!-- Rent -->
-						<g:VerticalPanel width="100%">
+						<g:VerticalPanel ui:field="vPanelRentPage" width="100%">
 							<g:cell>
 								<g:CaptionPanel captionText="1. Choose Student">
-									<g:Grid>
-										<g:row>
-											<g:customCell>
-												<g:CaptionPanel captionText="Registered Student">
-													<g:VerticalPanel>
-														<extGwt:ComboBox ui:field="cBoxRentRegisteredStudentName"
-															loadingText="Searching ..." forceSelection="true"
-															hideTrigger="false" shim="true" autoHeight="true"
-															selectOnFocus="true" typeAhead="true" width="300"
-															emptyText="Type a name" stateful="true" displayField="name">
-														</extGwt:ComboBox>
-														<g:cell>
-															<g:Label text="or" horizontalAlignment="ALIGN_CENTER" />
-														</g:cell>
-														<extGwt:ComboBox ui:field="cBoxRentRegisteredStudentMatriculation"
-															loadingText="Searching ..." forceSelection="true"
-															autoHeight="true" selectOnFocus="true" width="300"
-															typeAhead="true" emptyText="Type a matric. nr." stateful="true"
-															displayField="matriculation">
-														</extGwt:ComboBox>
-													</g:VerticalPanel>
-												</g:CaptionPanel>
-											</g:customCell>
-											<g:customCell>
-												<g:CaptionPanel captionText="New Student"
-													height="100%">
-													<g:Grid>
-														<g:row>
-															<g:customCell>
-																<g:Label text="Name: "></g:Label>
-															</g:customCell>
-															<g:customCell>
-																<g:TextBox ui:field="tBoxRentNewStudentName"></g:TextBox>
-															</g:customCell>
-															<g:customCell>
-																<g:Label text="Email: "></g:Label>
-															</g:customCell>
-															<g:customCell>
-																<g:TextBox ui:field="tBoxRentNewStudentEmail"></g:TextBox>
-															</g:customCell>
-														</g:row>
-														<g:row>
-															<g:customCell>
-																<g:Label text="Phone: "></g:Label>
-															</g:customCell>
-															<g:customCell>
-																<g:TextBox ui:field="tBoxRentNewStudentPhone"></g:TextBox>
-															</g:customCell>
-															<g:customCell>
-																<g:Label text="Matriculation: "></g:Label>
-															</g:customCell>
-															<g:customCell>
-																<g:TextBox ui:field="tBoxRentNewStudentMatric"></g:TextBox>
-															</g:customCell>
-														</g:row>
-													</g:Grid>
-												</g:CaptionPanel>
-											</g:customCell>
-										</g:row>
-									</g:Grid>
+									<g:HorizontalPanel horizontalAlignment="ALIGN_CENTER">
+										<g:cell>
+											<g:CaptionPanel captionText="Registered Student"
+												styleName="{style.panelMarginstyle}" width="auto">
+												<g:VerticalPanel>
+													<extGwt:ComboBox ui:field="cBoxRentRegisteredStudentName"
+														loadingText="Searching ..." forceSelection="true"
+														hideTrigger="false" shim="true" autoHeight="true"
+														selectOnFocus="true" typeAhead="true" width="300"
+														emptyText="Type a name" stateful="true" displayField="name">
+													</extGwt:ComboBox>
+													<g:cell>
+														<g:Label text="or" horizontalAlignment="ALIGN_CENTER" />
+													</g:cell>
+													<extGwt:ComboBox ui:field="cBoxRentRegisteredStudentMatriculation"
+														loadingText="Searching ..." forceSelection="true"
+														autoHeight="true" selectOnFocus="true" width="300"
+														typeAhead="true" emptyText="Type a matric. nr." stateful="true"
+														displayField="matriculation">
+													</extGwt:ComboBox>
+												</g:VerticalPanel>
+											</g:CaptionPanel>
+										</g:cell>
+										<g:cell verticalAlignment="ALIGN_MIDDLE">
+											<g:Label text="or"></g:Label>
+										</g:cell>
+										<g:cell>
+											<g:CaptionPanel captionText="New Student"
+												styleName="{style.panelMarginstyle}" width="auto">
+												<g:Grid>
+													<g:row>
+														<g:customCell>
+															<g:Label text="Name: "></g:Label>
+														</g:customCell>
+														<g:customCell>
+															<g:TextBox ui:field="tBoxRentNewStudentName"></g:TextBox>
+														</g:customCell>
+														<g:customCell>
+															<g:Label text="Email: "></g:Label>
+														</g:customCell>
+														<g:customCell>
+															<g:TextBox ui:field="tBoxRentNewStudentEmail"></g:TextBox>
+														</g:customCell>
+													</g:row>
+													<g:row>
+														<g:customCell>
+															<g:Label text="Phone: "></g:Label>
+														</g:customCell>
+														<g:customCell>
+															<g:TextBox ui:field="tBoxRentNewStudentPhone"></g:TextBox>
+														</g:customCell>
+														<g:customCell>
+															<g:Label text="Matriculation: "></g:Label>
+														</g:customCell>
+														<g:customCell>
+															<g:TextBox ui:field="tBoxRentNewStudentMatric"></g:TextBox>
+														</g:customCell>
+													</g:row>
+												</g:Grid>
+											</g:CaptionPanel>
+										</g:cell>
+									</g:HorizontalPanel>
 								</g:CaptionPanel>
 							</g:cell>
 							<g:cell>
 								<g:CaptionPanel captionText="2. Choose devices and sign">
-									<g:Grid ui:field="gridRentDevices">
-										<g:row>
-											<g:customCell>
-												<g:HorizontalPanel>
-													<g:cell>
-														<g:VerticalPanel>
-															<g:cell>
-																<g:Label text="Select an available device"></g:Label>
-															</g:cell>
-															<g:cell>
-																<extGwt:ComboBox ui:field="cBoxRentSelectDevice"
-																	width="250" emptyText="Type a device name"
-																	displayField="name" typeAhead="true" selectOnFocus="true"></extGwt:ComboBox>
-															</g:cell>
-														</g:VerticalPanel>
-													</g:cell>
-													<g:cell>
-														<extGwtBtn:Button text="Add" ui:field="btnRent"></extGwtBtn:Button>
-													</g:cell>
-													<g:cell>
-														<g:VerticalPanel>
-															<g:cell>
-																<extGwtWgt:ListView ui:field="lstViewRentSelectedDevices"
-																	width="300" height="350"></extGwtWgt:ListView>
-															</g:cell>
-															<g:cell horizontalAlignment="ALIGN_CENTER">
-																<extGwtBtn:Button text="Remove"
-																	ui:field="btnRentClearRentedList"></extGwtBtn:Button>
-															</g:cell>
-														</g:VerticalPanel>
-													</g:cell>
-													<g:cell>
-														<g:VerticalPanel>
-															<g:cell>
-																<g:Label text="Estimated return date"></g:Label>
-															</g:cell>
-															<g:cell>
-																<extGwtWgt:DatePicker ui:field="datePickerRentEstimatedRD"></extGwtWgt:DatePicker>
-															</g:cell>
-														</g:VerticalPanel>
-													</g:cell>
-												</g:HorizontalPanel>
-											</g:customCell>
-										</g:row>
-										<g:row>
-											<g:customCell>
-												<g:HorizontalPanel>
-													<g:cell>
-														<g:VerticalPanel>
-															<g:cell>
-																<g:Label text="Comments:"></g:Label>
-															</g:cell>
-															<g:cell>
-																<g:TextArea ui:field="txtAreaRentComments"
-																	characterWidth="65" visibleLines="5"></g:TextArea>
-															</g:cell>
-														</g:VerticalPanel>
-													</g:cell>
-													<g:cell>
-														<g:VerticalPanel>
-															<g:cell>
-																<g:Label text="Signature:"></g:Label>
-															</g:cell>
-															<g:cell>
-																<v:DrawingArea ui:field="canvasRentSignature"
-																	styleName="{style.signingCanvasStyle}">
-																</v:DrawingArea>
-															</g:cell>
-															<g:cell horizontalAlignment="ALIGN_CENTER">
-																<extGwtBtn:Button text="Rent"
-																	ui:field="btnSubmitRentEvent" stylePrimaryName="myButton"></extGwtBtn:Button>
-															</g:cell>
-														</g:VerticalPanel>
-													</g:cell>
-													<g:cell>
-														<extGwtBtn:Button text="Clear"
-															ui:field="btnRentClearSignature"></extGwtBtn:Button>
-													</g:cell>
-												</g:HorizontalPanel>
-											</g:customCell>
-										</g:row>
-									</g:Grid>
+									<g:VerticalPanel>
+										<g:cell>
+											<g:HorizontalPanel>
+												<g:cell>
+													<g:HorizontalPanel>
+														<g:cell>
+															<g:VerticalPanel styleName="{style.panelMarginstyle}">
+																<g:cell>
+																	<g:Label text="Select an available device"></g:Label>
+																</g:cell>
+																<g:cell>
+																	<extGwt:ComboBox ui:field="cBoxRentSelectDevice"
+																		width="250" emptyText="Type a device name"
+																		displayField="name" typeAhead="true" selectOnFocus="true"></extGwt:ComboBox>
+																</g:cell>
+															</g:VerticalPanel>
+														</g:cell>
+														<g:cell>
+															<g:Button text="Add" styleName="{style.panelMarginstyle}"
+															 ui:field="btnRent"></g:Button>
+														</g:cell>
+														<g:cell>
+															<g:VerticalPanel styleName="{style.panelMarginstyle}">
+																<g:cell>
+																	<extGwtWgt:ListView ui:field="lstViewRentSelectedDevices"
+																		width="300" height="350"></extGwtWgt:ListView>
+																</g:cell>
+																<g:cell horizontalAlignment="ALIGN_CENTER">
+																	<g:Button text="Remove"
+																		ui:field="btnRentClearRentedList"></g:Button>
+																</g:cell>
+															</g:VerticalPanel>
+														</g:cell>
+														<g:cell>
+															<g:VerticalPanel styleName="{style.panelMarginstyle}">
+																<g:cell horizontalAlignment="ALIGN_CENTER">
+																	<g:Label text="Estimated return date"></g:Label>
+																</g:cell>
+																<g:cell>
+																	<extGwtWgt:DatePicker ui:field="datePickerRentEstimatedRD"></extGwtWgt:DatePicker>
+																</g:cell>
+															</g:VerticalPanel>
+														</g:cell>
+													</g:HorizontalPanel>
+												</g:cell>
+											</g:HorizontalPanel>
+										</g:cell>
+										<g:cell>
+											<g:HorizontalPanel>
+												<g:cell>
+													<g:HorizontalPanel>
+														<g:cell>
+															<g:VerticalPanel styleName="{style.panelMarginstyle}">
+																<g:cell>
+																	<g:Label text="Comments:"></g:Label>
+																</g:cell>
+																<g:cell>
+																	<g:TextArea ui:field="txtAreaRentComments"
+																		width="500px" height="290px"></g:TextArea>
+																</g:cell>
+															</g:VerticalPanel>
+														</g:cell>
+														<g:cell>
+															<g:VerticalPanel styleName="{style.panelMarginstyle}">
+																<g:cell>
+																	<g:Label text="Signature:"></g:Label>
+																</g:cell>
+																<g:cell>
+																	<g:HorizontalPanel>
+																		<g:cell>
+																			<v:DrawingArea ui:field="canvasRentSignature"
+																				styleName="{style.signingCanvasStyle}">
+																			</v:DrawingArea>
+																		</g:cell>
+																		<g:cell>
+																			<g:Button styleName="{style.clearSignatureButtonStyle}"
+																				ui:field="btnRentClearSignature"></g:Button>
+																		</g:cell>
+																	</g:HorizontalPanel>
+																</g:cell>
+																<g:cell horizontalAlignment="ALIGN_CENTER">
+																	<g:Button text="Rent"
+																		ui:field="btnSubmitRentEvent"></g:Button>
+																</g:cell>
+															</g:VerticalPanel>
+														</g:cell>
+													</g:HorizontalPanel>
+												</g:cell>
+											</g:HorizontalPanel>
+										</g:cell>
+									</g:VerticalPanel>
 								</g:CaptionPanel>
 							</g:cell>
 						</g:VerticalPanel>
 						<!-- Return -->
-						<g:CaptionPanel captionText="Select student and devices to return">
-							<g:VerticalPanel width="1080px" height="auto">
+						<g:CaptionPanel ui:field="captionPanelReturnPage"
+							captionText="Select student and devices to return">
+							<g:VerticalPanel width="100%" height="auto">
 								<g:cell>
-									<g:VerticalPanel styleName="{style.vPanelNameOrMatricStyle}">
-										<extGwt:ComboBox ui:field="cBoxReturnRegisteredStudentName"
-											loadingText="Searching ..." forceSelection="true"
-											hideTrigger="false" shim="true" autoHeight="true"
-											selectOnFocus="true" typeAhead="true" width="300" emptyText="Type a name"
-											stateful="true" displayField="name">
-										</extGwt:ComboBox>
-										<g:cell>
-											<g:Label text="or" horizontalAlignment="ALIGN_CENTER" />
+									<g:HorizontalPanel width="100%">
+										<g:cell width="auto">
+											<g:VerticalPanel styleName="{style.vPanelNameOrMatricStyle}">
+												<extGwt:ComboBox ui:field="cBoxReturnRegisteredStudentName"
+													loadingText="Searching ..." forceSelection="true"
+													hideTrigger="false" shim="true" autoHeight="true"
+													selectOnFocus="true" typeAhead="true" width="300"
+													emptyText="Type a name" stateful="true" displayField="name">
+												</extGwt:ComboBox>
+												<g:cell>
+													<g:Label text="or" horizontalAlignment="ALIGN_CENTER" />
+												</g:cell>
+												<extGwt:ComboBox ui:field="cBoxReturnRegisteredStudentMatriculation"
+													loadingText="Searching ..." forceSelection="true"
+													autoHeight="true" selectOnFocus="true" width="300"
+													typeAhead="true" emptyText="Type a matric. nr." stateful="true"
+													displayField="matriculation">
+												</extGwt:ComboBox>
+											</g:VerticalPanel>
 										</g:cell>
-										<extGwt:ComboBox ui:field="cBoxReturnRegisteredStudentMatriculation"
-											loadingText="Searching ..." forceSelection="true" autoHeight="true"
-											selectOnFocus="true" width="300" typeAhead="true"
-											emptyText="Type a matric. nr." stateful="true" displayField="matriculation">
-										</extGwt:ComboBox>
-									</g:VerticalPanel>
-								</g:cell>
-								<g:cell>
-									<cell:CellBrowser ui:field="cellBrowserReturn"
-										styleName="{style.cellBrowserReturnStyle}" width="auto"
-										height="300px" animationEnabled="true">
-									</cell:CellBrowser>
-								</g:cell>
-								<g:cell>
-									<g:HorizontalPanel>
-										<g:cell>
-											<g:Label text="Selected:"></g:Label>
-										</g:cell>
-										<g:cell>
-											<g:Label ui:field="lblRentSelectedDevices" text="0 devices"></g:Label>
+										<g:cell width="100%" horizontalAlignment="ALIGN_LEFT">
+											<g:VerticalPanel width="100%">
+												<g:cell width="100%">
+													<cell:CellBrowser ui:field="cellBrowserReturn"
+														styleName="{style.cellBrowserReturnStyle}"
+														defaultColumnWidth="300" height="300px" animationEnabled="true">
+													</cell:CellBrowser>
+												</g:cell>
+
+												<g:cell>
+													<g:HorizontalPanel>
+														<g:cell>
+															<g:Label text="Selected:"></g:Label>
+														</g:cell>
+														<g:cell>
+															<g:Label ui:field="lblRentSelectedDevices" text="0 devices"></g:Label>
+														</g:cell>
+													</g:HorizontalPanel>
+												</g:cell>
+											</g:VerticalPanel>
 										</g:cell>
 									</g:HorizontalPanel>
 								</g:cell>
+
 								<g:cell>
 									<g:HorizontalPanel>
 										<g:cell>
@@ -332,7 +370,7 @@
 												</g:cell>
 												<g:cell>
 													<g:TextArea ui:field="txtAreaReturnComments"
-														characterWidth="65" visibleLines="10"></g:TextArea>
+														width="500px" height="290px"></g:TextArea>
 												</g:cell>
 											</g:VerticalPanel>
 										</g:cell>
@@ -349,15 +387,15 @@
 															</v:DrawingArea>
 														</g:cell>
 														<g:cell>
-															<extGwtBtn:Button ui:field="btnReturnClearCanvas"
-																text="Clear"></extGwtBtn:Button>
+															<g:Button ui:field="btnReturnClearCanvas"
+																styleName="{style.clearSignatureButtonStyle}">
+															</g:Button>
 														</g:cell>
 													</g:HorizontalPanel>
 												</g:cell>
 												<g:cell horizontalAlignment="ALIGN_CENTER">
-													<extGwtBtn:Button ui:field="btnReturnSubmit"
-														text="Submit">
-													</extGwtBtn:Button>
+													<g:Button ui:field="btnReturnSubmit" text="Submit">
+													</g:Button>
 												</g:cell>
 											</g:VerticalPanel>
 										</g:cell>
@@ -366,7 +404,7 @@
 							</g:VerticalPanel>
 						</g:CaptionPanel>
 						<!-- History -->
-						<g:VerticalPanel>
+						<g:VerticalPanel ui:field="vPanelHistoryPage">
 							<g:cell>
 								<g:CaptionPanel captionText="Filters">
 									<g:HorizontalPanel>
@@ -716,7 +754,7 @@
 																		<g:Label text="Name :"></g:Label>
 																	</g:cell>
 																	<g:TextBox ui:field="txtBoxManageStudentsViewStudentName"
-																	readOnly="true"></g:TextBox>
+																		readOnly="true"></g:TextBox>
 																	<g:cell>
 																		<g:Label text="Matriculation :"></g:Label>
 																	</g:cell>

@@ -1,3 +1,2 @@
 # Module newrentalsystem
 # RPC service class, partial path of RPC policy file
-de.tum.os.drs.client.IClientService, A3DC6C1A6D63B662D8D2BD165DB69C2F.gwt.rpc

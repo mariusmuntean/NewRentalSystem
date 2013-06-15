@@ -125,5 +125,8 @@ background-color: #FF0000 !important;
 .inTimeDeviceRowStyle{
 background-color: yellow;
 }
+.gwt-PushButton {
+	margin: 10px;
+}
 
 

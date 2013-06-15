@@ -18,6 +18,7 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -35,16 +36,15 @@ public class LoginPageBinder extends Composite implements HasText {
 	private static LoginPageBinderUiBinder uiBinder = GWT
 			.create(LoginPageBinderUiBinder.class);
 	@UiField
-	Button btnLoginFacebook;
+	PushButton btnLoginFacebook;
 	@UiField
-	Button btnLoginGoogle;
+	PushButton btnLoginGoogle;
 	@UiField
-	Button btnLoginTwitter;
+	PushButton btnLoginTwitter;
 	@UiField
-	Button btnLoginTUM;
+	PushButton btnLoginTUM;
 
 	DialogBox modalLoader;
-
 	/*
 	 * Callbacks
 	 */
@@ -61,8 +61,8 @@ public class LoginPageBinder extends Composite implements HasText {
 			Callback<String, Throwable> googleCallback,
 			Callback<String, Throwable> twitterCallback) {
 
-		instantiateControls();
 		initWidget(uiBinder.createAndBindUi(this));
+		instantiateControls();
 
 		this.ggCallback = googleCallback;
 		this.fbCallback = facebookCallback;
@@ -78,6 +78,7 @@ public class LoginPageBinder extends Composite implements HasText {
 		this.twitterAuthenticator = new TwitterAuthenticator(twCallback);
 
 		wireUpControls();
+
 		hideModalLoader();
 
 	}
@@ -176,7 +177,8 @@ public class LoginPageBinder extends Composite implements HasText {
 		// Init modal loader wheel
 		this.modalLoader = new DialogBox();
 		VerticalPanel dialogContent = new VerticalPanel();
-		Image imgLoader = new Image("../../../../../../Resources/Images/loader.gif");
+		// Image imgLoader = new Image("../../../../../../Resources/Images/loader.gif");
+		Image imgLoader = new Image("images/loader.gif");
 		Label lblModalText = new Label("Trying to authenticate you.");
 		dialogContent.add(lblModalText);
 		dialogContent.add(imgLoader);
@@ -193,8 +195,8 @@ public class LoginPageBinder extends Composite implements HasText {
 
 	private void showModalLoader() {
 		if (this.modalLoader != null) {
-			this.modalLoader.center();
 			this.modalLoader.show();
+			this.modalLoader.center();
 		}
 
 	}
