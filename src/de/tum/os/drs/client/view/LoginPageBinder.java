@@ -29,6 +29,7 @@ import de.tum.os.drs.client.model.FacebookAuthenticator;
 import de.tum.os.drs.client.model.GoogleAuthenticator;
 import de.tum.os.drs.client.model.IAuthenticator;
 import de.tum.os.drs.client.model.OAuthAuthorities;
+import de.tum.os.drs.client.model.Tuple;
 import de.tum.os.drs.client.model.TwitterAuthenticator;
 
 public class LoginPageBinder extends Composite implements HasText {
@@ -45,12 +46,11 @@ public class LoginPageBinder extends Composite implements HasText {
 	PushButton btnLoginTUM;
 
 	DialogBox modalLoader;
+
 	/*
-	 * Callbacks
+	 * Callback
 	 */
-	Callback<String, Throwable> fbCallback;
-	Callback<String, Throwable> ggCallback;
-	Callback<String, Throwable> twCallback;
+	Callback<Tuple<String, OAuthAuthorities>, Throwable> genericAfterAuthCallback;
 
 	interface LoginPageBinderUiBinder extends UiBinder<Widget, LoginPageBinder> {
 	}
@@ -64,18 +64,30 @@ public class LoginPageBinder extends Composite implements HasText {
 		initWidget(uiBinder.createAndBindUi(this));
 		instantiateControls();
 
-		this.ggCallback = googleCallback;
-		this.fbCallback = facebookCallback;
-		this.twCallback = twitterCallback;
+		// this.ggCallback = googleCallback;
+		// this.fbCallback = facebookCallback;
+		// this.twCallback = twitterCallback;
+
+		showModalLoader();
+		authenticateIfValidTokenFound();
+	}
+
+	public LoginPageBinder(
+			Callback<Tuple<String, OAuthAuthorities>, Throwable> genericAfterAuthCallback) {
+
+		initWidget(uiBinder.createAndBindUi(this));
+		instantiateControls();
+
+		this.genericAfterAuthCallback = genericAfterAuthCallback;
 
 		showModalLoader();
 		authenticateIfValidTokenFound();
 	}
 
 	private void enableLoginScreenIfNotAuthenticated() {
-		this.googleAuthenticator = new GoogleAuthenticator(ggCallback);
-		this.facebookAuthenticator = new FacebookAuthenticator(fbCallback);
-		this.twitterAuthenticator = new TwitterAuthenticator(twCallback);
+		this.googleAuthenticator = new GoogleAuthenticator(genericAfterAuthCallback);
+		this.facebookAuthenticator = new FacebookAuthenticator(genericAfterAuthCallback);
+		this.twitterAuthenticator = new TwitterAuthenticator(genericAfterAuthCallback);
 
 		wireUpControls();
 
@@ -101,12 +113,11 @@ public class LoginPageBinder extends Composite implements HasText {
 		checkTokenValidity(token, authenticator);
 	}
 
-	private void checkTokenValidity(final String token, OAuthAuthorities oAuthAuthority) {
+	private void checkTokenValidity(final String token, final OAuthAuthorities oAuthAuthority) {
 		String url = OAuthApiHelper.getAuthUrlFromAuthority(oAuthAuthority);
-		final Callback<String, Throwable> callback = getCallbackFromAuthrity(oAuthAuthority);
 
 		// Leave if any problem occurs. Don't bother the user.
-		if (url == null || url.length() <= 0 || callback == null) {
+		if (url == null || url.length() <= 0 || genericAfterAuthCallback == null) {
 			enableLoginScreenIfNotAuthenticated();
 			return;
 		}
@@ -132,7 +143,10 @@ public class LoginPageBinder extends Composite implements HasText {
 						String username = OAuthParser
 								.getAuthenticatedUsername(jsonString);
 						CookieHelper.setAuthenticatedUsername(username);
-						callback.onSuccess(token);
+						genericAfterAuthCallback
+								.onSuccess(new Tuple<String, OAuthAuthorities>(token,
+										oAuthAuthority));
+
 					}
 				}
 
@@ -149,29 +163,29 @@ public class LoginPageBinder extends Composite implements HasText {
 
 	}
 
-	private Callback<String, Throwable> getCallbackFromAuthrity(
-			OAuthAuthorities oAuthAuthority) {
-		switch (oAuthAuthority) {
-		case facebook: {
-			return fbCallback;
-		}
-		case google: {
-			return ggCallback;
-		}
-		case linkedin: {
-			return null;
-		}
-		case tum: {
-			return null;
-		}
-		case twitter: {
-			return null;
-		}
-		default: {
-			return null;
-		}
-		}
-	}
+	// private Callback<String, Throwable> getCallbackFromAuthrity(
+	// OAuthAuthorities oAuthAuthority) {
+	// switch (oAuthAuthority) {
+	// case facebook: {
+	// return fbCallback;
+	// }
+	// case google: {
+	// return ggCallback;
+	// }
+	// case linkedin: {
+	// return null;
+	// }
+	// case tum: {
+	// return null;
+	// }
+	// case twitter: {
+	// return null;
+	// }
+	// default: {
+	// return null;
+	// }
+	// }
+	// }
 
 	private void instantiateControls() {
 		// Init modal loader wheel

@@ -5,8 +5,10 @@ import java.util.Date;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import de.tum.os.drs.client.model.OAuthAuthorities;
 import de.tum.os.drs.client.model.PersistentDevice;
 import de.tum.os.drs.client.model.PersistentEvent;
+import de.tum.os.drs.client.model.RentalSession;
 import de.tum.os.drs.client.model.SerializableRenter;
 
 public interface IClientServiceAsync {
@@ -77,7 +79,8 @@ public interface IClientServiceAsync {
 
 	void getAllRenters(AsyncCallback<ArrayList<SerializableRenter>> callback);
 
-	void updateRenter(String matriculationNumber, SerializableRenter renter, AsyncCallback<Boolean> callback);
+	void updateRenter(String matriculationNumber, SerializableRenter renter,
+			AsyncCallback<Boolean> callback);
 
 	void deleteRenter(SerializableRenter renter, AsyncCallback<Boolean> callback);
 
@@ -103,4 +106,9 @@ public interface IClientServiceAsync {
 	void getEvents(String personName, String IMEI, Date from, Date to,
 			Integer maxResultSize, Boolean reverseChronologicalOrder,
 			AsyncCallback<ArrayList<PersistentEvent>> callback);
+
+	void login(String token, OAuthAuthorities authority,
+			AsyncCallback<RentalSession> callback);
+
+	void logout(AsyncCallback<Boolean> callback);
 }

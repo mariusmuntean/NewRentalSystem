@@ -18,9 +18,10 @@ public class FacebookAuthenticator implements IAuthenticator {
 	AuthRequest req = new AuthRequest(AUTH_URL, CLIENT_ID).withScopes(FB_EMAIL_SCOPE,
 			FB_ABOUTME_SCOPE);
 
-	Callback<String, Throwable> callback;
+	Callback<Tuple<String, OAuthAuthorities>, Throwable> callback;
 
-	public FacebookAuthenticator(Callback<String, Throwable> callback) {
+	public FacebookAuthenticator(
+			Callback<Tuple<String, OAuthAuthorities>, Throwable> callback) {
 		this.callback = callback;
 	}
 
@@ -29,7 +30,23 @@ public class FacebookAuthenticator implements IAuthenticator {
 		Auth auth = Auth.get();
 		// auth.setOAuthWindowUrl("http://localhost:8888/NewRentalSystem.html?gwt.codesvr=127.0.0.1:9997");
 		if (this.callback != null) {
-			auth.get().login(req, this.callback);
+			Callback<String, Throwable> simpleCallback = new Callback<String, Throwable>() {
+
+				@Override
+				public void onSuccess(String result) {
+					FacebookAuthenticator.this.callback
+							.onSuccess(new Tuple<String, OAuthAuthorities>(result,
+									OAuthAuthorities.facebook));
+
+				}
+
+				@Override
+				public void onFailure(Throwable reason) {
+					FacebookAuthenticator.this.callback.onFailure(reason);
+
+				}
+			};
+			auth.get().login(req, simpleCallback);
 		}
 
 	}

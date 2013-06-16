@@ -5,13 +5,28 @@ import java.util.Date;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
+import de.tum.os.drs.client.model.OAuthAuthorities;
 import de.tum.os.drs.client.model.PersistentDevice;
 import de.tum.os.drs.client.model.PersistentEvent;
+import de.tum.os.drs.client.model.RentalSession;
 import de.tum.os.drs.client.model.SerializableRenter;
 
 @RemoteServiceRelativePath("rentalService")
 public interface IClientService extends RemoteService {
 
+	/**
+	 * Log in on the Rental Server
+	 * @param token - the token to be checked for validity.
+	 * @param authority - the authority that issued this token.
+	 * @return - A RentalSession instance that can be either valid or invalid.
+	 */
+	RentalSession login(String token, OAuthAuthorities authority);
+	
+	/**
+	 * Log out from the Rental Server, also invalidates the session.
+	 */
+	Boolean logout();
+	
 	/**
 	 * 
 	 * @return - A list of all devices.

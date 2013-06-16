@@ -1,37 +1,70 @@
 package de.tum.os.drs.server;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
+
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import de.tum.os.drs.client.IClientService;
+import de.tum.os.drs.client.helpers.CookieHelper;
+import de.tum.os.drs.client.helpers.OAuthApiHelper;
+import de.tum.os.drs.client.helpers.OAuthParser;
 import de.tum.os.drs.client.model.DeviceType;
 import de.tum.os.drs.client.model.EventType;
+import de.tum.os.drs.client.model.OAuthAuthorities;
 import de.tum.os.drs.client.model.PersistentDevice;
 import de.tum.os.drs.client.model.PersistentEvent;
 import de.tum.os.drs.client.model.PersistentRenter;
+import de.tum.os.drs.client.model.RentalSession;
 import de.tum.os.drs.client.model.SerializableRenter;
+import de.tum.os.drs.server.helpers.JSONHelper;
 
 public class ServiceImpl extends RemoteServiceServlet implements IClientService {
 
 	private static final String PERSISTENCE_UNIT_NAME = "rentalsystem";
 	private static EntityManagerFactory factory;
+	private RentalSession currentSession;
+	boolean waitingForResult = true;
+	Boolean currentTokenValidity = null;
+
+	private static final HashSet<String> authorizedIDs = new HashSet<String>() {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 5869829676400912163L;
+		{
+			add("100005386531690");
+			add("1251677124");
+			add("112327375720464453708");
+		}
+	};
 
 	public ServiceImpl() {
 		super();
 		factory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
-		
-//		createDummyData();
+
+		// createDummyData();
 
 		System.out.println("Servlet constructor done!");
 	}
@@ -70,7 +103,7 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 			System.out.println(pd.toString());
 		}
 		System.out.println("Size: " + pds.size());
-		
+
 		return (ArrayList<PersistentDevice>) pds;
 	}
 
@@ -634,6 +667,146 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 		pr.setMatriculationNumber(sr.getMatriculationNumber());
 		pr.setPhoneNumber(sr.getPhoneNUmber());
 		pr.setRentedDevices(sr.getRentedDevices());
+	}
+
+	@Override
+	public RentalSession login(String token, OAuthAuthorities authority) {
+		Boolean validToken = checkTokenValiditySync(token, authority);
+		this.currentSession = new RentalSession(UUID.randomUUID().toString());
+		if (validToken) {
+			this.currentSession.setIsValid(true);
+		} else {
+			this.currentSession.setIsValid(false);
+		}
+
+		return this.currentSession;
+	}
+
+	private Boolean checkTokenValiditySync(String token, OAuthAuthorities authority) {
+
+		if (token != null && !token.isEmpty()) {
+			String tokenCheckUrl = OAuthApiHelper.getAuthUrlFromAuthority(authority);
+
+			if (tokenCheckUrl == null || tokenCheckUrl.length() <= 0) {
+				return false;
+			}
+
+			// Append token
+			tokenCheckUrl += token;
+			// Test token validity at the appropriate Authority
+			try {
+				// Retrieve json response
+				URL url = new URL(tokenCheckUrl);
+				URLConnection connection = url.openConnection();
+
+				String line;
+				StringBuilder builder = new StringBuilder();
+				BufferedReader reader = new BufferedReader(new InputStreamReader(
+						connection.getInputStream()));
+				while ((line = reader.readLine()) != null) {
+					builder.append(line);
+				}
+				String jsonString = builder.toString();
+
+				// Analyze json response
+				if (JSONHelper.hasError(jsonString)) {
+					currentTokenValidity = false;
+				} else {
+					String userID = JSONHelper.getUserId(jsonString);
+					if (isAuthorizedId(userID)) {
+						currentTokenValidity = true;
+					} else {
+						currentTokenValidity = false;
+					}
+				}
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+		} else {
+			currentTokenValidity = false;
+		}
+
+		return currentTokenValidity;
+	}
+
+	private Boolean checkTokenvalidity(String token, OAuthAuthorities authority) {
+
+		if (token != null && !token.isEmpty()) {
+			String tokenCheckUrl = OAuthApiHelper.getAuthUrlFromAuthority(authority);
+
+			if (tokenCheckUrl == null || tokenCheckUrl.length() <= 0) {
+				return false;
+			}
+
+			// Append token
+			tokenCheckUrl += token;
+			// Test token validity at the appropriate Authority
+			RequestBuilder rb = new RequestBuilder(RequestBuilder.GET, tokenCheckUrl);
+			try {
+				// Just a small hack to make the call seem synchronous
+				waitingForResult = true;
+				// Check token validity
+				Request req = rb.sendRequest(null, new RequestCallback() {
+
+					@Override
+					public void onResponseReceived(Request request, Response response) {
+						String jsonString = response.getText();
+						if (OAuthParser.hasError(jsonString)) {
+							currentTokenValidity = false;
+						} else {
+							String userID = OAuthParser
+									.getAuthenticatedUserID(jsonString);
+							if (isAuthorizedId(userID)) {
+								currentTokenValidity = true;
+							} else {
+								currentTokenValidity = false;
+							}
+						}
+
+						waitingForResult = false;
+					}
+
+					@Override
+					public void onError(Request request, Throwable exception) {
+						waitingForResult = false;
+					}
+				});
+
+				while (waitingForResult) {
+					Thread.sleep(50);
+				}
+
+			} catch (Exception e) {
+
+			}
+
+		} else {
+			currentTokenValidity = false;
+		}
+
+		return currentTokenValidity;
+	}
+
+	protected boolean isAuthorizedId(String userID) {
+		if (userID == null || userID.isEmpty()) {
+			return false;
+		}
+
+		if (authorizedIDs.contains(userID)) {
+			return true;
+		} else {
+			return false;
+		}
+
+	}
+
+	@Override
+	public Boolean logout() {
+		if (this.currentSession != null)
+			this.currentSession.setIsValid(false);
+		return true;
 	}
 
 }

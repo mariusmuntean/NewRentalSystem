@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.Info;
+import com.google.api.gwt.oauth2.client.Auth;
 import com.google.gwt.core.client.Callback;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -23,7 +25,9 @@ import de.tum.os.drs.client.model.DisplayableRenter;
 import de.tum.os.drs.client.model.OAuthAuthorities;
 import de.tum.os.drs.client.model.PersistentDevice;
 import de.tum.os.drs.client.model.PersistentEvent;
+import de.tum.os.drs.client.model.RentalSession;
 import de.tum.os.drs.client.model.SerializableRenter;
+import de.tum.os.drs.client.model.Tuple;
 import de.tum.os.drs.client.view.LoginPageBinder;
 import de.tum.os.drs.client.view.MainPageBinder;
 
@@ -75,6 +79,58 @@ public class NewRentalSystem implements EntryPoint {
 			put("htc one x", "htc one x.jpg");
 			put("htc one x+", "htc one x+.jpg");
 			put("nexus 10", "nexus 10.jpg");
+		}
+	};
+
+	Callback<Tuple<String, OAuthAuthorities>, Throwable> genericAfterAuthCallback = new Callback<Tuple<String, OAuthAuthorities>, Throwable>() {
+		@Override
+		public void onSuccess(Tuple<String, OAuthAuthorities> result) {
+			serviceDef.setServiceEntryPoint(addr);
+
+			String token = result.x;
+			OAuthAuthorities authority = result.y;
+
+			System.out.println(authority.toString() + " Token: " + token);
+
+			CookieHelper.resetOAuthAuthority();
+			CookieHelper.resetAuthToken();
+
+			CookieHelper.setAuthCookie(authority, token);
+
+			// Test authorization
+			AsyncCallback<RentalSession> authorizationCallback = new AsyncCallback<RentalSession>() {
+
+				@Override
+				public void onSuccess(RentalSession result) {
+					if (result.getIsValid()) {
+						loadMainPage();
+					} else {
+						Info.display("Error!",
+								"You must be authorized to acces the platform!");
+						Auth.get().clearAllTokens();
+						CookieHelper.resetAuthenticatedUserEmail();
+						CookieHelper.resetAuthenticatedUserID();
+						CookieHelper.resetAuthenticatedUsername();
+						CookieHelper.resetAuthToken();
+						CookieHelper.resetOAuthAuthority();
+					}
+
+				}
+
+				@Override
+				public void onFailure(Throwable caught) {
+					Info.display("Network Error!",
+							"Could not communicate with the Rental Server");
+
+				}
+			};
+			service.login(token, authority, authorizationCallback);
+		}
+
+		@Override
+		public void onFailure(Throwable caught) {
+			// The authentication process failed for some reason, see caught.getMessage()
+			Window.alert("Network error: " + caught.getMessage());
 		}
 	};
 
@@ -165,15 +221,12 @@ public class NewRentalSystem implements EntryPoint {
 	 */
 	public void onModuleLoad() {
 
-		loginPageBinder = new LoginPageBinder(facebookCallback, googleCallback,
-				twitterCallback);
+		loginPageBinder = new LoginPageBinder(genericAfterAuthCallback);
 
 		RootLayoutPanel.get().add(loginPageBinder);
 	}
 
 	private void loadMainPage() {
-		// You now have the OAuth2 token needed to sign authenticated requests.
-		serviceDef.setServiceEntryPoint(addr);
 
 		mainPageBinder = new MainPageBinder(NewRentalSystem.this,
 				availableDevicesDataProvider, unavailableDevicesDataProvider,
@@ -409,7 +462,7 @@ public class NewRentalSystem implements EntryPoint {
 				imgName = deviceNotFoundImage;
 			DisplayableDevice dd = new DisplayableDevice(pe.getDevName(),
 					pe.getImeiCode(), imgName);
-//			 displayableDevicesFilterListStore.add(dd);
+			// displayableDevicesFilterListStore.add(dd);
 			devices.add(dd);
 			// Populate renters filter.
 			DisplayableRenter dr = new DisplayableRenter(pe.getPersName(),

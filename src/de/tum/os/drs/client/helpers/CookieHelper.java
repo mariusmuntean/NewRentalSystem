@@ -1,10 +1,13 @@
 package de.tum.os.drs.client.helpers;
 
+import java.util.Date;
+
 import com.google.gwt.user.client.Cookies;
 
 import de.tum.os.drs.client.model.OAuthAuthorities;
 
 public class CookieHelper {
+	static final long oneDayInMillis = 1000L * 60L * 60L * 24L;
 
 	/**
 	 * Puts the email of an authenticated user in a cookie.
@@ -16,7 +19,9 @@ public class CookieHelper {
 		if (userEmail == null && userEmail.length() <= 0) {
 			return;
 		}
-		Cookies.setCookie("authenticatedUserEmail", userEmail);
+
+		Cookies.setCookie("authenticatedUserEmail", userEmail,
+				new Date(System.currentTimeMillis() + oneDayInMillis));
 	}
 
 	/**
@@ -38,8 +43,7 @@ public class CookieHelper {
 		}
 		return userEmail;
 	}
-	
-	
+
 	/**
 	 * Puts the name of an authenticated user in a cookie.
 	 * 
@@ -50,7 +54,8 @@ public class CookieHelper {
 		if (username == null && username.length() <= 0) {
 			return;
 		}
-		Cookies.setCookie("authenticatedUserName", username);
+		Cookies.setCookie("authenticatedUserName", username,
+				new Date(System.currentTimeMillis() + oneDayInMillis));
 	}
 
 	/**
@@ -82,7 +87,8 @@ public class CookieHelper {
 		if (userID == null && userID.length() <= 0) {
 			return;
 		}
-		Cookies.setCookie("authenticatedUserName", userID);
+		Cookies.setCookie("authenticatedUserName", userID,
+				new Date(System.currentTimeMillis() + oneDayInMillis));
 	}
 
 	/**
@@ -121,8 +127,10 @@ public class CookieHelper {
 		Cookies.removeCookie("authenticatorName"); // Values can be: google, facebook, TUM or twitter
 		Cookies.removeCookie("authenticatorToken");
 
-		Cookies.setCookie("authenticatorName", authority.toString());
-		Cookies.setCookie("authenticatorToken", token);
+		Cookies.setCookie("authenticatorName", authority.toString(),
+				new Date(System.currentTimeMillis() + oneDayInMillis));
+		Cookies.setCookie("authenticatorToken", token,
+				new Date(System.currentTimeMillis() + oneDayInMillis));
 	}
 
 	/**
@@ -159,8 +167,8 @@ public class CookieHelper {
 			return token;
 		}
 	}
-	
-	public static void resetAuthToken(){
+
+	public static void resetAuthToken() {
 		Cookies.setCookie("authenticatorToken", "");
 		Cookies.removeCookie("authenticatorToken");
 	}

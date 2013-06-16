@@ -13,12 +13,13 @@ public class TwitterAuthenticator implements IAuthenticator {
 	String CLIENT_ID = "Tl3HC2nRf1Xda8NdzDJNaA";
 	String SCOPE1 = "caca";
 
-//	AuthRequest req = new AuthRequest(AUTH_URL, CLIENT_ID).withScopes(GOOGLE_EMAIL);
+	// AuthRequest req = new AuthRequest(AUTH_URL, CLIENT_ID).withScopes(GOOGLE_EMAIL);
 	AuthRequest req = new AuthRequest(AUTH_URL, CLIENT_ID).withScopes(SCOPE1);
 
-	Callback<String, Throwable> callback;
+	Callback<Tuple<String, OAuthAuthorities>, Throwable> callback;
 
-	public TwitterAuthenticator(Callback<String, Throwable> callback) {
+	public TwitterAuthenticator(
+			Callback<Tuple<String, OAuthAuthorities>, Throwable> callback) {
 		this.callback = callback;
 	}
 
@@ -27,7 +28,23 @@ public class TwitterAuthenticator implements IAuthenticator {
 		Auth auth = Auth.get();
 		// auth.setOAuthWindowUrl("http://localhost:8888/NewRentalSystem.html?gwt.codesvr=127.0.0.1:9997");
 		if (this.callback != null) {
-			auth.get().login(req, this.callback);
+			Callback<String, Throwable> simpleCallback = new Callback<String, Throwable>() {
+
+				@Override
+				public void onSuccess(String result) {
+					TwitterAuthenticator.this.callback
+							.onSuccess(new Tuple<String, OAuthAuthorities>(result,
+									OAuthAuthorities.twitter));
+
+				}
+
+				@Override
+				public void onFailure(Throwable reason) {
+					TwitterAuthenticator.this.callback.onFailure(reason);
+
+				}
+			};
+			auth.get().login(req, simpleCallback);
 		}
 
 	}
