@@ -45,6 +45,7 @@ public class NewRentalSystem implements EntryPoint {
 	IClientServiceAsync service = (IClientServiceAsync) GWT.create(IClientService.class);
 	ServiceDefTarget serviceDef = (ServiceDefTarget) service;
 	String addr = GWT.getModuleBaseURL() + "rentalService";
+	RentalSession currentSession;
 
 	MainPageBinder mainPageBinder;
 	LoginPageBinder loginPageBinder;
@@ -110,6 +111,7 @@ public class NewRentalSystem implements EntryPoint {
 
 				@Override
 				public void onSuccess(RentalSession result) {
+					NewRentalSystem.this.currentSession = result;
 					if (result.getIsValid()) {
 						loadMainPage();
 					} else {
@@ -143,15 +145,16 @@ public class NewRentalSystem implements EntryPoint {
 	};
 
 	public final IAction logoutAction = new IAction() {
-		
+
 		@Override
 		public void execute() {
-			
+
 			// Log out from the RentalServer
 			AsyncCallback<Boolean> logOutCallback = new AsyncCallback<Boolean>() {
 
 				@Override
 				public void onSuccess(Boolean result) {
+					NewRentalSystem.this.currentSession = null;
 					if (result) {
 						Info.display("Success", "You are logged out from the server.");
 					} else {
@@ -162,7 +165,8 @@ public class NewRentalSystem implements EntryPoint {
 
 				@Override
 				public void onFailure(Throwable caught) {
-					Info.display("Network error!", "Server session is unknown.");
+					NewRentalSystem.this.currentSession = null;
+					// Info.display("Network error!", "Server session is unknown.");
 
 				}
 			};
@@ -227,7 +231,8 @@ public class NewRentalSystem implements EntryPoint {
 		RootPanel.get().add(mainPageBinder);
 	}
 
-	public void rentDevicesToExistingRenter(String renterMatrNr,
+	public void rentDevicesToExistingRenter(
+			final AsyncCallback<Boolean> rentDevicesResultCallback, String renterMatrNr,
 			String[] deviceImeiCodes, Date estimatedReturnDate, String comments,
 			String signatureHTML) {
 
@@ -240,19 +245,24 @@ public class NewRentalSystem implements EntryPoint {
 				fetchAvailableDevices();
 				fetchUnavailableDevices();
 				fetchAllRenters();
+				rentDevicesResultCallback.onSuccess(result);
 			}
 
 			@Override
 			public void onFailure(Throwable caught) {
-				// TODO Auto-generated method stub
+				rentDevicesResultCallback.onFailure(caught);
 
 			}
 		};
-		service.rentDevicesTo(renterMatrNr, deviceImeiCodes, estimatedReturnDate,
-				comments, signatureHTML, rentDevicesCallback);
+		if (this.currentSession != null)
+			service.rentDevicesTo(currentSession.getSessionIdHash(), renterMatrNr,
+					deviceImeiCodes, estimatedReturnDate, comments, signatureHTML,
+					rentDevicesCallback);
 	}
 
-	public void rentDevicesToNewRenter(SerializableRenter sr, final String renterMatrNr,
+	public void rentDevicesToNewRenter(
+			final AsyncCallback<Boolean> rentDevicesResultCallback,
+			final SerializableRenter sr, final String renterMatrNr,
 			final String[] deviceImeiCodes, final Date estimatedReturnDate,
 			final String comments, final String signatureHTML) {
 
@@ -260,23 +270,23 @@ public class NewRentalSystem implements EntryPoint {
 
 			@Override
 			public void onSuccess(Boolean result) {
-				rentDevicesToExistingRenter(renterMatrNr, deviceImeiCodes,
-						estimatedReturnDate, comments, signatureHTML);
+				rentDevicesToExistingRenter(rentDevicesResultCallback, renterMatrNr,
+						deviceImeiCodes, estimatedReturnDate, comments, signatureHTML);
 			}
 
 			@Override
 			public void onFailure(Throwable caught) {
-				// TODO Auto-generated method stub
-
+				Info.display("Network error!", sr.getName() + " status is unknown!");
 			}
 		};
 
-		service.addRenter(sr, addNewRenterCallback);
+		if (this.currentSession != null)
+			service.addRenter(currentSession.getSessionIdHash(), sr, addNewRenterCallback);
 
 	}
 
-	public void returnDevices(String renterMatrNr, String[] imeiCodes, String comments,
-			String signatureHTML) {
+	public void returnDevices(final AsyncCallback<Boolean> returnDevicesResultBCallback,
+			String renterMatrNr, String[] imeiCodes, String comments, String signatureHTML) {
 		AsyncCallback<Boolean> returnDevicesCallback = new AsyncCallback<Boolean>() {
 
 			@Override
@@ -285,17 +295,19 @@ public class NewRentalSystem implements EntryPoint {
 				fetchAvailableDevices();
 				fetchUnavailableDevices();
 				fetchAllRenters();
+				returnDevicesResultBCallback.onSuccess(result);
 
 			}
 
 			@Override
 			public void onFailure(Throwable caught) {
-				// TODO Auto-generated method stub
+				returnDevicesResultBCallback.onFailure(caught);
 
 			}
 		};
-		service.returnDevices(renterMatrNr, imeiCodes, comments, signatureHTML,
-				returnDevicesCallback);
+		if (this.currentSession != null)
+			service.returnDevices(currentSession.getSessionIdHash(), renterMatrNr,
+					imeiCodes, comments, signatureHTML, returnDevicesCallback);
 	}
 
 	private void fetchData() {
@@ -323,7 +335,8 @@ public class NewRentalSystem implements EntryPoint {
 
 			}
 		};
-		service.getAllDevices(callback);
+		if (this.currentSession != null)
+			service.getAllDevices(currentSession.getSessionIdHash(), callback);
 	}
 
 	protected void updateAllDevices(ArrayList<PersistentDevice> result) {
@@ -358,7 +371,8 @@ public class NewRentalSystem implements EntryPoint {
 
 			}
 		};
-		service.getAllRenters(callback);
+		if (this.currentSession != null)
+			service.getAllRenters(currentSession.getSessionIdHash(), callback);
 	}
 
 	protected void updateAllRenters(ArrayList<SerializableRenter> result) {
@@ -389,8 +403,9 @@ public class NewRentalSystem implements EntryPoint {
 
 			}
 		};
-		service.getEvents(personName, IMEI, from, to, maxResultSize,
-				reverseChronologicalOrder, callback);
+		if (this.currentSession != null)
+			service.getEvents(currentSession.getSessionIdHash(), personName, IMEI, from,
+					to, maxResultSize, reverseChronologicalOrder, callback);
 	}
 
 	protected void updateEventsHistoryFiltered(ArrayList<PersistentEvent> result) {
@@ -418,7 +433,9 @@ public class NewRentalSystem implements EntryPoint {
 
 			}
 		};
-		service.getEvents(null, null, null, null, Integer.MAX_VALUE, true, callback);
+		if (this.currentSession != null)
+			service.getEvents(currentSession.getSessionIdHash(), null, null, null, null,
+					Integer.MAX_VALUE, true, callback);
 
 	}
 
@@ -482,7 +499,8 @@ public class NewRentalSystem implements EntryPoint {
 
 			}
 		};
-		service.getRentedDevices(callback);
+		if (this.currentSession != null)
+			service.getRentedDevices(currentSession.getSessionIdHash(), callback);
 
 	}
 
@@ -527,7 +545,8 @@ public class NewRentalSystem implements EntryPoint {
 
 			}
 		};
-		service.getAvailableDevices(callback);
+		if (this.currentSession != null)
+			service.getAvailableDevices(currentSession.getSessionIdHash(), callback);
 
 	}
 
@@ -582,8 +601,8 @@ public class NewRentalSystem implements EntryPoint {
 
 			}
 		};
-
-		service.addNewDevice(pd, callback);
+		if (this.currentSession != null)
+			service.addNewDevice(currentSession.getSessionIdHash(), pd, callback);
 
 	}
 
@@ -603,7 +622,8 @@ public class NewRentalSystem implements EntryPoint {
 				getPDcallback.onFailure(caught);
 			}
 		};
-		service.getDeviceByImei(imei, callback);
+		if (this.currentSession != null)
+			service.getDeviceByImei(currentSession.getSessionIdHash(), imei, callback);
 	}
 
 	public void updateExistingDevice(PersistentDevice currentlyDIsplayedPD,
@@ -623,8 +643,9 @@ public class NewRentalSystem implements EntryPoint {
 
 			}
 		};
-
-		service.updateDeviceInfo(currentlyDIsplayedPD, callback);
+		if (this.currentSession != null)
+			service.updateDeviceInfo(currentSession.getSessionIdHash(),
+					currentlyDIsplayedPD, callback);
 	}
 
 	public void deleteDevice(PersistentDevice currentlyDIsplayedPD,
@@ -649,8 +670,9 @@ public class NewRentalSystem implements EntryPoint {
 
 			}
 		};
-
-		service.deleteDevice(currentlyDIsplayedPD, callback);
+		if (this.currentSession != null)
+			service.deleteDevice(currentSession.getSessionIdHash(), currentlyDIsplayedPD,
+					callback);
 	}
 
 	public void addNewStudent(SerializableRenter sr,
@@ -671,8 +693,8 @@ public class NewRentalSystem implements EntryPoint {
 				addStudentCallback.onFailure(caught);
 			}
 		};
-
-		service.addRenter(sr, callback);
+		if (this.currentSession != null)
+			service.addRenter(currentSession.getSessionIdHash(), sr, callback);
 	}
 
 	public void getSerializableRenterByMatric(
@@ -695,8 +717,9 @@ public class NewRentalSystem implements EntryPoint {
 				displaySerializableRenterDetailsCallback.onFailure(caught);
 			}
 		};
-
-		service.getRenter(matriculation, getSerializableRenterCallback);
+		if (this.currentSession != null)
+			service.getRenter(currentSession.getSessionIdHash(), matriculation,
+					getSerializableRenterCallback);
 	}
 
 	public void updateExistingRenter(String matriculationNumber, SerializableRenter sr,
@@ -718,8 +741,9 @@ public class NewRentalSystem implements EntryPoint {
 				updateStudentInfocallback.onFailure(caught);
 			}
 		};
-
-		service.updateRenter(matriculationNumber, sr, updateRenterCallback);
+		if (this.currentSession != null)
+			service.updateRenter(currentSession.getSessionIdHash(), matriculationNumber,
+					sr, updateRenterCallback);
 	}
 
 }

@@ -6,6 +6,7 @@ import java.util.Date;
 public class RentalSession implements Serializable{
 
 	String sessionId = "";
+	int sessionIdHash = sessionId.hashCode();
 	Date sessionStart;
 	Boolean isValid;
 
@@ -28,6 +29,7 @@ public class RentalSession implements Serializable{
 		}
 
 		this.sessionId = sessionId;
+		this.sessionIdHash = this.sessionId.hashCode();
 		this.sessionStart = new Date();
 		this.isValid = true;
 	}
@@ -61,4 +63,10 @@ public class RentalSession implements Serializable{
 		return sessionStart;
 	}
 
+	/**
+	 * @return the sessionIdHash
+	 */
+	public int getSessionIdHash() {
+		return sessionIdHash;
+	}
 }

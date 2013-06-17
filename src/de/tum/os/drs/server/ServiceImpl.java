@@ -71,6 +71,26 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 		System.out.println("Servlet constructor done!");
 	}
 
+	@Override
+	public RentalSession login(String token, OAuthAuthorities authority) {
+		Boolean validToken = checkTokenValiditySync(token, authority);
+		this.currentSession = new RentalSession(UUID.randomUUID().toString());
+		if (validToken) {
+			this.currentSession.setIsValid(true);
+		} else {
+			this.currentSession.setIsValid(false);
+		}
+
+		return this.currentSession;
+	}
+
+	@Override
+	public Boolean logout() {
+		if (this.currentSession != null)
+			this.currentSession.setIsValid(false);
+		return true;
+	}
+
 	private void createDummyData() {
 
 		EntityManager em = factory.createEntityManager();
@@ -96,7 +116,11 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 	 */
 
 	@Override
-	public ArrayList<PersistentDevice> getAllDevices() {
+	public ArrayList<PersistentDevice> getAllDevices(int sessionIdHash) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+			return null;
+		}
+
 		EntityManager em = factory.createEntityManager();
 		Query q = em.createQuery("select p from PersistentDevice p");
 		ArrayList<PersistentDevice> pds = new ArrayList<PersistentDevice>(
@@ -110,7 +134,11 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 	}
 
 	@Override
-	public PersistentDevice getDeviceByImei(String imei) {
+	public PersistentDevice getDeviceByImei(int sessionIdHash, String imei) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+			return null;
+		}
+
 		EntityManager em = factory.createEntityManager();
 		Query q = em.createQuery("select p from PersistentDevice p where p.IMEI = :imei");
 		q.setParameter("imei", imei);
@@ -120,7 +148,11 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 	}
 
 	@Override
-	public ArrayList<PersistentDevice> getDevicesbyImei(String[] imeiCodes) {
+	public ArrayList<PersistentDevice> getDevicesbyImei(int sessionIdHash,
+			String[] imeiCodes) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+			return null;
+		}
 
 		EntityManager em = factory.createEntityManager();
 		Query q = em
@@ -132,7 +164,11 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 	}
 
 	@Override
-	public ArrayList<PersistentDevice> getAvailableDevices() {
+	public ArrayList<PersistentDevice> getAvailableDevices(int sessionIdHash) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+			return null;
+		}
+
 		EntityManager em = factory.createEntityManager();
 		Query q = em
 				.createQuery("select p from PersistentDevice p where p.isAvailable = true");
@@ -147,7 +183,11 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 	}
 
 	@Override
-	public ArrayList<PersistentDevice> getRentedDevices() {
+	public ArrayList<PersistentDevice> getRentedDevices(int sessionIdHash) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+			return null;
+		}
+
 		EntityManager em = factory.createEntityManager();
 		Query q = em
 				.createQuery("select p from PersistentDevice p where p.isAvailable = false");
@@ -162,7 +202,11 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 	}
 
 	@Override
-	public Boolean addNewDevice(PersistentDevice device) {
+	public Boolean addNewDevice(int sessionIdHash, PersistentDevice device) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+			return null;
+		}
+
 		EntityManager em = factory.createEntityManager();
 
 		try {
@@ -183,7 +227,11 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 	}
 
 	@Override
-	public Boolean updateDeviceInfo(PersistentDevice device) {
+	public Boolean updateDeviceInfo(int sessionIdHash, PersistentDevice device) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+			return null;
+		}
+
 		EntityManager em = factory.createEntityManager();
 
 		try {
@@ -204,12 +252,15 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 	}
 
 	@Override
-	public Boolean deleteDevice(PersistentDevice device) {
-		return deleteDevice(device.getIMEI());
+	public Boolean deleteDevice(int sessionIdHash, PersistentDevice device) {
+		return deleteDevice(sessionIdHash, device.getIMEI());
 	}
 
 	@Override
-	public Boolean deleteDevice(String imei) {
+	public Boolean deleteDevice(int sessionIdHash, String imei) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+			return null;
+		}
 
 		EntityManager em = factory.createEntityManager();
 
@@ -236,7 +287,11 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 	}
 
 	@Override
-	public Boolean addRenter(SerializableRenter renter) {
+	public Boolean addRenter(int sessionIdHash, SerializableRenter renter) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+			return null;
+		}
+
 		EntityManager em = factory.createEntityManager();
 		PersistentRenter pr = pRenterFromSrenter(renter);
 		try {
@@ -258,7 +313,11 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 	}
 
 	@Override
-	public SerializableRenter getRenter(String mattriculationNumber) {
+	public SerializableRenter getRenter(int sessionIdHash, String mattriculationNumber) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+			return null;
+		}
+
 		EntityManager em = factory.createEntityManager();
 		Query q = em
 				.createQuery("select p from PersistentRenter p where p.matriculationNumber = :matrNr");
@@ -272,7 +331,11 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 	}
 
 	@Override
-	public ArrayList<SerializableRenter> getAllRenters() {
+	public ArrayList<SerializableRenter> getAllRenters(int sessionIdHash) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+			return null;
+		}
+
 		EntityManager em = factory.createEntityManager();
 		Query q = em.createQuery("select p from PersistentRenter p");
 		ArrayList<PersistentRenter> prs = new ArrayList<PersistentRenter>(
@@ -288,7 +351,11 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 	}
 
 	@Override
-	public Boolean deleteRenter(SerializableRenter renter) {
+	public Boolean deleteRenter(int sessionIdHash, SerializableRenter renter) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+			return null;
+		}
+
 		EntityManager em = factory.createEntityManager();
 
 		try {
@@ -314,7 +381,11 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 	}
 
 	@Override
-	public Boolean deleteRenter(String matriculationNumber) {
+	public Boolean deleteRenter(int sessionIdHash, String matriculationNumber) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+			return null;
+		}
+
 		EntityManager em = factory.createEntityManager();
 
 		try {
@@ -339,7 +410,12 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 	}
 
 	@Override
-	public Boolean updateRenter(String matriculationNumber, SerializableRenter renter) {
+	public Boolean updateRenter(int sessionIdHash, String matriculationNumber,
+			SerializableRenter renter) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+			return null;
+		}
+
 		EntityManager em = factory.createEntityManager();
 
 		try {
@@ -368,7 +444,11 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 	}
 
 	@Override
-	public ArrayList<PersistentDevice> getDevicesRentedBy(String renterMatriculationNumber) {
+	public ArrayList<PersistentDevice> getDevicesRentedBy(int sessionIdHash,
+			String renterMatriculationNumber) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+			return null;
+		}
 
 		EntityManager em = factory.createEntityManager();
 
@@ -391,8 +471,13 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 	}
 
 	@Override
-	public Boolean rentDeviceTo(String renterMatrNr, String deviceImeiCode,
-			Date estimatedReturnDate, String comments, String signatureHTML) {
+	public Boolean rentDeviceTo(int sessionIdHash, String renterMatrNr,
+			String deviceImeiCode, Date estimatedReturnDate, String comments,
+			String signatureHTML) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+			return null;
+		}
+
 		EntityManager em = factory.createEntityManager();
 		try {
 			// Add device to list of rented devices
@@ -422,8 +507,13 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 	}
 
 	@Override
-	public boolean rentDevicesTo(String renterMatrNr, String[] imeiCodes,
-			Date estimatedReturnDate, String comments, String signatureHTML) {
+	public boolean rentDevicesTo(int sessionIdHash, String renterMatrNr,
+			String[] imeiCodes, Date estimatedReturnDate, String comments,
+			String signatureHTML) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+			return false;
+		}
+
 		EntityManager em = factory.createEntityManager();
 		try {
 			// Add devices to list of rented devices.
@@ -458,8 +548,12 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 	}
 
 	@Override
-	public Boolean returnDevice(String renterMatrNr, String deviceImeiCode,
-			String comments, String signatureHTML) {
+	public Boolean returnDevice(int sessionIdHash, String renterMatrNr,
+			String deviceImeiCode, String comments, String signatureHTML) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+			return null;
+		}
+
 		EntityManager em = factory.createEntityManager();
 		try {
 			// Delete returned device from list of rented devices.
@@ -488,8 +582,12 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 	}
 
 	@Override
-	public Boolean returnDevices(String renterMatrNr, String[] imeiCodes,
-			String comments, String signatureHTML) {
+	public Boolean returnDevices(int sessionIdHash, String renterMatrNr,
+			String[] imeiCodes, String comments, String signatureHTML) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+			return null;
+		}
+
 		EntityManager em = factory.createEntityManager();
 		try {
 			// Delete returned devices from list of rented devices.
@@ -523,8 +621,12 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 	}
 
 	@Override
-	public ArrayList<PersistentEvent> getEvents(String personName, String IMEI,
-			Date from, Date to, Integer maxResultSize, Boolean reverseChronologicalOrder) {
+	public ArrayList<PersistentEvent> getEvents(int sessionIdHash, String personName,
+			String IMEI, Date from, Date to, Integer maxResultSize,
+			Boolean reverseChronologicalOrder) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+			return null;
+		}
 
 		EntityManager em = factory.createEntityManager();
 
@@ -671,19 +773,6 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 		pr.setRentedDevices(sr.getRentedDevices());
 	}
 
-	@Override
-	public RentalSession login(String token, OAuthAuthorities authority) {
-		Boolean validToken = checkTokenValiditySync(token, authority);
-		this.currentSession = new RentalSession(UUID.randomUUID().toString());
-		if (validToken) {
-			this.currentSession.setIsValid(true);
-		} else {
-			this.currentSession.setIsValid(false);
-		}
-
-		return this.currentSession;
-	}
-
 	private Boolean checkTokenValiditySync(String token, OAuthAuthorities authority) {
 
 		if (token != null && !token.isEmpty()) {
@@ -803,12 +892,4 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 		}
 
 	}
-
-	@Override
-	public Boolean logout() {
-		if (this.currentSession != null)
-			this.currentSession.setIsValid(false);
-		return true;
-	}
-
 }

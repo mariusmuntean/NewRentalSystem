@@ -31,7 +31,7 @@ public interface IClientService extends RemoteService {
 	 * 
 	 * @return - A list of all devices.
 	 */
-	ArrayList<PersistentDevice> getAllDevices();
+	ArrayList<PersistentDevice> getAllDevices(int sessionIdHash);
 
 	/**
 	 * 
@@ -39,21 +39,21 @@ public interface IClientService extends RemoteService {
 	 *            - IMEI code of the device to be returned.
 	 * @return - Returns a device which matches the provided IMEI code.
 	 */
-	PersistentDevice getDeviceByImei(String imei);
+	PersistentDevice getDeviceByImei(int sessionIdHash, String imei);
 
-	ArrayList<PersistentDevice> getDevicesbyImei(String[] imeiCodes);
+	ArrayList<PersistentDevice> getDevicesbyImei(int sessionIdHash, String[] imeiCodes);
 
 	/**
 	 * 
 	 * @return - Returns a list of all device which are not currently rented.
 	 */
-	ArrayList<PersistentDevice> getAvailableDevices();
+	ArrayList<PersistentDevice> getAvailableDevices(int sessionIdHash);
 
 	/**
 	 * 
 	 * @return - Returns a list of all device which are currently rented.
 	 */
-	ArrayList<PersistentDevice> getRentedDevices();
+	ArrayList<PersistentDevice> getRentedDevices(int sessionIdHash);
 
 	/**
 	 * Adds a new device to the system.
@@ -61,7 +61,7 @@ public interface IClientService extends RemoteService {
 	 * @param device
 	 *            - Device object containing all relevant data for new device.
 	 */
-	Boolean addNewDevice(PersistentDevice device);
+	Boolean addNewDevice(int sessionIdHash, PersistentDevice device);
 
 	/**
 	 * Updates information about an existing devices.
@@ -69,7 +69,7 @@ public interface IClientService extends RemoteService {
 	 * @param device
 	 *            - Device object containing updated data.
 	 */
-	Boolean updateDeviceInfo(PersistentDevice device);
+	Boolean updateDeviceInfo(int sessionIdHash, PersistentDevice device);
 
 	/**
 	 * Removes a device.
@@ -77,7 +77,7 @@ public interface IClientService extends RemoteService {
 	 * @param device
 	 *            - Device to be removed.
 	 */
-	Boolean deleteDevice(PersistentDevice device);
+	Boolean deleteDevice(int sessionIdHash, PersistentDevice device);
 
 	/**
 	 * Removes a device.
@@ -85,7 +85,7 @@ public interface IClientService extends RemoteService {
 	 * @param imei
 	 *            - IMEI code of the device to be removed.
 	 */
-	Boolean deleteDevice(String imei);
+	Boolean deleteDevice(int sessionIdHash, String imei);
 
 	/**
 	 * Adds a new renter to the DB.
@@ -94,7 +94,7 @@ public interface IClientService extends RemoteService {
 	 *            - the SerializableRenter obj to be added.
 	 * @return - true if successfully added, false otherwise.
 	 */
-	Boolean addRenter(SerializableRenter renter);
+	Boolean addRenter(int sessionIdHash, SerializableRenter renter);
 
 	/**
 	 * Returns a SerializableRenter object which has the given matriculation number.
@@ -103,13 +103,13 @@ public interface IClientService extends RemoteService {
 	 *            -
 	 * @return a SerializableRenter object.
 	 */
-	SerializableRenter getRenter(String mattriculationNumber);
+	SerializableRenter getRenter(int sessionIdHash, String mattriculationNumber);
 
 	/**
 	 * 
 	 * @return - A list of all renters.
 	 */
-	ArrayList<SerializableRenter> getAllRenters();
+	ArrayList<SerializableRenter> getAllRenters(int sessionIdHash);
 
 	/**
 	 * Deletes the given SerializableRenter object from the storage.
@@ -118,7 +118,7 @@ public interface IClientService extends RemoteService {
 	 *            - SerializableRenter object to be deleted.
 	 * @return
 	 */
-	Boolean deleteRenter(SerializableRenter renter);
+	Boolean deleteRenter(int sessionIdHash, SerializableRenter renter);
 
 	/**
 	 * Deletes a SerializableRenter identified by his matriculation number.
@@ -126,7 +126,7 @@ public interface IClientService extends RemoteService {
 	 * @param mattriculationNumber
 	 * @return
 	 */
-	Boolean deleteRenter(String mattriculationNumber);
+	Boolean deleteRenter(int sessionIdHash, String mattriculationNumber);
 
 	/**
 	 * Updates information on some renter.
@@ -137,9 +137,9 @@ public interface IClientService extends RemoteService {
 	 *            - A SerializableRenter object holding the updated info(including a new matriculation number if needed).
 	 * @return
 	 */
-	Boolean updateRenter(String matriculationNumber, SerializableRenter renter);
+	Boolean updateRenter(int sessionIdHash, String matriculationNumber, SerializableRenter renter);
 
-	ArrayList<PersistentDevice> getDevicesRentedBy(String renterMatriculationNumber);
+	ArrayList<PersistentDevice> getDevicesRentedBy(int sessionIdHash, String renterMatriculationNumber);
 
 	/**
 	 * Add a new device to the list of someone's rented devices.
@@ -150,10 +150,10 @@ public interface IClientService extends RemoteService {
 	 *            - IMEI code of rented device.
 	 * @return
 	 */
-	Boolean rentDeviceTo(String renterMatrNr, String deviceImeiCode,
+	Boolean rentDeviceTo(int sessionIdHash, String renterMatrNr, String deviceImeiCode,
 			Date estimatedReturnDate, String comments, String signatureHTML);
 
-	boolean rentDevicesTo(String renterMatrNr, String[] imeiCodes,
+	boolean rentDevicesTo(int sessionIdHash, String renterMatrNr, String[] imeiCodes,
 			Date estimatedReturnDate, String comments, String signatureHTML);
 
 	/**
@@ -165,7 +165,7 @@ public interface IClientService extends RemoteService {
 	 *            - IMEI code of returned device.
 	 * @return
 	 */
-	Boolean returnDevice(String renterMatrNr, String deviceImeiCode, String comments,
+	Boolean returnDevice(int sessionIdHash, String renterMatrNr, String deviceImeiCode, String comments,
 			String signatureHTML);
 
 	/**
@@ -177,7 +177,7 @@ public interface IClientService extends RemoteService {
 	 *            - IMEI codes of returned devices.
 	 * @return
 	 */
-	Boolean returnDevices(String renterMatrNr, String[] imeiCodes, String comments,
+	Boolean returnDevices(int sessionIdHash, String renterMatrNr, String[] imeiCodes, String comments,
 			String signatureHTML);
 
 	/**
@@ -197,6 +197,6 @@ public interface IClientService extends RemoteService {
 	 *            - Determines if the events should be returned in the order they happened(by default) or in reverse order.
 	 * @return - A List of events.
 	 */
-	ArrayList<PersistentEvent> getEvents(String personName, String IMEI, Date from,
+	ArrayList<PersistentEvent> getEvents(int sessionIdHash, String personName, String IMEI, Date from,
 			Date to, Integer maxResultSize, Boolean reverseChronologicalOrder);
 }

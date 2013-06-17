@@ -1763,7 +1763,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 
 		// Collect data
 		Iterator<PersistentDevice> selectedDevicesIt = selectedDevices.iterator();
-		String[] selectedImeiCodes = new String[selectedDevices.size()];
+		final String[] selectedImeiCodes = new String[selectedDevices.size()];
 		int index = -1;
 		while (selectedDevicesIt.hasNext()) {
 			index++;
@@ -1772,8 +1772,28 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		String comments = txtAreaReturnComments.getText();
 		String signature = canvasReturnSignature.toString();
 
+		// Create return result callback
+		AsyncCallback<Boolean> returnResultCallback = new AsyncCallback<Boolean>() {
+
+			@Override
+			public void onSuccess(Boolean result) {
+				if (result) {
+					Info.display("Success!", "Returned " + selectedImeiCodes.length
+							+ " devices!");
+				} else {
+					Info.display("Server error!", "Could not return devices.");
+				}
+
+			}
+
+			@Override
+			public void onFailure(Throwable caught) {
+				Info.display("Network error", "Device status unknown!");
+
+			}
+		};
 		// Submit
-		client.returnDevices(selectedRenter.getMatriculationNumber(), selectedImeiCodes,
+		client.returnDevices(returnResultCallback, selectedRenter.getMatriculationNumber(), selectedImeiCodes,
 				comments, signature);
 
 		// Clear Return page
@@ -1838,13 +1858,32 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		/*
 		 * Either add the selected devices to an existing Renter's list or create a new renter and add the devices to his list.
 		 */
+		// Create a callback to report on success/failure
+		AsyncCallback<Boolean> rentDevicesCallback = new AsyncCallback<Boolean>() {
+
+			@Override
+			public void onSuccess(Boolean result) {
+				if (result) {
+					Info.display("Success!", "Rented " + selectedDevicesImeis.length
+							+ " device(s)!");
+				} else {
+					Info.display("Server!", "Could not rent devices!");
+				}
+			}
+
+			@Override
+			public void onFailure(Throwable caught) {
+				Info.display("Network error!", "Devices inunknown state!");
+
+			}
+		};
 		Date estimatedReturnDate = datePickerRentEstimatedRD.getValue();
 		if (sr == null && renterMatr != null && !renterMatr.isEmpty()) {
 			// Add devices to a registered student
 			String rentEventComments = txtAreaRentComments.getText() != null ? txtAreaRentComments
 					.getText() : " ";
-			this.client.rentDevicesToExistingRenter(renterMatr, selectedDevicesImeis,
-					estimatedReturnDate, rentEventComments,
+			this.client.rentDevicesToExistingRenter(rentDevicesCallback, renterMatr,
+					selectedDevicesImeis, estimatedReturnDate, rentEventComments,
 					canvasRentSignature.toString());
 
 		} else {
@@ -1852,8 +1891,9 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 					.getText() : " ";
 			if (sr != null) {
 				// Add new renter and add to his rented devices list.
-				client.rentDevicesToNewRenter(sr, sr.getMatriculationNumber(),
-						selectedDevicesImeis, estimatedReturnDate, rentEventComments,
+				client.rentDevicesToNewRenter(rentDevicesCallback, sr,
+						sr.getMatriculationNumber(), selectedDevicesImeis,
+						estimatedReturnDate, rentEventComments,
 						canvasRentSignature.toString());
 			}
 		}
