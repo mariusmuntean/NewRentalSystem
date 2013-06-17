@@ -7,7 +7,9 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiConstructor;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
@@ -20,11 +22,13 @@ import com.google.gwt.user.client.ui.Widget;
 import de.tum.os.drs.client.helpers.CookieHelper;
 import de.tum.os.drs.client.helpers.OAuthApiHelper;
 import de.tum.os.drs.client.helpers.OAuthParser;
+import de.tum.os.drs.client.model.IAction;
 import de.tum.os.drs.client.model.OAuthAuthorities;
 
 public class UserWidget extends Composite {
 
 	private static UserWidgetUiBinder uiBinder = GWT.create(UserWidgetUiBinder.class);
+	private IAction logoutAction;
 
 	@UiField
 	Label lblUsername;
@@ -44,7 +48,9 @@ public class UserWidget extends Composite {
 	interface UserWidgetUiBinder extends UiBinder<Widget, UserWidget> {
 	}
 
-	public UserWidget() {
+	public UserWidget(IAction logoutAction) {
+		this.logoutAction = logoutAction;
+		
 		initWidget(uiBinder.createAndBindUi(this));
 
 		lblUsername.setText(CookieHelper.getAuthenticatedUsername());
@@ -72,15 +78,18 @@ public class UserWidget extends Composite {
 
 		// Append token
 		url += token;
-		RequestBuilder rb = new RequestBuilder(RequestBuilder.GET, url);
+		RequestBuilder rb;
+		rb = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
+
 		try {
 			// Check token validity
+			// rb.setHeader("Content-Type", "application/json"); // Windows live doesn't want a content-type header at all
 			Request req = rb.sendRequest(null, new RequestCallback() {
 
 				@Override
 				public void onResponseReceived(Request request, Response response) {
 					// Window.alert("Response: " + response.getText());
-					System.out.println("Response: " + response.getText());
+					// System.out.println("Response: " + response.getText());
 					String jsonString = response.getText();
 					if (OAuthParser.hasError(jsonString)) {
 						// Maybe redirect to first page?
@@ -127,14 +136,19 @@ public class UserWidget extends Composite {
 
 	@UiHandler("btnLogout")
 	void onBtnLogoutClick(ClickEvent event) {
-		CookieHelper.resetAuthToken();
-		CookieHelper.resetOAuthAuthority();
-		CookieHelper.resetAuthenticatedUsername();
-		CookieHelper.resetAuthenticatedUserID();
-
-		Auth.get().clearAllTokens();
-
-		Window.Location.reload();
+		if(this.logoutAction!=null){
+			this.logoutAction.execute();
+		}
+		
+//		CookieHelper.resetAuthenticatedUserEmail();
+//		CookieHelper.resetAuthToken();
+//		CookieHelper.resetOAuthAuthority();
+//		CookieHelper.resetAuthenticatedUsername();
+//		CookieHelper.resetAuthenticatedUserID();
+//
+//		Auth.get().clearAllTokens();
+//
+//		Window.Location.reload();
 		// String redirectUrl = Window.Location.getHref();
 
 		// Window.Location

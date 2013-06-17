@@ -56,7 +56,9 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 		{
 			add("100005386531690");
 			add("1251677124");
-			add("112327375720464453708");
+			add("114987213862005858495"); // Nils T. Google ID
+			add("112327375720464453708"); // Marius Google ID
+			add("53493968ff2c2533"); // Marius Live ID
 		}
 	};
 

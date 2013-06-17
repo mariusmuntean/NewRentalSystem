@@ -15,6 +15,8 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
+import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -22,6 +24,7 @@ import com.google.gwt.view.client.ListDataProvider;
 import de.tum.os.drs.client.helpers.CookieHelper;
 import de.tum.os.drs.client.model.DisplayableDevice;
 import de.tum.os.drs.client.model.DisplayableRenter;
+import de.tum.os.drs.client.model.IAction;
 import de.tum.os.drs.client.model.OAuthAuthorities;
 import de.tum.os.drs.client.model.PersistentDevice;
 import de.tum.os.drs.client.model.PersistentEvent;
@@ -90,7 +93,12 @@ public class NewRentalSystem implements EntryPoint {
 			String token = result.x;
 			OAuthAuthorities authority = result.y;
 
-			System.out.println(authority.toString() + " Token: " + token);
+			// System.out.println(authority.toString() + " Token: " + token);
+			// Window.alert(authority.toString() + " Token: " + token);
+			// DialogBox db = new DialogBox();
+			// db.add(new Label(token));
+			// db.center();
+			// db.show();
 
 			CookieHelper.resetOAuthAuthority();
 			CookieHelper.resetAuthToken();
@@ -134,68 +142,45 @@ public class NewRentalSystem implements EntryPoint {
 		}
 	};
 
-	Callback<String, Throwable> facebookCallback = new Callback<String, Throwable>() {
+	public final IAction logoutAction = new IAction() {
+		
 		@Override
-		public void onSuccess(String token) {
+		public void execute() {
+			
+			// Log out from the RentalServer
+			AsyncCallback<Boolean> logOutCallback = new AsyncCallback<Boolean>() {
 
-			System.out.println("Facebook Token: " + token);
-			CookieHelper.resetOAuthAuthority();
+				@Override
+				public void onSuccess(Boolean result) {
+					if (result) {
+						Info.display("Success", "You are logged out from the server.");
+					} else {
+						Info.display("Server error",
+								"You weren't logged out from the server.");
+					}
+				}
+
+				@Override
+				public void onFailure(Throwable caught) {
+					Info.display("Network error!", "Server session is unknown.");
+
+				}
+			};
+			if (service != null) {
+				service.logout(logOutCallback);
+			}
+
+			// Delete local state
+			CookieHelper.resetAuthenticatedUserEmail();
 			CookieHelper.resetAuthToken();
-
-			CookieHelper.setAuthCookie(OAuthAuthorities.facebook, token);
-
-			// Window.alert("Token: "+token);
-			loadMainPage();
-		}
-
-		@Override
-		public void onFailure(Throwable caught) {
-			// The authentication process failed for some reason, see caught.getMessage()
-			Window.alert("error: " + caught.getMessage());
-		}
-	};
-
-	Callback<String, Throwable> googleCallback = new Callback<String, Throwable>() {
-		@Override
-		public void onSuccess(String token) {
-
-			System.out.println("Google Token: " + token);
-
 			CookieHelper.resetOAuthAuthority();
-			CookieHelper.resetAuthToken();
+			CookieHelper.resetAuthenticatedUsername();
+			CookieHelper.resetAuthenticatedUserID();
+			Auth.get().clearAllTokens();
 
-			CookieHelper.setAuthCookie(OAuthAuthorities.google, token);
+			// Return to login screen
+			Window.Location.reload();
 
-			// Window.alert("Token: "+token);
-			loadMainPage();
-		}
-
-		@Override
-		public void onFailure(Throwable caught) {
-			// The authentication process failed for some reason, see caught.getMessage()
-			Window.alert("error: " + caught.getMessage());
-		}
-	};
-
-	Callback<String, Throwable> twitterCallback = new Callback<String, Throwable>() {
-		@Override
-		public void onSuccess(String token) {
-
-			System.out.println("Twitter Token: " + token);
-
-			CookieHelper.resetOAuthAuthority();
-			CookieHelper.resetAuthToken();
-
-			CookieHelper.setAuthCookie(OAuthAuthorities.twitter, token);
-
-			// Window.alert("Token: "+token);
-			loadMainPage();
-		}
-
-		@Override
-		public void onFailure(Throwable caught) {
-			// The authentication process failed for some reason, see caught.getMessage()
-			Window.alert("error: " + caught.getMessage());
 		}
 	};
 
@@ -736,4 +721,5 @@ public class NewRentalSystem implements EntryPoint {
 
 		service.updateRenter(matriculationNumber, sr, updateRenterCallback);
 	}
+
 }

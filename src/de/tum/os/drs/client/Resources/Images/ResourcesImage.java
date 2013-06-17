@@ -34,4 +34,6 @@ public interface ResourcesImage extends ClientBundle {
 
 	ImageResource tumLogoSmall();
 
+	ImageResource liveLogo();
+
 }

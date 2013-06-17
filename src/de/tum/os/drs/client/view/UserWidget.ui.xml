@@ -17,14 +17,18 @@
 			font-size: 24px;
 			font-weight: bold;
 		}
+		
+		.decPanelStyle {
+			background-color: #c0c0c0;
+		}
 	</ui:style>
-	
-	<ui:with type="de.tum.os.drs.client.Resources.Images.ResourcesImage" field="imageResources"/>
-	<ui:image field="genericAvatar" 
-		src="../Resources/Images/generic.jpg"></ui:image>
+
+	<ui:with type="de.tum.os.drs.client.Resources.Images.ResourcesImage"
+		field="imageResources" />
+	<ui:image field="genericAvatar" src="../Resources/Images/generic.jpg"></ui:image>
 
 	<g:DecoratorPanel>
-		<g:VerticalPanel>
+		<g:VerticalPanel styleName="{style.decPanelStyle}">
 			<g:cell>
 				<g:VerticalPanel width="300px" height="auto">
 					<g:cell>

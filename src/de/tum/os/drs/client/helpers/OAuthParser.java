@@ -113,6 +113,8 @@ public class OAuthParser {
 					+ "/picture?type=large";
 			return userPictureUrl;
 		}
+		
+		
 
 		return userPictureUrl;
 

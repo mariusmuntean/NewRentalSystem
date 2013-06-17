@@ -117,6 +117,9 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	/*
 	 * UiFields region
 	 */
+	// Header region
+	@UiField(provided = true)
+	UserWidget userWidget;
 
 	// @UiField
 	// DockLayoutPanel docLayoutPanelMain;
@@ -480,6 +483,9 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	}
 
 	private void instantiateControls() {
+		// User widget
+		this.userWidget = new UserWidget(client.logoutAction);
+
 		// Overview page
 		this.tableHistoryOverview = getCellTableHistory(eventsHistoryDataProvider);
 		this.tableAvailableDevices = getDevicesTableFromDataprovider(

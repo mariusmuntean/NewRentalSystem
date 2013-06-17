@@ -87,7 +87,7 @@
 							</g:PushButton>
 						</g:Cell>
 						<g:Cell>
-							<g:PushButton ui:field="btnLoginTwitter">
+							<g:PushButton ui:field="btnLoginTwitter" enabled="false">
 								<g:upFace>
 									<table>
 										<tr>
@@ -98,6 +98,25 @@
 											<td>
 												<b>
 													Login with Twitter
+												</b>
+											</td>
+										</tr>
+									</table>
+								</g:upFace>
+							</g:PushButton>
+						</g:Cell>
+								<g:Cell>
+							<g:PushButton ui:field="btnLoginLive" enabled="false">
+								<g:upFace>
+									<table>
+										<tr>
+											<td>
+												<img src="{imageResources.liveLogo.getSafeUri}"
+													width="32" height="32" />
+											</td>
+											<td>
+												<b>
+													Login with Windows Live
 												</b>
 											</td>
 										</tr>

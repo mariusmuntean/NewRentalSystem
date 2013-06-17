@@ -9,12 +9,12 @@ public class TwitterAuthenticator implements IAuthenticator {
 	/*
 	 * OAuth2 stuff
 	 */
-	String AUTH_URL = "https://api.twitter.com/oauth/request_token";
+	String AUTH_URL = "https://api.twitter.com/oauth2/token";
 	String CLIENT_ID = "Tl3HC2nRf1Xda8NdzDJNaA";
 	String SCOPE1 = "caca";
 
 	// AuthRequest req = new AuthRequest(AUTH_URL, CLIENT_ID).withScopes(GOOGLE_EMAIL);
-	AuthRequest req = new AuthRequest(AUTH_URL, CLIENT_ID).withScopes(SCOPE1);
+	AuthRequest req = new AuthRequest(AUTH_URL, CLIENT_ID);
 
 	Callback<Tuple<String, OAuthAuthorities>, Throwable> callback;
 

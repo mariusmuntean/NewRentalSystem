@@ -82,7 +82,7 @@
 				</g:Cell>
 				<g:Cell horizontalAlignment="ALIGN_RIGHT">
 					<!-- <g:Image url="images/Tum_logo.gif" pixelSize="100, 100"></g:Image> -->
-					<view:UserWidget></view:UserWidget>
+					<view:UserWidget ui:field="userWidget"></view:UserWidget>
 				</g:Cell>
 			</g:HorizontalPanel>
 		</g:cell>

@@ -8,12 +8,14 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.Image;
@@ -28,6 +30,7 @@ import de.tum.os.drs.client.helpers.OAuthParser;
 import de.tum.os.drs.client.model.FacebookAuthenticator;
 import de.tum.os.drs.client.model.GoogleAuthenticator;
 import de.tum.os.drs.client.model.IAuthenticator;
+import de.tum.os.drs.client.model.LiveAuthenticator;
 import de.tum.os.drs.client.model.OAuthAuthorities;
 import de.tum.os.drs.client.model.Tuple;
 import de.tum.os.drs.client.model.TwitterAuthenticator;
@@ -40,6 +43,8 @@ public class LoginPageBinder extends Composite implements HasText {
 	PushButton btnLoginFacebook;
 	@UiField
 	PushButton btnLoginGoogle;
+	@UiField
+	PushButton btnLoginLive;
 	@UiField
 	PushButton btnLoginTwitter;
 	@UiField
@@ -55,7 +60,7 @@ public class LoginPageBinder extends Composite implements HasText {
 	interface LoginPageBinderUiBinder extends UiBinder<Widget, LoginPageBinder> {
 	}
 
-	IAuthenticator googleAuthenticator, facebookAuthenticator, twitterAuthenticator;
+	IAuthenticator googleAuthenticator, facebookAuthenticator, liveAuthenticator, twitterAuthenticator;
 
 	public LoginPageBinder(Callback<String, Throwable> facebookCallback,
 			Callback<String, Throwable> googleCallback,
@@ -88,6 +93,7 @@ public class LoginPageBinder extends Composite implements HasText {
 		this.googleAuthenticator = new GoogleAuthenticator(genericAfterAuthCallback);
 		this.facebookAuthenticator = new FacebookAuthenticator(genericAfterAuthCallback);
 		this.twitterAuthenticator = new TwitterAuthenticator(genericAfterAuthCallback);
+		this.liveAuthenticator = new LiveAuthenticator(genericAfterAuthCallback);
 
 		wireUpControls();
 
@@ -242,6 +248,17 @@ public class LoginPageBinder extends Composite implements HasText {
 
 			}
 		});
+		
+		btnLoginLive.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+				if (liveAuthenticator != null) {
+					liveAuthenticator.login();
+				}
+
+			}
+		});
 
 		btnLoginTwitter.addClickHandler(new ClickHandler() {
 
@@ -253,7 +270,64 @@ public class LoginPageBinder extends Composite implements HasText {
 
 			}
 		});
+		
+		btnLoginTUM.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				DialogBox dBox = createDialogBox();
+				dBox.setGlassEnabled(true);
+				dBox.setAnimationEnabled(true);
+				dBox.center();
+				dBox.show();
+				
+			}
+		});
 	}
+	
+	  private DialogBox createDialogBox() {
+		    // Create a dialog box and set the caption text
+		    final DialogBox dialogBox = new DialogBox();
+		    dialogBox.ensureDebugId("cwDialogBox");
+		    dialogBox.setText("TUM Login Instructions");
+
+		    // Create a table to layout the content
+		    VerticalPanel dialogContents = new VerticalPanel();
+		    dialogContents.setSpacing(4);
+		    dialogBox.setWidget(dialogContents);
+
+		    // Add some text to the top of the dialog
+		    HTML details = new HTML("Coming soon.");
+		    dialogContents.add(details);
+		    dialogContents.setCellHorizontalAlignment(
+		        details, HasHorizontalAlignment.ALIGN_CENTER);
+
+		    // Add an image to the dialog
+		    Image image = new Image("http://clubpenguincheatscitya4.files.wordpress.com/2011/08/1_token.jpg");
+		    dialogContents.add(image);
+		    dialogContents.setCellHorizontalAlignment(
+		        image, HasHorizontalAlignment.ALIGN_CENTER);
+
+		    // Add a close button at the bottom of the dialog
+		    Button closeButton = new Button(
+		        "Close", new ClickHandler() {
+		          public void onClick(ClickEvent event) {
+		            dialogBox.hide();
+		          }
+		        });
+		    dialogContents.add(closeButton);
+		    if (LocaleInfo.getCurrentLocale().isRTL()) {
+		      dialogContents.setCellHorizontalAlignment(
+		          closeButton, HasHorizontalAlignment.ALIGN_LEFT);
+
+		    } else {
+		      dialogContents.setCellHorizontalAlignment(
+		          closeButton, HasHorizontalAlignment.ALIGN_RIGHT);
+		    }
+
+		    // Return the dialog box
+		    return dialogBox;
+		  }
 
 	public LoginPageBinder(String firstName) {
 		initWidget(uiBinder.createAndBindUi(this));
