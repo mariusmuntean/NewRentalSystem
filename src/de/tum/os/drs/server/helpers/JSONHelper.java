@@ -69,5 +69,37 @@ public class JSONHelper {
 		// String pcode = addressMap.get("postalCode");
 		return "";
 	}
+	
+	public static String getUserEmail(String jsonString) {
+		if (jsonString == null || jsonString.isEmpty())
+			return "";
+
+		Map jsonData = parser.parseJson(jsonString);
+		// Map rootMap = (Map) jsonData.get("root");
+
+		ArrayList<Map> maps = new ArrayList<Map>();
+		maps.add(jsonData);
+		while (!maps.isEmpty()) {
+			Map currentMap = maps.remove(0);
+			for (Object currentKey : currentMap.keySet()) {
+				if (currentMap.get(currentKey) instanceof Map) {
+					maps.add((Map) currentMap.get(currentKey));
+				} else {
+					if (currentMap.get(currentKey) instanceof String) {
+						String keyName = (String) currentKey;
+						if (keyName.equals("email")) {
+							String val = ((String) currentMap.get(currentKey))
+									.toLowerCase().trim();
+							return val;
+						}
+					}
+				}
+			}
+		}
+
+		// Map addressMap = rootMap.get("address");
+		// String pcode = addressMap.get("postalCode");
+		return "";
+	}
 
 }

@@ -87,7 +87,7 @@
 			</g:HorizontalPanel>
 		</g:cell>
 		<!-- BODY -->
-		<g:cell>
+		<g:cell width="100%">
 			<g:HorizontalPanel>
 				<!-- Page selection -->
 				<g:cell>
@@ -109,7 +109,7 @@
 				</g:cell>
 
 				<!-- Current page -->
-				<g:cell>
+				<g:cell width="100%">
 					<g:DeckPanel ui:field="deckPanelActualView"
 						animationEnabled="true" visible="true" styleName="{style.deckPanelStyle}">
 						<!-- OverView -->

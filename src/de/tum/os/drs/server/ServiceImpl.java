@@ -56,6 +56,8 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 		{
 			add("100005386531690");
 			add("1251677124");
+			add("iphoneiswhatineed@gmail.com"); // Test account
+			add("fachgebietf13@googlemail.com"); // Frau Guggenmos email
 			add("114987213862005858495"); // Nils T. Google ID
 			add("112327375720464453708"); // Marius Google ID
 			add("53493968ff2c2533"); // Marius Live ID
@@ -117,7 +119,8 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 
 	@Override
 	public ArrayList<PersistentDevice> getAllDevices(int sessionIdHash) {
-		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash()
+				&& this.currentSession.getIsValid()) {
 			return null;
 		}
 
@@ -135,7 +138,8 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 
 	@Override
 	public PersistentDevice getDeviceByImei(int sessionIdHash, String imei) {
-		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash()
+				&& this.currentSession.getIsValid()) {
 			return null;
 		}
 
@@ -150,7 +154,8 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 	@Override
 	public ArrayList<PersistentDevice> getDevicesbyImei(int sessionIdHash,
 			String[] imeiCodes) {
-		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash()
+				&& this.currentSession.getIsValid()) {
 			return null;
 		}
 
@@ -165,7 +170,8 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 
 	@Override
 	public ArrayList<PersistentDevice> getAvailableDevices(int sessionIdHash) {
-		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash()
+				&& this.currentSession.getIsValid()) {
 			return null;
 		}
 
@@ -184,7 +190,8 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 
 	@Override
 	public ArrayList<PersistentDevice> getRentedDevices(int sessionIdHash) {
-		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash()
+				&& this.currentSession.getIsValid()) {
 			return null;
 		}
 
@@ -203,7 +210,8 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 
 	@Override
 	public Boolean addNewDevice(int sessionIdHash, PersistentDevice device) {
-		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash()
+				&& this.currentSession.getIsValid()) {
 			return null;
 		}
 
@@ -228,7 +236,8 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 
 	@Override
 	public Boolean updateDeviceInfo(int sessionIdHash, PersistentDevice device) {
-		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash()
+				&& this.currentSession.getIsValid()) {
 			return null;
 		}
 
@@ -258,7 +267,8 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 
 	@Override
 	public Boolean deleteDevice(int sessionIdHash, String imei) {
-		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash()
+				&& this.currentSession.getIsValid()) {
 			return null;
 		}
 
@@ -288,7 +298,8 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 
 	@Override
 	public Boolean addRenter(int sessionIdHash, SerializableRenter renter) {
-		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash()
+				&& this.currentSession.getIsValid()) {
 			return null;
 		}
 
@@ -314,7 +325,8 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 
 	@Override
 	public SerializableRenter getRenter(int sessionIdHash, String mattriculationNumber) {
-		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash()
+				&& this.currentSession.getIsValid()) {
 			return null;
 		}
 
@@ -332,7 +344,8 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 
 	@Override
 	public ArrayList<SerializableRenter> getAllRenters(int sessionIdHash) {
-		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash()
+				&& this.currentSession.getIsValid()) {
 			return null;
 		}
 
@@ -352,7 +365,8 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 
 	@Override
 	public Boolean deleteRenter(int sessionIdHash, SerializableRenter renter) {
-		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash()
+				&& this.currentSession.getIsValid()) {
 			return null;
 		}
 
@@ -382,7 +396,8 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 
 	@Override
 	public Boolean deleteRenter(int sessionIdHash, String matriculationNumber) {
-		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash()
+				&& this.currentSession.getIsValid()) {
 			return null;
 		}
 
@@ -412,7 +427,8 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 	@Override
 	public Boolean updateRenter(int sessionIdHash, String matriculationNumber,
 			SerializableRenter renter) {
-		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash()
+				&& this.currentSession.getIsValid()) {
 			return null;
 		}
 
@@ -446,7 +462,8 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 	@Override
 	public ArrayList<PersistentDevice> getDevicesRentedBy(int sessionIdHash,
 			String renterMatriculationNumber) {
-		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash()
+				&& this.currentSession.getIsValid()) {
 			return null;
 		}
 
@@ -474,7 +491,8 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 	public Boolean rentDeviceTo(int sessionIdHash, String renterMatrNr,
 			String deviceImeiCode, Date estimatedReturnDate, String comments,
 			String signatureHTML) {
-		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash()
+				&& this.currentSession.getIsValid()) {
 			return null;
 		}
 
@@ -510,7 +528,8 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 	public boolean rentDevicesTo(int sessionIdHash, String renterMatrNr,
 			String[] imeiCodes, Date estimatedReturnDate, String comments,
 			String signatureHTML) {
-		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash()
+				&& this.currentSession.getIsValid()) {
 			return false;
 		}
 
@@ -550,7 +569,8 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 	@Override
 	public Boolean returnDevice(int sessionIdHash, String renterMatrNr,
 			String deviceImeiCode, String comments, String signatureHTML) {
-		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash()
+				&& this.currentSession.getIsValid()) {
 			return null;
 		}
 
@@ -584,7 +604,8 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 	@Override
 	public Boolean returnDevices(int sessionIdHash, String renterMatrNr,
 			String[] imeiCodes, String comments, String signatureHTML) {
-		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash()
+				&& this.currentSession.getIsValid()) {
 			return null;
 		}
 
@@ -624,7 +645,8 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 	public ArrayList<PersistentEvent> getEvents(int sessionIdHash, String personName,
 			String IMEI, Date from, Date to, Integer maxResultSize,
 			Boolean reverseChronologicalOrder) {
-		if (sessionIdHash != this.currentSession.getSessionIdHash() && this.currentSession.getIsValid()) {
+		if (sessionIdHash != this.currentSession.getSessionIdHash()
+				&& this.currentSession.getIsValid()) {
 			return null;
 		}
 
@@ -804,7 +826,8 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 					currentTokenValidity = false;
 				} else {
 					String userID = JSONHelper.getUserId(jsonString);
-					if (isAuthorizedId(userID)) {
+					String userEmail = JSONHelper.getUserEmail(jsonString);
+					if (isAuthorizedId(userID) || isAuthorizedId(userEmail)) {
 						currentTokenValidity = true;
 					} else {
 						currentTokenValidity = false;
@@ -849,7 +872,9 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 						} else {
 							String userID = OAuthParser
 									.getAuthenticatedUserID(jsonString);
-							if (isAuthorizedId(userID)) {
+							String userEmail = OAuthParser
+									.getAuthenticatedUserEmail(jsonString);
+							if (isAuthorizedId(userID) || isAuthorizedId(userEmail)) {
 								currentTokenValidity = true;
 							} else {
 								currentTokenValidity = false;
@@ -880,12 +905,12 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 		return currentTokenValidity;
 	}
 
-	protected boolean isAuthorizedId(String userID) {
-		if (userID == null || userID.isEmpty()) {
+	protected boolean isAuthorizedId(String value) {
+		if (value == null || value.isEmpty()) {
 			return false;
 		}
 
-		if (authorizedIDs.contains(userID)) {
+		if (authorizedIDs.contains(value.toLowerCase())) {
 			return true;
 		} else {
 			return false;

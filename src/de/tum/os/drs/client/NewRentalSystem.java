@@ -582,7 +582,7 @@ public class NewRentalSystem implements EntryPoint {
 
 	}
 
-	public void addNewDevice(PersistentDevice pd) {
+	public void addNewDevice(PersistentDevice pd, final AsyncCallback<Boolean> addDeviceResultCallback) {
 		if (pd == null)
 			return;
 
@@ -592,12 +592,12 @@ public class NewRentalSystem implements EntryPoint {
 			public void onSuccess(Boolean result) {
 				fetchAvailableDevices();
 				fetchAllDevices();
-
+				addDeviceResultCallback.onSuccess(result);
 			}
 
 			@Override
 			public void onFailure(Throwable caught) {
-				// TODO Auto-generated method stub
+				addDeviceResultCallback.onFailure(caught);
 
 			}
 		};

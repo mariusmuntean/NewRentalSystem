@@ -1711,9 +1711,27 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 			devPictureName = deviceNotFoundImage;
 		}
 
-		PersistentDevice pd = new PersistentDevice(devIMEI, devName, devComments,
+		final PersistentDevice pd = new PersistentDevice(devIMEI, devName, devComments,
 				devState, devType, devPictureName, new Boolean(true), null);
-		client.addNewDevice(pd);
+		AsyncCallback<Boolean> addDeviceResultCallback = new AsyncCallback<Boolean>() {
+			
+			@Override
+			public void onSuccess(Boolean result) {
+				// Inform the user
+				if(result){
+				Info.display("Success!", "Added a new {0}", pd.getName());
+				}
+				else {
+					Info.display("Server Error!", "{0} - unknown state", pd.getName());
+				}
+			}
+			
+			@Override
+			public void onFailure(Throwable caught) {
+				Info.display("Network error!", "Could not communicate with the server.");
+			}
+		};
+		client.addNewDevice(pd, addDeviceResultCallback);
 
 		// Clear fields
 		cBoxManageDevicesAddType.setSelectedIndex(0);
@@ -1721,9 +1739,6 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		cBoxManageDevicesAddState.setSelectedIndex(0);
 		txtBoxManageDevicesAddIMEI.setText("");
 		txtAreaManageDevicesAddComments.setText("");
-
-		// Inform the user
-		Info.display("Success!", "Added a new {0}", pd.getName());
 
 	}
 
