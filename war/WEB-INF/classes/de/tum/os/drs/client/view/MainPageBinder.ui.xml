@@ -230,8 +230,10 @@
 																</g:cell>
 																<g:cell>
 																	<extGwt:ComboBox ui:field="cBoxRentSelectDevice"
-																		width="250" emptyText="Type a device name"
-																		displayField="name" typeAhead="true" selectOnFocus="true"></extGwt:ComboBox>
+																		width="250" emptyText="Type a device code"
+																		displayField="imei" typeAhead="true"
+																		selectOnFocus="false" >
+																		</extGwt:ComboBox>
 																</g:cell>
 															</g:VerticalPanel>
 														</g:cell>
@@ -553,7 +555,8 @@
 															hideTrigger="false" shim="true" autoHeight="true"
 															selectOnFocus="true" typeAhead="true" width="300"
 															emptyText="Type a device name" stateful="true"
-															displayField="name">
+															displayField="name"
+															enabled="false">
 														</extGwt:ComboBox>
 														<g:cell>
 															<g:Label text="or" horizontalAlignment="ALIGN_CENTER" />
@@ -562,7 +565,8 @@
 															loadingText="Searching ..." forceSelection="true"
 															autoHeight="true" selectOnFocus="true" width="300"
 															typeAhead="true" emptyText="Type an IMEI code" stateful="true"
-															displayField="imei">
+															displayField="imei" 
+															toolTip="Start typing a device code to update the list">
 														</extGwt:ComboBox>
 													</g:VerticalPanel>
 												</g:CaptionPanel>
@@ -570,7 +574,7 @@
 										</g:customCell>
 										<g:customCell>
 											<g:HorizontalPanel>
-												<g:cell verticalAlignment="ALIGN_MIDDLE">
+												<g:cell verticalAlignment="ALIGN_BOTTOM">
 													<g:VerticalPanel>
 														<g:cell>
 															<g:Image ui:field="imgManageDevicesViewDevImage"></g:Image>

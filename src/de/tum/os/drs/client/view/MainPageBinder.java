@@ -11,6 +11,8 @@ import java.util.List;
 import org.vaadin.gwtgraphics.client.DrawingArea;
 import org.vaadin.gwtgraphics.client.shape.Path;
 
+import pl.rmalinowski.gwt2swf.client.ui.SWFWidget;
+
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
@@ -22,9 +24,11 @@ import com.extjs.gxt.ui.client.widget.DatePicker;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.ListView;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.flash.FlashComponent;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -50,13 +54,16 @@ import com.google.gwt.user.cellview.client.CellTable.Resources;
 import com.google.gwt.user.cellview.client.RowStyles;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.CaptionPanel;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.DecoratedTabPanel;
+import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
@@ -67,6 +74,7 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.RadioButton;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SuggestBox;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
@@ -83,6 +91,10 @@ import com.google.gwt.visualization.client.visualizations.corechart.PieChart;
 import com.google.gwt.visualization.client.visualizations.corechart.PieChart.PieOptions;
 import com.google.gwt.visualization.client.visualizations.corechart.TextStyle;
 import de.tum.os.drs.client.NewRentalSystem;
+import de.tum.os.drs.client.helpers.barcodes.BitMatrix;
+import de.tum.os.drs.client.helpers.barcodes.Decoder;
+import de.tum.os.drs.client.helpers.barcodes.DecoderResult;
+import de.tum.os.drs.client.helpers.barcodes.ReaderException;
 import de.tum.os.drs.client.model.DeviceType;
 import de.tum.os.drs.client.model.DisplayableDevice;
 import de.tum.os.drs.client.model.DisplayableRenter;
@@ -296,6 +308,9 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	com.google.gwt.user.client.ui.Button btnManageDevicesAddNewDevice;
 
 	@UiField
+	com.google.gwt.user.client.ui.Button btnManageDevicesAddScan;
+
+	@UiField
 	TextArea txtAreaManageDevicesAddComments;
 
 	// View
@@ -427,12 +442,15 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 			+ "<tr><td><strong>{name}</strong></td></tr>"
 			+ "<tr><td>{matriculation}</td></tr>" + "</table>");
 
-	final String displayableDeviceTemplate = new String(
-			"<table>"
-					+ "<tr>"
-					+ "<td rowspan=\"2\"><img src=\"images/devices/{imgName}\" width=\"80\" height=\"80\"></td>"
-					+ "<td>{name}</td>" + "</tr>" + "<tr>" + "<td>{imei}</td>" + "</tr>"
-					+ "</table>");
+//	final String displayableDeviceTemplate = new String(
+//					"<table>"
+//					+ "<tr>"
+//					+ "<td rowspan=\"2\"><img src=\"images/devices/{imgName}\" width=\"80\" height=\"80\"></td>"
+//					+ "<td>{name}</td></tr>" 
+//					+ "<tr><td>{imei}</td></tr>"
+//					+ "</table>");
+	
+	final StringBuilder sbDisplayableDeviceTemplate = new StringBuilder();
 
 	private NewRentalSystem client;
 
@@ -483,6 +501,15 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	}
 
 	private void instantiateControls() {
+		// Templates
+		sbDisplayableDeviceTemplate.append("<table>\n");
+		sbDisplayableDeviceTemplate.append("<tr>\n");
+		sbDisplayableDeviceTemplate.append("<td rowspan=\"2\"><img src=\"images/devices/{imgName}\" width=\"80\" height=\"80\"></td>\n");
+		sbDisplayableDeviceTemplate.append("<td>{name}</td>\n");
+		sbDisplayableDeviceTemplate.append("</tr>\n");
+		sbDisplayableDeviceTemplate.append("<tr><td>{imei}</td></tr>\n");
+		sbDisplayableDeviceTemplate.append("</table>\n");
+		
 		// User widget
 		this.userWidget = new UserWidget(client.logoutAction);
 
@@ -506,12 +533,12 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		cBoxRentRegisteredStudentMatriculation.setTriggerAction(TriggerAction.ALL);
 
 		cBoxRentSelectDevice = new ComboBox<DisplayableDevice>();
-		cBoxRentSelectDevice.setSimpleTemplate(displayableDeviceTemplate);
+		cBoxRentSelectDevice.setSimpleTemplate(sbDisplayableDeviceTemplate.toString());
 		cBoxRentSelectDevice.setStore(availableDevicesListStore);
 		cBoxRentSelectDevice.setTriggerAction(TriggerAction.ALL);
 
 		lstViewRentSelectedDevices = new ListView<DisplayableDevice>();
-		lstViewRentSelectedDevices.setSimpleTemplate(displayableDeviceTemplate);
+		lstViewRentSelectedDevices.setSimpleTemplate(sbDisplayableDeviceTemplate.toString());
 		lstViewRentSelectedDevices.setStore(selectedDevicesListStore);
 
 		canvasRentSignature = new DrawingArea(500, 300);
@@ -559,7 +586,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		cBoxHistoryFilterName.setTriggerAction(TriggerAction.ALL);
 
 		cBoxHistoryFilterImei = new ComboBox<DisplayableDevice>();
-		cBoxHistoryFilterImei.setSimpleTemplate(displayableDeviceTemplate);
+		cBoxHistoryFilterImei.setSimpleTemplate(sbDisplayableDeviceTemplate.toString());
 		cBoxHistoryFilterImei.setStore(displayableDevicesFilterListStore);
 		cBoxHistoryFilterImei.setTriggerAction(TriggerAction.ALL);
 		tableHistoryEventsFiltered = getCellTableHistory(eventsFilteredHistoryDataProvider);
@@ -568,13 +595,13 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		cBoxManageDevicesAddName = new SuggestBox(this.manageDevicesAddNamesOracle);
 
 		cBoxManageDevicesViewDevIMEI = new ComboBox<DisplayableDevice>();
-		cBoxManageDevicesViewDevIMEI.setSimpleTemplate(displayableDeviceTemplate);
+		cBoxManageDevicesViewDevIMEI.setSimpleTemplate(sbDisplayableDeviceTemplate.toString());
 		cBoxManageDevicesViewDevIMEI.setStore(allDisplayableDevicesListStore);
 		cBoxManageDevicesViewDevIMEI.setForceSelection(true);
 		cBoxManageDevicesViewDevIMEI.setTriggerAction(TriggerAction.ALL);
 
 		cBoxManageDevicesViewDevName = new ComboBox<DisplayableDevice>();
-		cBoxManageDevicesViewDevName.setSimpleTemplate(displayableDeviceTemplate);
+		cBoxManageDevicesViewDevName.setSimpleTemplate(sbDisplayableDeviceTemplate.toString());
 		cBoxManageDevicesViewDevName.setStore(allDisplayableDevicesListStore);
 		cBoxManageDevicesViewDevName.setForceSelection(true);
 		cBoxManageDevicesViewDevName.setTriggerAction(TriggerAction.ALL);
@@ -619,6 +646,16 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		datePickerRentEstimatedRD.setValue(new Date(System.currentTimeMillis()
 				+ (1000L * 60L * 60L * 24L * 7L * 6L)));
 		btnSubmitRentEvent.addClickHandler(this);
+
+		cBoxRentSelectDevice.addSelectionChangedListener(new SelectionChangedListener<DisplayableDevice>() {
+			
+			@Override
+			public void selectionChanged(SelectionChangedEvent<DisplayableDevice> se) {
+				ArrayList<DisplayableDevice> selection = new ArrayList<DisplayableDevice>();
+				selection.add(se.getSelectedItem());
+				cBoxRentSelectDevice.setSelection(selection);
+			}
+		});
 
 		// Return page
 		cBoxReturnRegisteredStudentMatriculation.addSelectionChangedListener(rsc);
@@ -715,8 +752,10 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		for (DeviceType dt : DeviceType.values()) {
 			cBoxManageDevicesAddType.addItem(dt.toString());
 		}
-
 		decoratedTabPanelDeviceManagement.selectTab(0);
+		btnManageDevicesAddScan.addClickHandler(this);
+		// Publish a method for decoding
+		publishDecodeMthod();
 
 		// View
 		cBoxManageDevicesViewDevIMEI
@@ -1466,6 +1505,9 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		if (sender == btnManageDevicesAddNewDevice) {
 			addNewDevice();
 		}
+		if (sender == btnManageDevicesAddScan) {
+			startBarcodeScanner();
+		}
 		if (sender == checkBoxManageDevicesViewEnableEdit) {
 			toggleDeviceDataFields(checkBoxManageDevicesViewEnableEdit.isChecked());
 		}
@@ -1491,6 +1533,102 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		}
 
 	}
+
+	private void startBarcodeScanner() {
+
+		final DialogBox dBox = new DialogBox();
+		dBox.setText("Scanning ...");
+		dBox.setModal(true);
+		dBox.setGlassEnabled(true);
+		VerticalPanel vPanelScannerContent = new VerticalPanel();
+		dBox.setWidget(vPanelScannerContent);
+		// Add a close btn
+		com.google.gwt.user.client.ui.Button btn = new com.google.gwt.user.client.ui.Button(
+				"Close");
+		btn.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				if (dBox != null)
+					dBox.hide();
+			}
+		});
+		vPanelScannerContent.add(btn);
+
+		// Add flash component
+		SWFWidget swfWidget = new SWFWidget("qrread/qrread.swf", 300, 300);
+		// swfWidget.addFlashVar("bridgeName", "example");
+		vPanelScannerContent.add(swfWidget);
+
+		vPanelScannerContent.add(barcodeResult);
+
+		dBox.center();
+		dBox.show();
+
+	}
+
+	static Label barcodeResult = new Label();
+
+	/**
+	 * 
+	 * @param source
+	 *            - A String encoding a 2D array: 1111111111011101010000+1111111111011101010000+ Where the "+" sign means a new line
+	 * @throws ReaderException
+	 */
+	private static void decode(String source) throws ReaderException {
+
+		@SuppressWarnings("unused")
+		int t = 99;
+		int dimension = source.indexOf("+");
+		if (dimension == -1)
+			return;
+
+		int strIndex, i = 0, j = 0;
+		BitMatrix bits = new BitMatrix(dimension);
+
+		for (strIndex = 0; strIndex < source.length(); strIndex++) {
+			if (source.substring(strIndex, strIndex).equals("1")) {
+				bits.set(i, j);
+				j++;
+			}
+			if (source.substring(strIndex, strIndex).equals("0")) {
+//				bits.set(i, j);
+				j++;
+			}
+			if (source.substring(strIndex, strIndex).equals("+")) {
+				i++;
+				j = 0;
+			}
+		}
+
+		try{
+		Decoder decoder = new Decoder();
+		DecoderResult decoderResult = decoder.decode(bits);
+
+		String decodedString = decoderResult.getText();
+
+		if (decodedString != null && !decodedString.isEmpty()) {
+			barcodeResult.setText(decodedString);
+		}
+		}
+		catch(Exception e){
+			barcodeResult.setText(e.toString());
+		}
+
+
+		// RootPanel.get("resultView").clear();
+		// RootPanel.get("resultView").add(new HTML("<h2>Decoded string:</h2>"));
+		// RootPanel.get("resultView").add(new HTML("<p class='decoded'>" + decodedString +"</p>"));
+	}
+
+	// private native void publishDecodeMthod()
+	// /*-{
+	// $wnd.decode = @de.tum.os.drs.client.view.MainPageBinder::decode([[I);
+	// }-*/;
+
+	private native void publishDecodeMthod()
+	/*-{
+	$wnd.decode = $entry(@de.tum.os.drs.client.view.MainPageBinder::decode(Ljava/lang/String;));  
+	}-*/;
 
 	private void updateStudentInfo() {
 		String studName = txtBoxManageStudentsViewStudentName.getText();
@@ -1714,18 +1852,17 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		final PersistentDevice pd = new PersistentDevice(devIMEI, devName, devComments,
 				devState, devType, devPictureName, new Boolean(true), null);
 		AsyncCallback<Boolean> addDeviceResultCallback = new AsyncCallback<Boolean>() {
-			
+
 			@Override
 			public void onSuccess(Boolean result) {
 				// Inform the user
-				if(result){
-				Info.display("Success!", "Added a new {0}", pd.getName());
-				}
-				else {
+				if (result) {
+					Info.display("Success!", "Added a new {0}", pd.getName());
+				} else {
 					Info.display("Server Error!", "{0} - unknown state", pd.getName());
 				}
 			}
-			
+
 			@Override
 			public void onFailure(Throwable caught) {
 				Info.display("Network error!", "Could not communicate with the server.");
@@ -1808,8 +1945,9 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 			}
 		};
 		// Submit
-		client.returnDevices(returnResultCallback, selectedRenter.getMatriculationNumber(), selectedImeiCodes,
-				comments, signature);
+		client.returnDevices(returnResultCallback,
+				selectedRenter.getMatriculationNumber(), selectedImeiCodes, comments,
+				signature);
 
 		// Clear Return page
 		clearReturnSignatureCanvas();
@@ -1982,7 +2120,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	}
 
 	private void markDeviceForRent() {
-		if (cBoxRentSelectDevice.getSelectionLength() == 0)
+		if (cBoxRentSelectDevice.getSelection()!=null && cBoxRentSelectDevice.getSelection().size() == 0)
 			return;
 
 		DisplayableDevice selectedDevice = cBoxRentSelectDevice.getSelection().get(0);
