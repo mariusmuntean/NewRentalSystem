@@ -20,6 +20,9 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.store.Store;
+import com.extjs.gxt.ui.client.store.StoreEvent;
+import com.extjs.gxt.ui.client.store.StoreListener;
 import com.extjs.gxt.ui.client.widget.DatePicker;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.ListView;
@@ -584,7 +587,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		cBoxHistoryFilterName.setSimpleTemplate(rentStudentComboTemplate);
 		cBoxHistoryFilterName.setStore(displayableRentersFilterListStore);
 		cBoxHistoryFilterName.setTriggerAction(TriggerAction.ALL);
-
+		
 		cBoxHistoryFilterImei = new ComboBox<DisplayableDevice>();
 		cBoxHistoryFilterImei.setSimpleTemplate(sbDisplayableDeviceTemplate.toString());
 		cBoxHistoryFilterImei.setStore(displayableDevicesFilterListStore);

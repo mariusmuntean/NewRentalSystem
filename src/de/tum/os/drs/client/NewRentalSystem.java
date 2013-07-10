@@ -6,11 +6,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.google.api.gwt.oauth2.client.Auth;
 import com.google.gwt.core.client.Callback;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Style.Clear;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -124,14 +126,12 @@ public class NewRentalSystem implements EntryPoint {
 						CookieHelper.resetAuthToken();
 						CookieHelper.resetOAuthAuthority();
 					}
-
 				}
 
 				@Override
 				public void onFailure(Throwable caught) {
 					Info.display("Network Error!",
 							"Could not communicate with the Rental Server");
-
 				}
 			};
 			service.login(token, authority, authorizationCallback);
@@ -170,8 +170,9 @@ public class NewRentalSystem implements EntryPoint {
 
 				}
 			};
-			if (service != null) {
-				service.logout(logOutCallback);
+			if (service != null && NewRentalSystem.this.currentSession != null) {
+				service.logout(NewRentalSystem.this.currentSession.getSessionIdHash(),
+						logOutCallback);
 			}
 
 			// Delete local state
@@ -376,7 +377,7 @@ public class NewRentalSystem implements EntryPoint {
 	}
 
 	protected void updateAllRenters(ArrayList<SerializableRenter> result) {
-		displayableRentersListStore.removeAll();
+		displayableRentersListStore.removeAll();		
 		allRentersDataProvider.getList().clear();
 		if (result != null && result.size() > 0) {
 			// allRentersDataProvider.getList().addAll(result);
@@ -472,6 +473,8 @@ public class NewRentalSystem implements EntryPoint {
 			// displayableRentersFilterListStore.add(dr);
 			renters.add(dr);
 		}
+		displayableDevicesFilterListStore.removeAll();
+		displayableRentersFilterListStore.removeAll();
 		if (devices.size() > 0) {
 			ArrayList<DisplayableDevice> devicesList = new ArrayList<DisplayableDevice>(
 					devices);
@@ -552,6 +555,7 @@ public class NewRentalSystem implements EntryPoint {
 
 	protected void updateAvailableDevices(ArrayList<PersistentDevice> result) {
 		availableDevicesDataProvider.getList().clear();
+		availableDevicesListStore.removeAll();
 		if (result != null && result.size() > 0) {
 			availableDevicesDataProvider.getList().addAll(result);
 
@@ -582,7 +586,8 @@ public class NewRentalSystem implements EntryPoint {
 
 	}
 
-	public void addNewDevice(PersistentDevice pd, final AsyncCallback<Boolean> addDeviceResultCallback) {
+	public void addNewDevice(PersistentDevice pd,
+			final AsyncCallback<Boolean> addDeviceResultCallback) {
 		if (pd == null)
 			return;
 

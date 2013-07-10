@@ -22,10 +22,13 @@ public interface IClientService extends RemoteService {
 	 */
 	RentalSession login(String token, OAuthAuthorities authority);
 	
-	/**
-	 * Log out from the Rental Server, also invalidates the session.
-	 */
-	Boolean logout();
+/**
+ * Invalidates the current session.
+ * 
+ * @param sessionIdHash - session id hash code that identifies the session to be terminated.
+ * @return - Returns true if the logout was successful or false otherwise.
+ */
+	Boolean logout(int sessionIdHash);
 	
 	/**
 	 * 

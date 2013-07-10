@@ -5,6 +5,11 @@ import java.util.Date;
 
 public class RentalSession implements Serializable{
 
+	/**
+	 *  Eclipse insists on declaring this UID for serializable classes,
+	 *  from what I gathered from the docs it is very reasonable.
+	 */
+	private static final long serialVersionUID = 7166968903046540144L;
 	String sessionId = "";
 	int sessionIdHash = sessionId.hashCode();
 	Date sessionStart;
@@ -18,7 +23,8 @@ public class RentalSession implements Serializable{
 	}
 
 	/**
-	 * Creates a new RentalSession instance. Sets the readonly sessionStart to the moment of creation of this object.
+	 * Creates a new RentalSession instance. 
+	 * Sets the readonly sessionStart to the moment of creation of this object.
 	 * 
 	 * @param sessionId
 	 *            - unique ID to identify the session

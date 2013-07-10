@@ -80,5 +80,5 @@ public interface IClientServiceAsync {
 	void login(String token, OAuthAuthorities authority,
 			AsyncCallback<RentalSession> callback);
 
-	void logout(AsyncCallback<Boolean> callback);
+	void logout(int sessionIdHash, AsyncCallback<Boolean> callback);
 }
