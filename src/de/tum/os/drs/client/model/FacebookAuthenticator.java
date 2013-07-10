@@ -10,7 +10,7 @@ public class FacebookAuthenticator implements IAuthenticator {
 	 * OAuth2 stuff
 	 */
 	String AUTH_URL = "https://www.facebook.com/dialog/oauth";
-	String CLIENT_ID = "384544281662712";
+	String CLIENT_ID = "445564562207916"; // Available in the Facebook developers dashboard: https://developers.facebook.com/apps/445564562207916/summary
 	String FB_EMAIL_SCOPE = "email";
 	String FB_ABOUTME_SCOPE = "user_about_me";
 	String FB_PICTURE_SCOPE = "picture";

@@ -505,9 +505,9 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		sbDisplayableDeviceTemplate.append("<table>\n");
 		sbDisplayableDeviceTemplate.append("<tr>\n");
 		sbDisplayableDeviceTemplate.append("<td rowspan=\"2\"><img src=\"images/devices/{imgName}\" width=\"80\" height=\"80\"></td>\n");
-		sbDisplayableDeviceTemplate.append("<td>{name}</td>\n");
+		sbDisplayableDeviceTemplate.append("<td><p style=\"font-size:20px\"><b>{name}</b></p></td>\n");
 		sbDisplayableDeviceTemplate.append("</tr>\n");
-		sbDisplayableDeviceTemplate.append("<tr><td>{imei}</td></tr>\n");
+		sbDisplayableDeviceTemplate.append("<tr><td><p style=\"font-size:15px\">{imei}</p></td></tr>\n");
 		sbDisplayableDeviceTemplate.append("</table>\n");
 		
 		// User widget
@@ -754,8 +754,9 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		}
 		decoratedTabPanelDeviceManagement.selectTab(0);
 		btnManageDevicesAddScan.addClickHandler(this);
-		// Publish a method for decoding
+		// Publish methods for Flash component
 		publishDecodeMthod();
+		publishShowResultMethod();
 
 		// View
 		cBoxManageDevicesViewDevIMEI
@@ -1567,6 +1568,17 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	}
 
 	static Label barcodeResult = new Label();
+	
+	private static void showresult(String result){
+		if(result==null)
+			return;
+		barcodeResult.setText(result);
+	}
+	
+	private native void publishShowResultMethod()
+	/*-{
+	$wnd.showresult = $entry(@de.tum.os.drs.client.view.MainPageBinder::showresult(Ljava/lang/String;));  
+	}-*/;
 
 	/**
 	 * 

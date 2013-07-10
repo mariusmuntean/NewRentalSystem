@@ -17,7 +17,7 @@ public class GoogleAuthenticator implements IAuthenticator {
 	 * OAuth2 stuff
 	 */
 	String AUTH_URL = "https://accounts.google.com/o/oauth2/auth";
-	String CLIENT_ID = "717487426781.apps.googleusercontent.com"; // available from the APIs console
+	String CLIENT_ID = "1544405710.apps.googleusercontent.com"; // available from the APIs console: https://code.google.com/apis/console/#project:1544405710
 	String GOOGLE_EMAIL = "https://www.googleapis.com/auth/userinfo.email";
 	String GOOGLE_USERINFO = "https://www.googleapis.com/auth/userinfo.profile";
 

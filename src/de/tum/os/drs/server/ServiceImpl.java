@@ -57,6 +57,7 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 			add("100005386531690");
 			add("1251677124");
 			add("iphoneiswhatineed@gmail.com"); // Test account
+			add("tumrentalsystem@gmail.com"); // Google developer account that manages the OAuth2 stuff
 			add("fachgebietf13@googlemail.com"); // Frau Guggenmos email
 			add("114987213862005858495"); // Nils T. Google ID
 			add("112327375720464453708"); // Marius Google ID
