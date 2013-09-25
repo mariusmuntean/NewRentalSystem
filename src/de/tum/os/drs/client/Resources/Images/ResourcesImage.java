@@ -36,4 +36,11 @@ public interface ResourcesImage extends ClientBundle {
 
 	ImageResource liveLogo();
 
+	@Source("Tum_logo.gif")
+	ImageResource tumLogo();
+
+	ImageResource tumOsLogo();
+
+	ImageResource tumOsLogoTransparent();
+
 }

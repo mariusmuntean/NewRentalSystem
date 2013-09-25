@@ -115,6 +115,7 @@
 				<g:cell width="100%">
 					<g:DeckPanel ui:field="deckPanelActualView"
 						animationEnabled="true" visible="true" styleName="{style.deckPanelStyle}">
+						
 						<!-- OverView -->
 						<g:Grid height="auto" borderWidth="2" styleName="overviewGridStyle"
 							width="100%">
@@ -724,7 +725,8 @@
 																loadingText="Searching ..." forceSelection="true"
 																hideTrigger="false" shim="true" autoHeight="true"
 																selectOnFocus="true" typeAhead="true" width="300"
-																emptyText="Type name" stateful="true" displayField="name">
+																emptyText="Type name" stateful="true" displayField="name"
+																allowBlank="true">
 															</extGwt:ComboBox>
 														</g:cell>
 														<g:cell>
@@ -736,7 +738,8 @@
 																loadingText="Searching ..." forceSelection="true"
 																autoHeight="true" selectOnFocus="true" width="300"
 																typeAhead="true" emptyText="Type matriculation number"
-																stateful="true" displayField="matriculation">
+																stateful="true" displayField="matriculation" 
+																allowBlank="true">
 															</extGwt:ComboBox>
 														</g:cell>
 													</g:VerticalPanel>

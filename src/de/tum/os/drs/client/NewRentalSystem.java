@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Store;
@@ -23,6 +24,7 @@ import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.view.client.ListDataProvider;
+
 import de.tum.os.drs.client.helpers.CookieHelper;
 import de.tum.os.drs.client.model.DisplayableDevice;
 import de.tum.os.drs.client.model.DisplayableRenter;
@@ -44,7 +46,8 @@ public class NewRentalSystem implements EntryPoint {
 	/*
 	 * Service client
 	 */
-	IClientServiceAsync service = (IClientServiceAsync) GWT.create(IClientService.class);
+	IClientServiceAsync service = (IClientServiceAsync) GWT
+			.create(IClientService.class);
 	ServiceDefTarget serviceDef = (ServiceDefTarget) service;
 	String addr = GWT.getModuleBaseURL() + "rentalService";
 	RentalSession currentSession;
@@ -156,7 +159,8 @@ public class NewRentalSystem implements EntryPoint {
 				public void onSuccess(Boolean result) {
 					NewRentalSystem.this.currentSession = null;
 					if (result) {
-						Info.display("Success", "You are logged out from the server.");
+						Info.display("Success",
+								"You are logged out from the server.");
 					} else {
 						Info.display("Server error",
 								"You weren't logged out from the server.");
@@ -171,7 +175,8 @@ public class NewRentalSystem implements EntryPoint {
 				}
 			};
 			if (service != null && NewRentalSystem.this.currentSession != null) {
-				service.logout(NewRentalSystem.this.currentSession.getSessionIdHash(),
+				service.logout(
+						NewRentalSystem.this.currentSession.getSessionIdHash(),
 						logOutCallback);
 			}
 
@@ -222,9 +227,10 @@ public class NewRentalSystem implements EntryPoint {
 				availableDevicesDataProvider, unavailableDevicesDataProvider,
 				eventsHistoryDataProvider, eventsFilteredHistoryDataProvider,
 				displayableRentersListStore, availableDevicesListStore,
-				displayableRentersFilterListStore, displayableDevicesFilterListStore,
-				allRentersDataProvider, allRentedDevicesDataProvider,
-				deviceNamesSuggestOracle, allDisplayableDevicesListStore);
+				displayableRentersFilterListStore,
+				displayableDevicesFilterListStore, allRentersDataProvider,
+				allRentedDevicesDataProvider, deviceNamesSuggestOracle,
+				allDisplayableDevicesListStore);
 		fetchData();
 
 		RootLayoutPanel.get().remove(loginPageBinder);
@@ -233,9 +239,9 @@ public class NewRentalSystem implements EntryPoint {
 	}
 
 	public void rentDevicesToExistingRenter(
-			final AsyncCallback<Boolean> rentDevicesResultCallback, String renterMatrNr,
-			String[] deviceImeiCodes, Date estimatedReturnDate, String comments,
-			String signatureHTML) {
+			final AsyncCallback<Boolean> rentDevicesResultCallback,
+			String renterMatrNr, String[] deviceImeiCodes,
+			Date estimatedReturnDate, String comments, String signatureHTML) {
 
 		AsyncCallback<Boolean> rentDevicesCallback = new AsyncCallback<Boolean>() {
 
@@ -256,9 +262,9 @@ public class NewRentalSystem implements EntryPoint {
 			}
 		};
 		if (this.currentSession != null)
-			service.rentDevicesTo(currentSession.getSessionIdHash(), renterMatrNr,
-					deviceImeiCodes, estimatedReturnDate, comments, signatureHTML,
-					rentDevicesCallback);
+			service.rentDevicesTo(currentSession.getSessionIdHash(),
+					renterMatrNr, deviceImeiCodes, estimatedReturnDate,
+					comments, signatureHTML, rentDevicesCallback);
 	}
 
 	public void rentDevicesToNewRenter(
@@ -271,23 +277,28 @@ public class NewRentalSystem implements EntryPoint {
 
 			@Override
 			public void onSuccess(Boolean result) {
-				rentDevicesToExistingRenter(rentDevicesResultCallback, renterMatrNr,
-						deviceImeiCodes, estimatedReturnDate, comments, signatureHTML);
+				rentDevicesToExistingRenter(rentDevicesResultCallback,
+						renterMatrNr, deviceImeiCodes, estimatedReturnDate,
+						comments, signatureHTML);
 			}
 
 			@Override
 			public void onFailure(Throwable caught) {
-				Info.display("Network error!", sr.getName() + " status is unknown!");
+				Info.display("Network error!", sr.getName()
+						+ " status is unknown!");
 			}
 		};
 
 		if (this.currentSession != null)
-			service.addRenter(currentSession.getSessionIdHash(), sr, addNewRenterCallback);
+			service.addRenter(currentSession.getSessionIdHash(), sr,
+					addNewRenterCallback);
 
 	}
 
-	public void returnDevices(final AsyncCallback<Boolean> returnDevicesResultBCallback,
-			String renterMatrNr, String[] imeiCodes, String comments, String signatureHTML) {
+	public void returnDevices(
+			final AsyncCallback<Boolean> returnDevicesResultBCallback,
+			String renterMatrNr, String[] imeiCodes, String comments,
+			String signatureHTML) {
 		AsyncCallback<Boolean> returnDevicesCallback = new AsyncCallback<Boolean>() {
 
 			@Override
@@ -307,8 +318,9 @@ public class NewRentalSystem implements EntryPoint {
 			}
 		};
 		if (this.currentSession != null)
-			service.returnDevices(currentSession.getSessionIdHash(), renterMatrNr,
-					imeiCodes, comments, signatureHTML, returnDevicesCallback);
+			service.returnDevices(currentSession.getSessionIdHash(),
+					renterMatrNr, imeiCodes, comments, signatureHTML,
+					returnDevicesCallback);
 	}
 
 	private void fetchData() {
@@ -344,12 +356,12 @@ public class NewRentalSystem implements EntryPoint {
 		this.allDisplayableDevicesListStore.removeAll();
 		if (result != null && result.size() > 0) {
 			for (PersistentDevice pd : result) {
-				String imgName = deviceNameToImageNameMap.get(pd.getName().toLowerCase()
-						.trim());
+				String imgName = deviceNameToImageNameMap.get(pd.getName()
+						.toLowerCase().trim());
 				if (imgName == null)
 					imgName = deviceNotFoundImage;
-				DisplayableDevice dd = new DisplayableDevice(pd.getName(), pd.getIMEI(),
-						imgName);
+				DisplayableDevice dd = new DisplayableDevice(pd.getName(),
+						pd.getIMEI(), imgName);
 				this.allDisplayableDevicesListStore.add(dd);
 			}
 			this.allDisplayableDevicesListStore.fireEvent(Events.Update);
@@ -377,21 +389,22 @@ public class NewRentalSystem implements EntryPoint {
 	}
 
 	protected void updateAllRenters(ArrayList<SerializableRenter> result) {
-		displayableRentersListStore.removeAll();		
+		displayableRentersListStore.removeAll();
 		allRentersDataProvider.getList().clear();
 		if (result != null && result.size() > 0) {
 			// allRentersDataProvider.getList().addAll(result);
 			allRentersDataProvider.setList(result);
 			for (SerializableRenter sr : result) {
-				displayableRentersListStore.add(new DisplayableRenter(sr.getName(), sr
-						.getMatriculationNumber()));
+				displayableRentersListStore.add(new DisplayableRenter(sr
+						.getName(), sr.getMatriculationNumber()));
 			}
 		}
 		allRentersDataProvider.refresh();
 	}
 
-	public void fetchEventsHistoryFiltered(String personName, String IMEI, Date from,
-			Date to, Integer maxResultSize, Boolean reverseChronologicalOrder) {
+	public void fetchEventsHistoryFiltered(String personName, String IMEI,
+			Date from, Date to, Integer maxResultSize,
+			Boolean reverseChronologicalOrder) {
 		AsyncCallback<ArrayList<PersistentEvent>> callback = new AsyncCallback<ArrayList<PersistentEvent>>() {
 
 			@Override
@@ -405,8 +418,9 @@ public class NewRentalSystem implements EntryPoint {
 			}
 		};
 		if (this.currentSession != null)
-			service.getEvents(currentSession.getSessionIdHash(), personName, IMEI, from,
-					to, maxResultSize, reverseChronologicalOrder, callback);
+			service.getEvents(currentSession.getSessionIdHash(), personName,
+					IMEI, from, to, maxResultSize, reverseChronologicalOrder,
+					callback);
 	}
 
 	protected void updateEventsHistoryFiltered(ArrayList<PersistentEvent> result) {
@@ -416,7 +430,8 @@ public class NewRentalSystem implements EntryPoint {
 			eventsFilteredHistoryDataProvider.getList().addAll(result);
 			CellTable<PersistentEvent> historyTable = (CellTable<PersistentEvent>) eventsFilteredHistoryDataProvider
 					.getDataDisplays().toArray()[0];
-			historyTable.setPageSize(eventsFilteredHistoryDataProvider.getList().size());
+			historyTable.setPageSize(eventsFilteredHistoryDataProvider
+					.getList().size());
 		}
 
 	}
@@ -435,8 +450,8 @@ public class NewRentalSystem implements EntryPoint {
 			}
 		};
 		if (this.currentSession != null)
-			service.getEvents(currentSession.getSessionIdHash(), null, null, null, null,
-					Integer.MAX_VALUE, true, callback);
+			service.getEvents(currentSession.getSessionIdHash(), null, null,
+					null, null, Integer.MAX_VALUE, true, callback);
 
 	}
 
@@ -448,7 +463,8 @@ public class NewRentalSystem implements EntryPoint {
 			if (result.size() <= 10) {
 				eventsHistoryDataProvider.getList().addAll(result);
 			} else {
-				eventsHistoryDataProvider.getList().addAll(result.subList(0, 10));
+				eventsHistoryDataProvider.getList().addAll(
+						result.subList(0, 10));
 			}
 		}
 		eventsFilteredHistoryDataProvider.refresh();
@@ -460,7 +476,8 @@ public class NewRentalSystem implements EntryPoint {
 		HashSet<DisplayableDevice> devices = new HashSet<DisplayableDevice>();
 		for (PersistentEvent pe : result) {
 			// Populate devices filter
-			String imgName = deviceNameToImageNameMap.get(pe.getDevName().toLowerCase());
+			String imgName = deviceNameToImageNameMap.get(pe.getDevName()
+					.toLowerCase());
 			if (imgName == null)
 				imgName = deviceNotFoundImage;
 			DisplayableDevice dd = new DisplayableDevice(pe.getDevName(),
@@ -503,7 +520,8 @@ public class NewRentalSystem implements EntryPoint {
 			}
 		};
 		if (this.currentSession != null)
-			service.getRentedDevices(currentSession.getSessionIdHash(), callback);
+			service.getRentedDevices(currentSession.getSessionIdHash(),
+					callback);
 
 	}
 
@@ -523,16 +541,18 @@ public class NewRentalSystem implements EntryPoint {
 		allRentedDevicesDataProvider.refresh();
 		unavailableDevicesDataProvider.refresh();
 		// Update the rowcount of the table
-		if (unavailableDevicesDataProvider.getDataDisplays().toArray()[0].getClass()
-				.equals(CellTable.class)) {
+		if (unavailableDevicesDataProvider.getDataDisplays().toArray()[0]
+				.getClass().equals(CellTable.class)) {
 			((CellTable<PersistentDevice>) unavailableDevicesDataProvider
 					.getDataDisplays().toArray()[0])
-					.setPageSize(unavailableDevicesDataProvider.getList().size());
+					.setPageSize(unavailableDevicesDataProvider.getList()
+							.size());
 		}
 
 		if (mainPageBinder != null)
-			mainPageBinder.setRentedVsAvailable(availableDevicesDataProvider.getList()
-					.size(), unavailableDevicesDataProvider.getList().size());
+			mainPageBinder.setRentedVsAvailable(availableDevicesDataProvider
+					.getList().size(), unavailableDevicesDataProvider.getList()
+					.size());
 	}
 
 	private void fetchAvailableDevices() {
@@ -549,7 +569,8 @@ public class NewRentalSystem implements EntryPoint {
 			}
 		};
 		if (this.currentSession != null)
-			service.getAvailableDevices(currentSession.getSessionIdHash(), callback);
+			service.getAvailableDevices(currentSession.getSessionIdHash(),
+					callback);
 
 	}
 
@@ -563,26 +584,28 @@ public class NewRentalSystem implements EntryPoint {
 				// Populate the device names oracle
 				deviceNamesSuggestOracle.add(pd.getName());
 				// Populate the available devices list store
-				String imgName = deviceNameToImageNameMap.get(pd.getName().toLowerCase());
+				String imgName = deviceNameToImageNameMap.get(pd.getName()
+						.toLowerCase());
 				if (imgName == null)
 					imgName = deviceNotFoundImage;
-				availableDevicesListStore.add(new DisplayableDevice(pd.getName(), pd
-						.getIMEI(), imgName));
+				availableDevicesListStore.add(new DisplayableDevice(pd
+						.getName(), pd.getIMEI(), imgName));
 			}
 		}
 
 		availableDevicesDataProvider.refresh();
 		// Update the rowcount of the table
-		if (availableDevicesDataProvider.getDataDisplays().toArray()[0].getClass()
-				.equals(CellTable.class)) {
-			((CellTable<PersistentDevice>) availableDevicesDataProvider.getDataDisplays()
-					.toArray()[0]).setPageSize(availableDevicesDataProvider.getList()
-					.size());
+		if (availableDevicesDataProvider.getDataDisplays().toArray()[0]
+				.getClass().equals(CellTable.class)) {
+			((CellTable<PersistentDevice>) availableDevicesDataProvider
+					.getDataDisplays().toArray()[0])
+					.setPageSize(availableDevicesDataProvider.getList().size());
 		}
 
 		if (mainPageBinder != null)
-			mainPageBinder.setRentedVsAvailable(availableDevicesDataProvider.getList()
-					.size(), unavailableDevicesDataProvider.getList().size());
+			mainPageBinder.setRentedVsAvailable(availableDevicesDataProvider
+					.getList().size(), unavailableDevicesDataProvider.getList()
+					.size());
 
 	}
 
@@ -607,7 +630,8 @@ public class NewRentalSystem implements EntryPoint {
 			}
 		};
 		if (this.currentSession != null)
-			service.addNewDevice(currentSession.getSessionIdHash(), pd, callback);
+			service.addNewDevice(currentSession.getSessionIdHash(), pd,
+					callback);
 
 	}
 
@@ -628,7 +652,8 @@ public class NewRentalSystem implements EntryPoint {
 			}
 		};
 		if (this.currentSession != null)
-			service.getDeviceByImei(currentSession.getSessionIdHash(), imei, callback);
+			service.getDeviceByImei(currentSession.getSessionIdHash(), imei,
+					callback);
 	}
 
 	public void updateExistingDevice(PersistentDevice currentlyDIsplayedPD,
@@ -639,6 +664,8 @@ public class NewRentalSystem implements EntryPoint {
 			public void onSuccess(Boolean result) {
 				updateDeviceCallback.onSuccess(result);
 				fetchAllDevices();
+				fetchAvailableDevices();
+				fetchUnavailableDevices();
 
 			}
 
@@ -676,8 +703,36 @@ public class NewRentalSystem implements EntryPoint {
 			}
 		};
 		if (this.currentSession != null)
-			service.deleteDevice(currentSession.getSessionIdHash(), currentlyDIsplayedPD,
-					callback);
+			service.deleteDevice(currentSession.getSessionIdHash(),
+					currentlyDIsplayedPD, callback);
+	}
+
+	public void deleteRenter(String matriculationNumber,
+			final AsyncCallback<Boolean> deleteRenterCallback) {
+		// Filter input
+		if (matriculationNumber == null || matriculationNumber.isEmpty()
+				|| deleteRenterCallback == null) {
+			return;
+		}
+
+		AsyncCallback<Boolean> realDeleteRenterCallback = new AsyncCallback<Boolean>() {
+
+			@Override
+			public void onSuccess(Boolean result) {
+				deleteRenterCallback.onSuccess(result);
+				fetchAllRenters();
+			}
+
+			@Override
+			public void onFailure(Throwable caught) {
+				deleteRenterCallback.onFailure(caught);
+
+			}
+		};
+		if (this.currentSession != null)
+			service.deleteRenter(currentSession.getSessionIdHash(),
+					matriculationNumber, realDeleteRenterCallback);
+
 	}
 
 	public void addNewStudent(SerializableRenter sr,
@@ -727,7 +782,8 @@ public class NewRentalSystem implements EntryPoint {
 					getSerializableRenterCallback);
 	}
 
-	public void updateExistingRenter(String matriculationNumber, SerializableRenter sr,
+	public void updateExistingRenter(String matriculationNumber,
+			SerializableRenter sr,
 			final AsyncCallback<Boolean> updateStudentInfocallback) {
 		if (sr == null || updateStudentInfocallback == null) {
 			return;
@@ -747,8 +803,8 @@ public class NewRentalSystem implements EntryPoint {
 			}
 		};
 		if (this.currentSession != null)
-			service.updateRenter(currentSession.getSessionIdHash(), matriculationNumber,
-					sr, updateRenterCallback);
+			service.updateRenter(currentSession.getSessionIdHash(),
+					matriculationNumber, sr, updateRenterCallback);
 	}
 
 }

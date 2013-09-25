@@ -34,7 +34,8 @@
 						horizontalAlignment="ALIGN_CENTER"></g:Label>
 				</g:Cell>
 				<g:Cell horizontalAlignment="ALIGN_RIGHT">
-					<g:Image url="images/Tum_logo.gif" pixelSize="200, 200"></g:Image>
+					<g:Image url="{imageResources.tumOsLogoTransparent.getSafeUri.asString}"
+						height="200px"></g:Image>
 				</g:Cell>
 			</g:HorizontalPanel>
 		</g:north>
@@ -105,14 +106,14 @@
 								</g:upFace>
 							</g:PushButton>
 						</g:Cell>
-								<g:Cell>
+						<g:Cell>
 							<g:PushButton ui:field="btnLoginLive" enabled="false">
 								<g:upFace>
 									<table>
 										<tr>
 											<td>
-												<img src="{imageResources.liveLogo.getSafeUri}"
-													width="32" height="32" />
+												<img src="{imageResources.liveLogo.getSafeUri}" width="32"
+													height="32" />
 											</td>
 											<td>
 												<b>
