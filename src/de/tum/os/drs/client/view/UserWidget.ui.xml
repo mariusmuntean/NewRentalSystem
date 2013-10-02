@@ -19,7 +19,7 @@
 		}
 		
 		.decPanelStyle {
-			background-color: #c0c0c0;
+			background-color: #2E8DEF;
 		}
 	</ui:style>
 

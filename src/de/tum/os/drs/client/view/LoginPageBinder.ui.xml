@@ -29,12 +29,13 @@
 					<g:Image url="images/Tum_logo.gif" pixelSize="200, 200"
 						height="200" width="200"></g:Image>
 				</g:Cell>
-				<g:Cell horizontalAlignment="ALIGN_CENTER">
+				<g:Cell horizontalAlignment="ALIGN_CENTER" verticalAlignment="ALIGN_MIDDLE">
 					<g:Label text="TUM Device Rental System" styleName="titleStyle"
 						horizontalAlignment="ALIGN_CENTER"></g:Label>
 				</g:Cell>
 				<g:Cell horizontalAlignment="ALIGN_RIGHT">
-					<g:Image url="{imageResources.tumOsLogoTransparent.getSafeUri.asString}"
+					<g:Image
+						url="{imageResources.tumOsLogoTransparent.getSafeUri.asString}"
 						height="200px"></g:Image>
 				</g:Cell>
 			</g:HorizontalPanel>

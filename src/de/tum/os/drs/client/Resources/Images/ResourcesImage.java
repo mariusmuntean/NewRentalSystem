@@ -43,4 +43,42 @@ public interface ResourcesImage extends ClientBundle {
 
 	ImageResource tumOsLogoTransparent();
 
+	@Source("de/tum/os/drs/client/Resources/Images/icons/devicesDown.png")
+	ImageResource devicesDown();
+
+	@Source("de/tum/os/drs/client/Resources/Images/icons/devicesUp.png")
+	ImageResource devicesUp();
+
+	@Source("de/tum/os/drs/client/Resources/Images/icons/historyDown.png")
+	ImageResource historyDown();
+
+	@Source("de/tum/os/drs/client/Resources/Images/icons/historyUp.png")
+	ImageResource historyUp();
+
+	@Source("de/tum/os/drs/client/Resources/Images/icons/overviewDown.png")
+	ImageResource overviewDown();
+
+	@Source("de/tum/os/drs/client/Resources/Images/icons/overviewUp.png")
+	ImageResource overviewUp();
+
+	@Source("de/tum/os/drs/client/Resources/Images/icons/rentDown.png")
+	ImageResource rentDown();
+
+	@Source("de/tum/os/drs/client/Resources/Images/icons/rentUp.png")
+	ImageResource rentUp();
+
+	@Source("de/tum/os/drs/client/Resources/Images/icons/returnDown.png")
+	ImageResource returnDown();
+
+	@Source("de/tum/os/drs/client/Resources/Images/icons/returnUp.png")
+	ImageResource returnUp();
+
+	@Source("de/tum/os/drs/client/Resources/Images/icons/studentsDown.png")
+	ImageResource studentsDown();
+
+	@Source("de/tum/os/drs/client/Resources/Images/icons/studentsUp.png")
+	ImageResource studentsUp();
+
+	ImageResource imeiSample();
+
 }

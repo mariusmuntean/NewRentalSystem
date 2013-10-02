@@ -1,16 +1,14 @@
 <!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
-	xmlns:g="urn:import:com.google.gwt.user.client.ui" 
-	xmlns:cell="urn:import:com.google.gwt.user.cellview.client"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:cell="urn:import:com.google.gwt.user.cellview.client"
 	xmlns:viz="urn:import:com.google.gwt.visualization.client.visualizations.corechart"
 	xmlns:extChart="urn:import:com.extjs.gxt.charts.client.model.charts"
 	xmlns:extGwt="urn:import:com.extjs.gxt.ui.client.widget.form"
 	xmlns:extGwtBtn="urn:import:com.extjs.gxt.ui.client.widget.button"
-	xmlns:extGwtWgt="urn:import:com.extjs.gxt.ui.client.widget" 
-	xmlns:v="urn:import:org.vaadin.gwtgraphics.client"
-	xmlns:vPath="urn:import:org.vaadin.gwtgraphics.client.shape.path"
-	xmlns:view="urn:import:de.tum.os.drs.client.view" 
-	xmlns:devType="de.tum.os.drs.client.model.DeviceType">
+	xmlns:extGwtWgt="urn:import:com.extjs.gxt.ui.client.widget"
+	xmlns:extGwtTip="urn:import:com.extjs.gxt.ui.client.widget.tips"
+	xmlns:v="urn:import:org.vaadin.gwtgraphics.client" xmlns:vPath="urn:import:org.vaadin.gwtgraphics.client.shape.path"
+	xmlns:view="urn:import:de.tum.os.drs.client.view" xmlns:devType="de.tum.os.drs.client.model.DeviceType">
 
 	<ui:style>
 		.signingCanvasStyle {
@@ -68,7 +66,15 @@
 		.deviceManagementVpanelStyle {
 			margin: 10px;
 		}
+		
+		.captionStyle legend {
+			font-weight: bold;
+			font-size: large;
+		}
 	</ui:style>
+
+	<ui:with field="imgRes"
+		type="de.tum.os.drs.client.Resources.Images.ResourcesImage" />
 
 	<g:VerticalPanel styleName="{style.vPanelStyle}">
 		<!-- HEADER -->
@@ -79,7 +85,7 @@
 					<g:Image url="images/Tum_logo.gif" pixelSize="200, 200"
 						height="200" width="200"></g:Image>
 				</g:Cell>
-				<g:Cell horizontalAlignment="ALIGN_CENTER">
+				<g:Cell horizontalAlignment="ALIGN_CENTER" verticalAlignment="ALIGN_MIDDLE">
 					<g:Label text="TUM Device Rental System" styleName="titleStyle"
 						horizontalAlignment="ALIGN_CENTER"></g:Label>
 				</g:Cell>
@@ -95,19 +101,31 @@
 				<!-- Page selection -->
 				<g:cell>
 					<g:VerticalPanel width="200px" height="auto"
-						horizontalAlignment="ALIGN_LEFT">
-						<g:RadioButton text="Overview" name="rBtnActionGroup"
-							ui:field="rBtnOverview" checked="true"></g:RadioButton>
-						<g:RadioButton text="Rent" name="rBtnActionGroup"
-							ui:field="rBtnRent"></g:RadioButton>
-						<g:RadioButton text="Return" name="rBtnActionGroup"
-							ui:field="rBtnReturn"></g:RadioButton>
-						<g:RadioButton text="History" name="rBtnActionGroup"
-							ui:field="rBtnHistory"></g:RadioButton>
-						<g:RadioButton text="Devices" name="rBtnActionGroup"
-							ui:field="rBtnManage"></g:RadioButton>
-						<g:RadioButton text="Students" name="rBtnActionGroup"
-							ui:field="rBtnManageStudents"></g:RadioButton>
+						horizontalAlignment="ALIGN_LEFT" spacing="5">
+						<g:ToggleButton ui:field="tglBtnOverview">
+							<g:downFace image="{imgRes.overviewDown}"></g:downFace>
+							<g:upFace image="{imgRes.overviewUp}"></g:upFace>
+						</g:ToggleButton>
+						<g:ToggleButton ui:field="tglBtnRent">
+							<g:downFace image="{imgRes.rentDown}"></g:downFace>
+							<g:upFace image="{imgRes.rentUp}"></g:upFace>
+						</g:ToggleButton>
+						<g:ToggleButton ui:field="tglBtnReturn">
+							<g:downFace image="{imgRes.returnDown}"></g:downFace>
+							<g:upFace image="{imgRes.returnUp}"></g:upFace>
+						</g:ToggleButton>
+						<g:ToggleButton ui:field="tglBtnHistory">
+							<g:downFace image="{imgRes.historyDown}"></g:downFace>
+							<g:upFace image="{imgRes.historyUp}"></g:upFace>
+						</g:ToggleButton>
+						<g:ToggleButton ui:field="tglBtnDevices">
+							<g:downFace image="{imgRes.devicesDown}"></g:downFace>
+							<g:upFace image="{imgRes.devicesUp}"></g:upFace>
+						</g:ToggleButton>
+						<g:ToggleButton ui:field="tglBtnStudents">
+							<g:downFace image="{imgRes.studentsDown}"></g:downFace>
+							<g:upFace image="{imgRes.studentsUp}"></g:upFace>
+						</g:ToggleButton>
 					</g:VerticalPanel>
 				</g:cell>
 
@@ -115,7 +133,7 @@
 				<g:cell width="100%">
 					<g:DeckPanel ui:field="deckPanelActualView"
 						animationEnabled="true" visible="true" styleName="{style.deckPanelStyle}">
-						
+
 						<!-- OverView -->
 						<g:Grid height="auto" borderWidth="2" styleName="overviewGridStyle"
 							width="100%">
@@ -125,7 +143,8 @@
 										verticalAlignment="ALIGN_MIDDLE" ui:field="hPanelOverview">
 										<g:Cell width="100%" height="auto">
 											<!-- PieChart -->
-											<g:CaptionPanel captionText="Recent Events">
+											<g:CaptionPanel captionText="Recent Events"
+												addStyleNames="{style.captionStyle}">
 												<cell:CellTable ui:field="tableHistoryOverview"
 													width="100%" height="auto" />
 											</g:CaptionPanel>
@@ -135,7 +154,8 @@
 							</g:row>
 							<g:row>
 								<g:customCell>
-									<g:CaptionPanel captionText="Available Devices">
+									<g:CaptionPanel captionText="Available Devices"
+										addStyleNames="{style.captionStyle}">
 										<!-- available devices -->
 										<cell:CellTable ui:field="tableAvailableDevices"
 											width="100%" height="auto"></cell:CellTable>
@@ -144,7 +164,8 @@
 							</g:row>
 							<g:row>
 								<g:customCell>
-									<g:CaptionPanel captionText="Rented Devices">
+									<g:CaptionPanel captionText="Rented Devices"
+										addStyleNames="{style.captionStyle}">
 										<!-- unavailable devices -->
 										<cell:CellTable ui:field="tableUnavailableDevices"
 											width="100%" height="auto"></cell:CellTable>
@@ -155,11 +176,13 @@
 						<!-- Rent -->
 						<g:VerticalPanel ui:field="vPanelRentPage" width="100%">
 							<g:cell>
-								<g:CaptionPanel captionText="1. Choose Student">
+								<g:CaptionPanel captionText="1. Choose Student"
+									addStyleNames="{style.captionStyle}">
 									<g:HorizontalPanel horizontalAlignment="ALIGN_CENTER">
 										<g:cell>
 											<g:CaptionPanel captionText="Registered Student"
-												styleName="{style.panelMarginstyle}" width="auto">
+												styleName="{style.panelMarginstyle}" addStyleNames="{style.captionStyle}"
+												width="auto">
 												<g:VerticalPanel>
 													<extGwt:ComboBox ui:field="cBoxRentRegisteredStudentName"
 														loadingText="Searching ..." forceSelection="true"
@@ -184,7 +207,8 @@
 										</g:cell>
 										<g:cell>
 											<g:CaptionPanel captionText="New Student"
-												styleName="{style.panelMarginstyle}" width="auto">
+												styleName="{style.panelMarginstyle}" addStyleNames="{style.captionStyle}"
+												width="auto">
 												<g:Grid>
 													<g:row>
 														<g:customCell>
@@ -221,7 +245,8 @@
 								</g:CaptionPanel>
 							</g:cell>
 							<g:cell>
-								<g:CaptionPanel captionText="2. Choose devices and sign">
+								<g:CaptionPanel captionText="2. Choose devices and sign"
+									addStyleNames="{style.captionStyle}">
 									<g:VerticalPanel>
 										<g:cell>
 											<g:HorizontalPanel>
@@ -235,15 +260,14 @@
 																<g:cell>
 																	<extGwt:ComboBox ui:field="cBoxRentSelectDevice"
 																		width="300" emptyText="Type a device code"
-																		displayField="imei" typeAhead="true"
-																		selectOnFocus="false" >
-																		</extGwt:ComboBox>
+																		displayField="imei" typeAhead="true" selectOnFocus="false">
+																	</extGwt:ComboBox>
 																</g:cell>
 															</g:VerticalPanel>
 														</g:cell>
 														<g:cell>
 															<g:Button text="Add" styleName="{style.panelMarginstyle}"
-															 ui:field="btnRent"></g:Button>
+																ui:field="btnRent"></g:Button>
 														</g:cell>
 														<g:cell>
 															<g:VerticalPanel styleName="{style.panelMarginstyle}">
@@ -252,8 +276,7 @@
 																		width="300" height="350"></extGwtWgt:ListView>
 																</g:cell>
 																<g:cell horizontalAlignment="ALIGN_CENTER">
-																	<g:Button text="Remove"
-																		ui:field="btnRentClearRentedList"></g:Button>
+																	<g:Button text="Remove" ui:field="btnRentClearRentedList"></g:Button>
 																</g:cell>
 															</g:VerticalPanel>
 														</g:cell>
@@ -305,8 +328,7 @@
 																	</g:HorizontalPanel>
 																</g:cell>
 																<g:cell horizontalAlignment="ALIGN_CENTER">
-																	<g:Button text="Rent"
-																		ui:field="btnSubmitRentEvent"></g:Button>
+																	<g:Button text="Rent" ui:field="btnSubmitRentEvent"></g:Button>
 																</g:cell>
 															</g:VerticalPanel>
 														</g:cell>
@@ -320,7 +342,7 @@
 						</g:VerticalPanel>
 						<!-- Return -->
 						<g:CaptionPanel ui:field="captionPanelReturnPage"
-							captionText="Select student and devices to return">
+							captionText="Select student and devices to return" addStyleNames="{style.captionStyle}">
 							<g:VerticalPanel width="100%" height="auto">
 								<g:cell>
 									<g:HorizontalPanel width="100%">
@@ -412,7 +434,8 @@
 						<!-- History -->
 						<g:VerticalPanel ui:field="vPanelHistoryPage">
 							<g:cell>
-								<g:CaptionPanel captionText="Filters">
+								<g:CaptionPanel captionText="Filters"
+									addStyleNames="{style.captionStyle}">
 									<g:HorizontalPanel>
 										<g:cell height="100%">
 											<g:VerticalPanel height="100%">
@@ -478,7 +501,8 @@
 								</g:CaptionPanel>
 							</g:cell>
 							<g:cell>
-								<g:CaptionPanel captionText="Results">
+								<g:CaptionPanel captionText="Results"
+									addStyleNames="{style.captionStyle}">
 									<cell:CellTable ui:field="tableHistoryEventsFiltered"
 										width="100%" height="auto"></cell:CellTable>
 								</g:CaptionPanel>
@@ -489,7 +513,8 @@
 							ui:field="decoratedTabPanelDeviceManagement">
 							<!-- ADD -->
 							<g:Tab text="Add">
-								<g:VerticalPanel styleName="{style.deviceManagementVpanelStyle}" spacing="5">
+								<g:VerticalPanel styleName="{style.deviceManagementVpanelStyle}"
+									spacing="5">
 									<g:cell>
 										<g:HorizontalPanel width="100%">
 											<g:cell>
@@ -517,7 +542,8 @@
 												</g:ListBox>
 											</g:cell>
 											<g:cell>
-												<g:Label text="IMEI: "></g:Label>
+												<extGwtWgt:Label ui:field="txtManageDevicesAdd_IMEIText"
+													html="IMEI: "></extGwtWgt:Label>
 											</g:cell>
 											<g:cell>
 												<g:TextBox ui:field="txtBoxManageDevicesAddIMEI">
@@ -540,9 +566,8 @@
 													characterWidth="50">
 												</g:TextArea>
 											</g:cell>
-											<g:cell width="100%" 
-											verticalAlignment="ALIGN_BOTTOM" 
-													horizontalAlignment="ALIGN_RIGHT">
+											<g:cell width="100%" verticalAlignment="ALIGN_BOTTOM"
+												horizontalAlignment="ALIGN_RIGHT">
 												<g:Button text="Add device" ui:field="btnManageDevicesAddNewDevice">
 												</g:Button>
 											</g:cell>
@@ -550,21 +575,21 @@
 									</g:cell>
 								</g:VerticalPanel>
 							</g:Tab>
-							<!--  View/Update/delete -->
+							<!-- View/Update/delete -->
 							<g:Tab text="View/Update/Delete">
 								<g:Grid>
 									<g:row>
 										<g:customCell>
 											<g:DecoratorPanel>
-												<g:CaptionPanel captionText="Select a device">
+												<g:CaptionPanel captionText="Select a device"
+													addStyleNames="{style.captionStyle}">
 													<g:VerticalPanel styleName="{style.vPanelNameOrMatricStyle}">
 														<extGwt:ComboBox ui:field="cBoxManageDevicesViewDevName"
 															loadingText="Searching ..." forceSelection="true"
 															hideTrigger="false" shim="true" autoHeight="true"
 															selectOnFocus="true" typeAhead="true" width="300"
 															emptyText="Type a device name" stateful="true"
-															displayField="name"
-															enabled="false">
+															displayField="name" enabled="false">
 														</extGwt:ComboBox>
 														<g:cell>
 															<g:Label text="or" horizontalAlignment="ALIGN_CENTER" />
@@ -573,7 +598,7 @@
 															loadingText="Searching ..." forceSelection="true"
 															autoHeight="true" selectOnFocus="true" width="300"
 															typeAhead="true" emptyText="Type an IMEI code" stateful="true"
-															displayField="imei" 
+															displayField="imei"
 															toolTip="Start typing a device code to update the list">
 														</extGwt:ComboBox>
 													</g:VerticalPanel>
@@ -594,7 +619,8 @@
 													</g:VerticalPanel>
 												</g:cell>
 												<g:cell verticalAlignment="ALIGN_MIDDLE">
-													<g:CaptionPanel captionText="Device Info">
+													<g:CaptionPanel captionText="Device Info"
+														addStyleNames="{style.captionStyle}">
 														<g:HorizontalPanel>
 															<g:cell>
 																<g:VerticalPanel>
@@ -659,7 +685,8 @@
 							ui:field="decoratedTabPanelStudentsManagement">
 							<!-- ADD -->
 							<g:Tab text="Add">
-								<g:VerticalPanel styleName="{style.deviceManagementVpanelStyle}" spacing="5">
+								<g:VerticalPanel styleName="{style.deviceManagementVpanelStyle}"
+									spacing="5">
 									<g:cell>
 										<g:HorizontalPanel width="100%">
 											<g:cell>
@@ -718,7 +745,8 @@
 									<g:row>
 										<g:customCell>
 											<g:DecoratorPanel>
-												<g:CaptionPanel captionText="Select a student">
+												<g:CaptionPanel captionText="Select a student"
+													addStyleNames="{style.captionStyle}">
 													<g:VerticalPanel styleName="{style.vPanelNameOrMatricStyle}">
 														<g:cell>
 															<extGwt:ComboBox ui:field="cBoxManageStudentsViewStudentName"
@@ -738,8 +766,7 @@
 																loadingText="Searching ..." forceSelection="true"
 																autoHeight="true" selectOnFocus="true" width="300"
 																typeAhead="true" emptyText="Type matriculation number"
-																stateful="true" displayField="matriculation" 
-																allowBlank="true">
+																stateful="true" displayField="matriculation" allowBlank="true">
 															</extGwt:ComboBox>
 														</g:cell>
 													</g:VerticalPanel>
@@ -749,7 +776,8 @@
 										<g:customCell>
 											<g:VerticalPanel>
 												<g:cell verticalAlignment="ALIGN_MIDDLE">
-													<g:CaptionPanel captionText="Student Info">
+													<g:CaptionPanel captionText="Student Info"
+														addStyleNames="{style.captionStyle}">
 														<g:HorizontalPanel>
 															<g:cell>
 																<g:VerticalPanel>

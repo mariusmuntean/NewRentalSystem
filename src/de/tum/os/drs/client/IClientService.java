@@ -113,6 +113,8 @@ public interface IClientService extends RemoteService {
 	 * @return - A list of all renters.
 	 */
 	ArrayList<SerializableRenter> getAllRenters(int sessionIdHash);
+	
+	ArrayList<SerializableRenter> getAllActiveRenters(int sessionIdHash);
 
 	/**
 	 * Deletes the given SerializableRenter object from the storage.

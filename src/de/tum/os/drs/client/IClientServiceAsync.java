@@ -81,4 +81,7 @@ public interface IClientServiceAsync {
 			AsyncCallback<RentalSession> callback);
 
 	void logout(int sessionIdHash, AsyncCallback<Boolean> callback);
+
+	void getAllActiveRenters(int sessionIdHash,
+			AsyncCallback<ArrayList<SerializableRenter>> callback);
 }

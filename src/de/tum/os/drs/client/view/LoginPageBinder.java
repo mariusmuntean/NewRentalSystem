@@ -20,10 +20,12 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+import de.tum.os.drs.client.Resources.Images.ResourcesImage;
 import de.tum.os.drs.client.helpers.CookieHelper;
 import de.tum.os.drs.client.helpers.OAuthApiHelper;
 import de.tum.os.drs.client.helpers.OAuthParser;
@@ -50,8 +52,6 @@ public class LoginPageBinder extends Composite implements HasText {
 	@UiField
 	PushButton btnLoginTUM;
 
-	DialogBox modalLoader;
-
 	/*
 	 * Callback
 	 */
@@ -60,22 +60,25 @@ public class LoginPageBinder extends Composite implements HasText {
 	interface LoginPageBinderUiBinder extends UiBinder<Widget, LoginPageBinder> {
 	}
 
-	IAuthenticator googleAuthenticator, facebookAuthenticator, liveAuthenticator, twitterAuthenticator;
+	IAuthenticator googleAuthenticator, facebookAuthenticator,
+			liveAuthenticator, twitterAuthenticator;
 
-	public LoginPageBinder(Callback<String, Throwable> facebookCallback,
-			Callback<String, Throwable> googleCallback,
-			Callback<String, Throwable> twitterCallback) {
+	DialogBox modalLoader;
 
-		initWidget(uiBinder.createAndBindUi(this));
-		instantiateControls();
-
-		// this.ggCallback = googleCallback;
-		// this.fbCallback = facebookCallback;
-		// this.twCallback = twitterCallback;
-
-		showModalLoader();
-		authenticateIfValidTokenFound();
-	}
+	// public LoginPageBinder(Callback<String, Throwable> facebookCallback,
+	// Callback<String, Throwable> googleCallback,
+	// Callback<String, Throwable> twitterCallback) {
+	//
+	// initWidget(uiBinder.createAndBindUi(this));
+	// instantiateControls();
+	//
+	// // this.ggCallback = googleCallback;
+	// // this.fbCallback = facebookCallback;
+	// // this.twCallback = twitterCallback;
+	//
+	// showModalLoader();
+	// // authenticateIfValidTokenFound();
+	// }
 
 	public LoginPageBinder(
 			Callback<Tuple<String, OAuthAuthorities>, Throwable> genericAfterAuthCallback) {
@@ -90,9 +93,12 @@ public class LoginPageBinder extends Composite implements HasText {
 	}
 
 	private void enableLoginScreenIfNotAuthenticated() {
-		this.googleAuthenticator = new GoogleAuthenticator(genericAfterAuthCallback);
-		this.facebookAuthenticator = new FacebookAuthenticator(genericAfterAuthCallback);
-		this.twitterAuthenticator = new TwitterAuthenticator(genericAfterAuthCallback);
+		this.googleAuthenticator = new GoogleAuthenticator(
+				genericAfterAuthCallback);
+		this.facebookAuthenticator = new FacebookAuthenticator(
+				genericAfterAuthCallback);
+		this.twitterAuthenticator = new TwitterAuthenticator(
+				genericAfterAuthCallback);
 		this.liveAuthenticator = new LiveAuthenticator(genericAfterAuthCallback);
 
 		wireUpControls();
@@ -119,11 +125,13 @@ public class LoginPageBinder extends Composite implements HasText {
 		checkTokenValidity(token, authenticator);
 	}
 
-	private void checkTokenValidity(final String token, final OAuthAuthorities oAuthAuthority) {
+	private void checkTokenValidity(final String token,
+			final OAuthAuthorities oAuthAuthority) {
 		String url = OAuthApiHelper.getAuthUrlFromAuthority(oAuthAuthority);
 
 		// Leave if any problem occurs. Don't bother the user.
-		if (url == null || url.length() <= 0 || genericAfterAuthCallback == null) {
+		if (url == null || url.length() <= 0
+				|| genericAfterAuthCallback == null) {
 			enableLoginScreenIfNotAuthenticated();
 			return;
 		}
@@ -136,7 +144,8 @@ public class LoginPageBinder extends Composite implements HasText {
 			Request req = rb.sendRequest(null, new RequestCallback() {
 
 				@Override
-				public void onResponseReceived(Request request, Response response) {
+				public void onResponseReceived(Request request,
+						Response response) {
 					// Window.alert("Response: " + response.getText());
 					String jsonString = response.getText();
 					if (OAuthParser.hasError(jsonString)) {
@@ -150,8 +159,8 @@ public class LoginPageBinder extends Composite implements HasText {
 								.getAuthenticatedUsername(jsonString);
 						CookieHelper.setAuthenticatedUsername(username);
 						genericAfterAuthCallback
-								.onSuccess(new Tuple<String, OAuthAuthorities>(token,
-										oAuthAuthority));
+								.onSuccess(new Tuple<String, OAuthAuthorities>(
+										token, oAuthAuthority));
 
 					}
 				}
@@ -194,36 +203,51 @@ public class LoginPageBinder extends Composite implements HasText {
 	// }
 
 	private void instantiateControls() {
+
+	}
+
+	private DialogBox getModalLoader() {
 		// Init modal loader wheel
-		this.modalLoader = new DialogBox();
+		DialogBox poPanel = new DialogBox(false, true);
 		VerticalPanel dialogContent = new VerticalPanel();
+		dialogContent.setSpacing(5);
+
 		// Image imgLoader = new Image("../../../../../../Resources/Images/loader.gif");
-		Image imgLoader = new Image("images/loader.gif");
+		Image imgLoader = new Image(ResourcesImage.INSTANCE.loader()
+				.getSafeUri().asString());
+		dialogContent.add(imgLoader);
 		Label lblModalText = new Label("Trying to authenticate you.");
 		dialogContent.add(lblModalText);
-		dialogContent.add(imgLoader);
 		dialogContent.setCellHorizontalAlignment(lblModalText,
 				HasHorizontalAlignment.ALIGN_CENTER);
 		dialogContent.setCellHorizontalAlignment(imgLoader,
 				HasHorizontalAlignment.ALIGN_CENTER);
-		this.modalLoader.setWidget(dialogContent);
-		this.modalLoader.setAnimationEnabled(true);
-		this.modalLoader.setGlassEnabled(true);
-		this.modalLoader.setModal(true);
+		poPanel.setWidget(dialogContent);
+		poPanel.setAnimationEnabled(true);
+		poPanel.setGlassEnabled(true);
+		poPanel.setPopupPosition(
+				Window.getClientWidth() / 2 - imgLoader.getWidth() / 2,
+				Window.getClientHeight() / 2 - imgLoader.getHeight() / 2);
 
+		return poPanel;
 	}
 
 	private void showModalLoader() {
 		if (this.modalLoader != null) {
-			this.modalLoader.show();
-			this.modalLoader.center();
+			this.modalLoader.hide();
+			this.modalLoader = null;
 		}
 
+		this.modalLoader = getModalLoader();
+		 this.modalLoader.getElement().getStyle().setZIndex(123);
+		this.modalLoader.show();
+		// this.modalLoader.showRelativeTo(btnLoginFacebook);
 	}
 
 	private void hideModalLoader() {
-		if (this.modalLoader != null)
+		if (this.modalLoader != null) {
 			this.modalLoader.hide();
+		}
 	}
 
 	private void wireUpControls() {
@@ -248,7 +272,7 @@ public class LoginPageBinder extends Composite implements HasText {
 
 			}
 		});
-		
+
 		btnLoginLive.addClickHandler(new ClickHandler() {
 
 			@Override
@@ -270,9 +294,9 @@ public class LoginPageBinder extends Composite implements HasText {
 
 			}
 		});
-		
+
 		btnLoginTUM.addClickHandler(new ClickHandler() {
-			
+
 			@Override
 			public void onClick(ClickEvent event) {
 				DialogBox dBox = createDialogBox();
@@ -280,54 +304,54 @@ public class LoginPageBinder extends Composite implements HasText {
 				dBox.setAnimationEnabled(true);
 				dBox.center();
 				dBox.show();
-				
+
 			}
 		});
 	}
-	
-	  private DialogBox createDialogBox() {
-		    // Create a dialog box and set the caption text
-		    final DialogBox dialogBox = new DialogBox();
-		    dialogBox.ensureDebugId("cwDialogBox");
-		    dialogBox.setText("TUM Login Instructions");
 
-		    // Create a table to layout the content
-		    VerticalPanel dialogContents = new VerticalPanel();
-		    dialogContents.setSpacing(4);
-		    dialogBox.setWidget(dialogContents);
+	private DialogBox createDialogBox() {
+		// Create a dialog box and set the caption text
+		final DialogBox dialogBox = new DialogBox();
+		dialogBox.ensureDebugId("cwDialogBox");
+		dialogBox.setText("TUM Login Instructions");
 
-		    // Add some text to the top of the dialog
-		    HTML details = new HTML("Coming soon.");
-		    dialogContents.add(details);
-		    dialogContents.setCellHorizontalAlignment(
-		        details, HasHorizontalAlignment.ALIGN_CENTER);
+		// Create a table to layout the content
+		VerticalPanel dialogContents = new VerticalPanel();
+		dialogContents.setSpacing(4);
+		dialogBox.setWidget(dialogContents);
 
-		    // Add an image to the dialog
-		    Image image = new Image("http://clubpenguincheatscitya4.files.wordpress.com/2011/08/1_token.jpg");
-		    dialogContents.add(image);
-		    dialogContents.setCellHorizontalAlignment(
-		        image, HasHorizontalAlignment.ALIGN_CENTER);
+		// Add some text to the top of the dialog
+		HTML details = new HTML("Coming soon.");
+		dialogContents.add(details);
+		dialogContents.setCellHorizontalAlignment(details,
+				HasHorizontalAlignment.ALIGN_CENTER);
 
-		    // Add a close button at the bottom of the dialog
-		    Button closeButton = new Button(
-		        "Close", new ClickHandler() {
-		          public void onClick(ClickEvent event) {
-		            dialogBox.hide();
-		          }
-		        });
-		    dialogContents.add(closeButton);
-		    if (LocaleInfo.getCurrentLocale().isRTL()) {
-		      dialogContents.setCellHorizontalAlignment(
-		          closeButton, HasHorizontalAlignment.ALIGN_LEFT);
+		// Add an image to the dialog
+		Image image = new Image(
+				"http://clubpenguincheatscitya4.files.wordpress.com/2011/08/1_token.jpg");
+		dialogContents.add(image);
+		dialogContents.setCellHorizontalAlignment(image,
+				HasHorizontalAlignment.ALIGN_CENTER);
 
-		    } else {
-		      dialogContents.setCellHorizontalAlignment(
-		          closeButton, HasHorizontalAlignment.ALIGN_RIGHT);
-		    }
+		// Add a close button at the bottom of the dialog
+		Button closeButton = new Button("Close", new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				dialogBox.hide();
+			}
+		});
+		dialogContents.add(closeButton);
+		if (LocaleInfo.getCurrentLocale().isRTL()) {
+			dialogContents.setCellHorizontalAlignment(closeButton,
+					HasHorizontalAlignment.ALIGN_LEFT);
 
-		    // Return the dialog box
-		    return dialogBox;
-		  }
+		} else {
+			dialogContents.setCellHorizontalAlignment(closeButton,
+					HasHorizontalAlignment.ALIGN_RIGHT);
+		}
+
+		// Return the dialog box
+		return dialogBox;
+	}
 
 	public LoginPageBinder(String firstName) {
 		initWidget(uiBinder.createAndBindUi(this));

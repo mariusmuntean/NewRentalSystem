@@ -381,6 +381,27 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 
 		return srs;
 	}
+	
+	@Override
+	public ArrayList<SerializableRenter> getAllActiveRenters(int sessionIdHash) {
+		if (ValidateSession(sessionIdHash) == false) {
+			return null;
+		}
+
+		EntityManager em = factory.createEntityManager();
+		Query q = em.createQuery("select distinct p from PersistentRenter p JOIN p.rentedDevices r");
+		ArrayList<PersistentRenter> prs = new ArrayList<PersistentRenter>(
+				q.getResultList());
+		ArrayList<SerializableRenter> srs = new ArrayList<SerializableRenter>(prs.size());
+		System.out.println("Returning active renters: " + prs.size());
+		for (PersistentRenter pr : prs) {
+			System.out.println("Getting active renter: " + pr.toString());
+			srs.add(sRenterFromPrenter(pr));
+		}
+		
+
+		return srs;
+	}
 
 	@Override
 	public Boolean deleteRenter(int sessionIdHash, SerializableRenter renter) {
@@ -948,4 +969,5 @@ public class ServiceImpl extends RemoteServiceServlet implements IClientService 
 
 		return true;
 	}
+
 }

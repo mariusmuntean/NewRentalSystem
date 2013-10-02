@@ -1,9 +1,10 @@
-.overdueDeviceRowStyle{
-background-color: #FF0000;
+/* Overview Page styles*/
+.overdueDeviceRowStyle {
+	background-color: #FF0000;
 }
 
-.inTimeDeviceRowStyle{
-background-color: #FFFF00;
+.inTimeDeviceRowStyle {
+	background-color: #FFFF00;
 }
 
 .rentEventRowStyle {
@@ -11,5 +12,14 @@ background-color: #FFFF00;
 }
 
 .returnEventRowtyle {
-	background-color: #7FFF00;
+	background-color: #33BD22;
+}
+
+.deviceNameStyle {
+	font-weight: bold;
+	font-size: larger;
+}
+
+.deviceImeiStyle{
+	font-weight: bold;
 }

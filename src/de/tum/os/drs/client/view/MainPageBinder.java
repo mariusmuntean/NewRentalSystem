@@ -20,18 +20,17 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.store.Store;
-import com.extjs.gxt.ui.client.store.StoreEvent;
-import com.extjs.gxt.ui.client.store.StoreListener;
 import com.extjs.gxt.ui.client.widget.DatePicker;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.ListView;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.flash.FlashComponent;
+import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
+import com.extjs.gxt.ui.client.widget.tips.QuickTip;
+import com.extjs.gxt.ui.client.widget.tips.ToolTip;
+import com.extjs.gxt.ui.client.widget.tips.ToolTipConfig;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.dom.client.Style.FontWeight;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -49,6 +48,7 @@ import com.google.gwt.event.dom.client.MouseUpHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.resources.client.CssResource.NotStrict;
+import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.cellview.client.CellBrowser;
@@ -57,16 +57,15 @@ import com.google.gwt.user.cellview.client.CellTable.Resources;
 import com.google.gwt.user.cellview.client.RowStyles;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.CaptionPanel;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.DecoratedTabPanel;
 import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.Grid;
-import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
@@ -75,9 +74,7 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
-import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.RadioButton;
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SuggestBox;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
@@ -95,6 +92,7 @@ import com.google.gwt.visualization.client.visualizations.corechart.PieChart.Pie
 import com.google.gwt.visualization.client.visualizations.corechart.TextStyle;
 
 import de.tum.os.drs.client.NewRentalSystem;
+import de.tum.os.drs.client.Resources.Images.ResourcesImage;
 import de.tum.os.drs.client.helpers.barcodes.BitMatrix;
 import de.tum.os.drs.client.helpers.barcodes.Decoder;
 import de.tum.os.drs.client.helpers.barcodes.DecoderResult;
@@ -128,6 +126,9 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		@Source(value = { CellTable.Style.DEFAULT_CSS,
 				"../../../../../../Resources/Styles/CellTableStyle.css" })
 		CellTable.Style cellTableStyle();
+
+		@Source("../Resources/Images/loader.gif")
+		ImageResource cellTableLoading();
 	}
 
 	/*
@@ -162,8 +163,8 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	HorizontalPanel hPanelOverview;
 
 	@UiField
-	RadioButton rBtnOverview, rBtnRent, rBtnReturn, rBtnHistory, rBtnManage,
-			rBtnManageStudents;
+	com.google.gwt.user.client.ui.ToggleButton tglBtnOverview, tglBtnRent,
+			tglBtnReturn, tglBtnHistory, tglBtnDevices, tglBtnStudents;
 
 	PieChart pChartRentedVsAvailable;
 
@@ -291,6 +292,10 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	 * Manage devices controls
 	 */
 	// Add
+
+	@UiField
+	com.extjs.gxt.ui.client.widget.Label txtManageDevicesAdd_IMEIText;
+
 	@UiField
 	DecoratedTabPanel decoratedTabPanelDeviceManagement;
 
@@ -423,6 +428,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	 * Stores region
 	 */
 	private ListStore<DisplayableRenter> displayableRentersListStore = new ListStore<DisplayableRenter>();
+	private ListStore<DisplayableRenter> displayableActiveRentersListStore = new ListStore<DisplayableRenter>();
 	private ListStore<DisplayableDevice> availableDevicesListStore = new ListStore<DisplayableDevice>();
 	private ListStore<DisplayableDevice> selectedDevicesListStore = new ListStore<DisplayableDevice>();
 	private ListStore<DisplayableRenter> displayableRentersFilterListStore = new ListStore<DisplayableRenter>();
@@ -437,6 +443,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	private ListDataProvider<PersistentEvent> eventsHistoryDataProvider;
 	private ListDataProvider<PersistentEvent> eventsFilteredHistoryDataProvider;
 	private ListDataProvider<SerializableRenter> allRentersDataProvider;
+	private ListDataProvider<SerializableRenter> allActiveRentersDataProvider;
 	private ListDataProvider<PersistentDevice> allRentedDevicesDataProvider;
 
 	/*
@@ -465,10 +472,12 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 			ListDataProvider<PersistentEvent> eventsHistoryDataProvider,
 			ListDataProvider<PersistentEvent> eventsFilteredHistoryDataProvider,
 			ListStore<DisplayableRenter> displayableRentersListStore,
+			ListStore<DisplayableRenter> displayableActiveRentersListStore,
 			ListStore<DisplayableDevice> availableDevicesListStore,
 			ListStore<DisplayableRenter> displayableRentersFilterListStore,
 			ListStore<DisplayableDevice> displayableDevicesFilterListStore,
 			ListDataProvider<SerializableRenter> allRentersDataProvider,
+			ListDataProvider<SerializableRenter> allActiveRentersDataProvider,
 			ListDataProvider<PersistentDevice> allRentedDevicesDataProvider,
 			MultiWordSuggestOracle deviceNamesOracle,
 			ListStore<DisplayableDevice> allDisplayableDevicesListStore) {
@@ -479,10 +488,12 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		this.eventsHistoryDataProvider = eventsHistoryDataProvider;
 		this.eventsFilteredHistoryDataProvider = eventsFilteredHistoryDataProvider;
 		this.displayableRentersListStore = displayableRentersListStore;
+		this.displayableActiveRentersListStore = displayableActiveRentersListStore;
 		this.availableDevicesListStore = availableDevicesListStore;
 		this.displayableRentersFilterListStore = displayableRentersFilterListStore;
 		this.displayableDevicesFilterListStore = displayableDevicesFilterListStore;
 		this.allRentersDataProvider = allRentersDataProvider;
+		this.allActiveRentersDataProvider = allActiveRentersDataProvider;
 		this.allRentedDevicesDataProvider = allRentedDevicesDataProvider;
 		this.manageDevicesAddNamesOracle = deviceNamesOracle;
 		this.allDisplayableDevicesListStore = allDisplayableDevicesListStore;
@@ -560,14 +571,15 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		cBoxReturnRegisteredStudentName = new ComboBox<DisplayableRenter>();
 		cBoxReturnRegisteredStudentName
 				.setSimpleTemplate(rentStudentComboTemplate);
-		cBoxReturnRegisteredStudentName.setStore(displayableRentersListStore);
+		cBoxReturnRegisteredStudentName
+				.setStore(displayableActiveRentersListStore);
 		cBoxReturnRegisteredStudentName.setTriggerAction(TriggerAction.ALL);
 
 		cBoxReturnRegisteredStudentMatriculation = new ComboBox<DisplayableRenter>();
 		cBoxReturnRegisteredStudentMatriculation
 				.setSimpleTemplate(rentStudentComboTemplate);
 		cBoxReturnRegisteredStudentMatriculation
-				.setStore(displayableRentersFilterListStore);
+				.setStore(displayableActiveRentersListStore);
 		cBoxReturnRegisteredStudentMatriculation
 				.setTriggerAction(TriggerAction.ALL);
 
@@ -588,7 +600,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 
 			}
 		};
-		rtvm = new RenterTreeViewModel(allRentersDataProvider,
+		rtvm = new RenterTreeViewModel(allActiveRentersDataProvider,
 				allRentedDevicesDataProvider, deviceSelectionHandler);
 		cellBrowserReturn = new CellBrowser(rtvm, null);
 
@@ -643,13 +655,13 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 	}
 
 	private void wireUpControls() {
-		// Radio buttons for changing between pages
-		rBtnHistory.addClickHandler(this);
-		rBtnManage.addClickHandler(this);
-		rBtnOverview.addClickHandler(this);
-		rBtnRent.addClickHandler(this);
-		rBtnReturn.addClickHandler(this);
-		rBtnManageStudents.addClickHandler(this);
+		// Toggle buttons for changing between pages
+		tglBtnOverview.addClickHandler(this);
+		tglBtnRent.addClickHandler(this);
+		tglBtnReturn.addClickHandler(this);
+		tglBtnHistory.addClickHandler(this);
+		tglBtnDevices.addClickHandler(this);
+		tglBtnStudents.addClickHandler(this);
 
 		// Rent page
 		registeredStudentChanged rsc = new registeredStudentChanged();
@@ -786,6 +798,19 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		// Publish methods for Flash component
 		publishDecodeMthod();
 		publishShowResultMethod();
+
+		ToolTipConfig tTipImei = new ToolTipConfig();
+		tTipImei.setTrackMouse(true);
+		VerticalPanel imeiToolTipContent = new VerticalPanel();
+		Label lblImeiToolTipText = new Label("The IMEI code uniquely identifies any mobile phone in the world.\n You can find it on the box your phone came in.\nSee picture below.");
+		Image imgToolTipImei = new Image(ResourcesImage.INSTANCE.imeiSample().getSafeUri().asString());
+		imgToolTipImei.setWidth("285px");
+		imeiToolTipContent.setSpacing(5);
+		imeiToolTipContent.add(lblImeiToolTipText);
+		imeiToolTipContent.add(imgToolTipImei);
+		tTipImei.setHtml(imeiToolTipContent.getElement().getString());
+//		tTipImei.setCloseable(true);
+		txtManageDevicesAdd_IMEIText.setToolTip(tTipImei);
 
 		// View
 		cBoxManageDevicesViewDevIMEI
@@ -930,7 +955,8 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 				boolean found = false;
 				for (int i = 0; i < cBoxManageDevicesViewDevState
 						.getItemCount(); i++) {
-					if (cBoxManageDevicesViewDevState.getItemText(i).toLowerCase().trim()
+					if (cBoxManageDevicesViewDevState.getItemText(i)
+							.toLowerCase().trim()
 							.equals(result.getState().toLowerCase().trim())) {
 						found = true;
 						cBoxManageDevicesViewDevState.setSelectedIndex(i);
@@ -1063,13 +1089,15 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 				15, (Resources) GWT.create(CellTableResources.class));
 		newTable.setTableLayoutFixed(false);
 
+		newTable.setVisibleRangeAndClearData(newTable.getVisibleRange(), true);
+
 		// Create the number column
 		TextColumn<PersistentDevice> numberColumn = new TextColumn<PersistentDevice>() {
 
 			@Override
 			public String getValue(PersistentDevice object) {
 				return String
-						.valueOf(lstDataProvider.getList().indexOf(object));
+						.valueOf(lstDataProvider.getList().indexOf(object) + 1);
 			}
 		};
 
@@ -1101,6 +1129,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 				return persistentDevice.getName();
 			}
 		};
+		nameColumn.setCellStyleNames("deviceNameStyle");
 
 		// Create IMEI column.
 		TextColumn<PersistentDevice> imeiColumn = new TextColumn<PersistentDevice>() {
@@ -1109,6 +1138,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 				return persistentDevice.getIMEI();
 			}
 		};
+		imeiColumn.setCellStyleNames("deviceImeiStyle");
 
 		// In case it is the table for rented devices add another column
 		TextColumn<PersistentDevice> estimatedReturnDateColumn = null;
@@ -1291,14 +1321,20 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 			}
 		};
 
+		// // Create name column.
+		// TextColumn<PersistentEvent> nameColumn = new TextColumn<PersistentEvent>() {
+		// @Override
+		// public String getValue(PersistentEvent persistentEvent) {
+		// Label nameLabel = new Label("Test");
+		// nameLabel.getElement().getStyle()
+		// .setFontWeight(FontWeight.BOLD);
+		// return nameLabel.toString() + persistentEvent.getPersName()
+		// + " (" + persistentEvent.getPersMatriculationNumber()
+		// + ")";
+		// }
+		// };
 		// Create name column.
-		TextColumn<PersistentEvent> nameColumn = new TextColumn<PersistentEvent>() {
-			@Override
-			public String getValue(PersistentEvent persistentEvent) {
-				return persistentEvent.getPersName() + "\n("
-						+ persistentEvent.getPersMatriculationNumber() + ")";
-			}
-		};
+		NameAndIdColumn nameColumn = new NameAndIdColumn();
 
 		// Create Email column.
 		TextColumn<PersistentEvent> emailColumn = new TextColumn<PersistentEvent>() {
@@ -1327,14 +1363,16 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 			}
 		};
 
+		// // Create Device name column.
+		// TextColumn<PersistentEvent> deviceNameColumn = new TextColumn<PersistentEvent>() {
+		// @Override
+		// public String getValue(PersistentEvent persistentEvent) {
+		// return persistentEvent.getDevName() + "("
+		// + persistentEvent.getImeiCode() + ")";
+		// }
+		// };
 		// Create Device name column.
-		TextColumn<PersistentEvent> deviceNameColumn = new TextColumn<PersistentEvent>() {
-			@Override
-			public String getValue(PersistentEvent persistentEvent) {
-				return persistentEvent.getDevName() + "("
-						+ persistentEvent.getImeiCode() + ")";
-			}
-		};
+		DeviceNameAndImeiColumn deviceNameColumn = new DeviceNameAndImeiColumn();
 
 		// Make columns sortable
 		nameColumn.setSortable(true);
@@ -1507,25 +1545,32 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		// A little unsafe. Make sure there really exist enough widgets such that the index is right.
 		String parentWidth = String.valueOf(deckPanelActualView.getElement()
 				.getClientWidth()) + "px";
-		if (sender == rBtnOverview)
+		if (sender == tglBtnOverview) {
 			deckPanelActualView.showWidget(0);
-		if (sender == rBtnRent) {
+			untoggleGategoryButtons(sender);
+		}
+		if (sender == tglBtnRent) {
+			untoggleGategoryButtons(sender);
 			vPanelRentPage.setWidth(parentWidth);
 			deckPanelActualView.showWidget(1);
 		}
-		if (sender == rBtnReturn) {
+		if (sender == tglBtnReturn) {
+			untoggleGategoryButtons(sender);
 			captionPanelReturnPage.setWidth(parentWidth);
 			deckPanelActualView.showWidget(2);
 		}
-		if (sender == rBtnHistory) {
+		if (sender == tglBtnHistory) {
+			untoggleGategoryButtons(sender);
 			vPanelHistoryPage.setWidth(parentWidth);
 			deckPanelActualView.showWidget(3);
 		}
-		if (sender == rBtnManage) {
+		if (sender == tglBtnDevices) {
+			untoggleGategoryButtons(sender);
 			decoratedTabPanelDeviceManagement.setWidth(parentWidth);
 			deckPanelActualView.showWidget(4);
 		}
-		if (sender == rBtnManageStudents) {
+		if (sender == tglBtnStudents) {
+			untoggleGategoryButtons(sender);
 			decoratedTabPanelStudentsManagement.setWidth(parentWidth);
 			deckPanelActualView.showWidget(5);
 		}
@@ -1588,6 +1633,30 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 		}
 		if (sender == btnManageStudentsViewUpdate) {
 			updateStudentInfo();
+		}
+
+	}
+
+	private void untoggleGategoryButtons(Widget sender) {
+		if (sender == null
+				&& !(sender instanceof com.google.gwt.user.client.ui.ToggleButton)) {
+			return;
+		}
+		ArrayList<com.google.gwt.user.client.ui.ToggleButton> categoryButtons = new ArrayList<com.google.gwt.user.client.ui.ToggleButton>() {
+			{
+				add(tglBtnOverview);
+				add(tglBtnRent);
+				add(tglBtnReturn);
+				add(tglBtnHistory);
+				add(tglBtnDevices);
+				add(tglBtnStudents);
+			}
+		};
+
+		for (com.google.gwt.user.client.ui.ToggleButton tglBtn : categoryButtons) {
+			if (sender != tglBtn) {
+				tglBtn.setDown(false);
+			}
 		}
 
 	}
@@ -1873,7 +1942,7 @@ public class MainPageBinder extends Composite implements HasText, ClickHandler,
 					cBoxManageDevicesViewDevState.setSelectedIndex(0);
 					imgManageDevicesViewDevImage.setUrl("images/devices/"
 							+ deviceNotFoundImage);
-					
+
 					// Clear selection coboboxes
 					cBoxManageDevicesViewDevName.setRawValue("");
 					cBoxManageDevicesViewDevIMEI.setRawValue("");

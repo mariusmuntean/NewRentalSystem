@@ -64,9 +64,12 @@ public class NewRentalSystem implements EntryPoint {
 	ListDataProvider<PersistentEvent> eventsFilteredHistoryDataProvider = new ListDataProvider<PersistentEvent>();
 
 	ListStore<DisplayableRenter> displayableRentersListStore = new ListStore<DisplayableRenter>();
+	ListStore<DisplayableRenter> displayableActiveRentersListStore = new ListStore<DisplayableRenter>();
 	ListStore<DisplayableDevice> availableDevicesListStore = new ListStore<DisplayableDevice>();
 
 	ListDataProvider<SerializableRenter> allRentersDataProvider = new ListDataProvider<SerializableRenter>(
+			new ArrayList<SerializableRenter>());
+	ListDataProvider<SerializableRenter> allActiveRentersDataProvider = new ListDataProvider<SerializableRenter>(
 			new ArrayList<SerializableRenter>());
 	ListDataProvider<PersistentDevice> allRentedDevicesDataProvider = new ListDataProvider<PersistentDevice>(
 			new ArrayList<PersistentDevice>());
@@ -226,9 +229,9 @@ public class NewRentalSystem implements EntryPoint {
 		mainPageBinder = new MainPageBinder(NewRentalSystem.this,
 				availableDevicesDataProvider, unavailableDevicesDataProvider,
 				eventsHistoryDataProvider, eventsFilteredHistoryDataProvider,
-				displayableRentersListStore, availableDevicesListStore,
-				displayableRentersFilterListStore,
-				displayableDevicesFilterListStore, allRentersDataProvider,
+				displayableRentersListStore, displayableActiveRentersListStore,
+				availableDevicesListStore, displayableRentersFilterListStore,
+				displayableDevicesFilterListStore, allRentersDataProvider, allActiveRentersDataProvider,
 				allRentedDevicesDataProvider, deviceNamesSuggestOracle,
 				allDisplayableDevicesListStore);
 		fetchData();
@@ -252,6 +255,7 @@ public class NewRentalSystem implements EntryPoint {
 				fetchAvailableDevices();
 				fetchUnavailableDevices();
 				fetchAllRenters();
+				fetchAllActiveRenters();
 				rentDevicesResultCallback.onSuccess(result);
 			}
 
@@ -307,6 +311,7 @@ public class NewRentalSystem implements EntryPoint {
 				fetchAvailableDevices();
 				fetchUnavailableDevices();
 				fetchAllRenters();
+				fetchAllActiveRenters();
 				returnDevicesResultBCallback.onSuccess(result);
 
 			}
@@ -329,6 +334,7 @@ public class NewRentalSystem implements EntryPoint {
 		fetchEventsHistory();
 
 		fetchAllRenters();
+		fetchAllActiveRenters();
 		fetchAllDevices();
 
 	}
@@ -371,21 +377,19 @@ public class NewRentalSystem implements EntryPoint {
 
 	private void fetchAllRenters() {
 		AsyncCallback<ArrayList<SerializableRenter>> callback = new AsyncCallback<ArrayList<SerializableRenter>>() {
-
 			@Override
 			public void onSuccess(ArrayList<SerializableRenter> result) {
 				updateAllRenters(result);
-
 			}
 
 			@Override
 			public void onFailure(Throwable caught) {
 				// TODO Auto-generated method stub
-
 			}
 		};
-		if (this.currentSession != null)
+		if (this.currentSession != null) {
 			service.getAllRenters(currentSession.getSessionIdHash(), callback);
+		}
 	}
 
 	protected void updateAllRenters(ArrayList<SerializableRenter> result) {
@@ -400,6 +404,37 @@ public class NewRentalSystem implements EntryPoint {
 			}
 		}
 		allRentersDataProvider.refresh();
+	}
+
+	private void fetchAllActiveRenters() {
+		AsyncCallback<ArrayList<SerializableRenter>> callback = new AsyncCallback<ArrayList<SerializableRenter>>() {
+			@Override
+			public void onSuccess(ArrayList<SerializableRenter> result) {
+				updateAllActiveRenters(result);
+			}
+
+			@Override
+			public void onFailure(Throwable caught) {
+				// TODO Auto-generated method stub
+			}
+		};
+		if (this.currentSession != null) {
+			service.getAllActiveRenters(currentSession.getSessionIdHash(),
+					callback);
+		}
+	}
+
+	protected void updateAllActiveRenters(ArrayList<SerializableRenter> result) {
+		displayableActiveRentersListStore.removeAll();
+		allActiveRentersDataProvider.getList().clear();
+		if (result != null && result.size() > 0) {
+			allActiveRentersDataProvider.setList(result);
+			for (SerializableRenter sr : result) {
+				displayableActiveRentersListStore.add(new DisplayableRenter(sr
+						.getName(), sr.getMatriculationNumber()));
+			}
+		}
+		allActiveRentersDataProvider.refresh();
 	}
 
 	public void fetchEventsHistoryFiltered(String personName, String IMEI,
@@ -721,6 +756,7 @@ public class NewRentalSystem implements EntryPoint {
 			public void onSuccess(Boolean result) {
 				deleteRenterCallback.onSuccess(result);
 				fetchAllRenters();
+				fetchAllActiveRenters();
 			}
 
 			@Override
@@ -795,6 +831,7 @@ public class NewRentalSystem implements EntryPoint {
 			public void onSuccess(Boolean result) {
 				updateStudentInfocallback.onSuccess(result);
 				fetchAllRenters();
+				fetchAllActiveRenters();
 			}
 
 			@Override
